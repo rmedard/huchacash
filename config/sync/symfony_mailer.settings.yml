@@ -1,8 +1,0 @@
-_core:
-  default_config_hash: EyOEXkLJD4vYGpK5wicdBSwBorOJgslf_tyscMgeN0Q
-default_transport: smtp
-override:
-  contact: 3
-  contact_form: 3
-  update: 3
-  user: 3
