@@ -1,0 +1,24 @@
+uuid: e72301cb-583e-4f65-97e1-740e19fbae00
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_call_expiry_time
+    - node.type.call
+  module:
+    - datetime
+id: node.call.field_call_expiry_time
+field_name: field_call_expiry_time
+entity_type: node
+bundle: call
+label: 'Expiry time'
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    default_date_type: relative
+    default_date: '+2 hours'
+default_value_callback: ''
+settings: {  }
+field_type: datetime

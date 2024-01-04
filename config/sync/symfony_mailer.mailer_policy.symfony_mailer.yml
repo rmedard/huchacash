@@ -1,0 +1,18 @@
+uuid: cb4c4bd7-ff92-438f-8e8e-899cb048a059
+langcode: en
+status: true
+dependencies: {  }
+id: symfony_mailer
+configuration:
+  email_from:
+    addresses:
+      -
+        value: info@hucha.cash
+        display: 'Hucha Cash'
+  email_transport:
+    value: smtp
+  email_reply_to:
+    addresses:
+      -
+        value: '<site>'
+        display: ''

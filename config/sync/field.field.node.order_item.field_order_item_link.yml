@@ -1,0 +1,23 @@
+uuid: 42d03ce7-5e03-4227-8b02-615a59a02323
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_item_link
+    - node.type.order_item
+  module:
+    - link
+id: node.order_item.field_order_item_link
+field_name: field_order_item_link
+entity_type: node
+bundle: order_item
+label: 'Item link'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 0
+  link_type: 16
+field_type: link

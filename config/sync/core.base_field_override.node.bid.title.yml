@@ -1,0 +1,18 @@
+uuid: 58232d7c-62af-4c77-b202-2a73205c0b29
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.bid
+id: node.bid.title
+field_name: title
+entity_type: node
+bundle: bid
+label: Reference
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

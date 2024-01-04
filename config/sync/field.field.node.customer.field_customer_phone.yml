@@ -1,0 +1,21 @@
+uuid: b84ec24f-76cd-4c53-91dc-39c7b361dfa8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_phone
+    - node.type.customer
+  module:
+    - telephone
+id: node.customer.field_customer_phone
+field_name: field_customer_phone
+entity_type: node
+bundle: customer
+label: Phone
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: telephone

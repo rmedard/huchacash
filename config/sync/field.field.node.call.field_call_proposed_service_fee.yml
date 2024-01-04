@@ -1,0 +1,23 @@
+uuid: 1ae70a2a-6eb3-4231-bc8b-bd876afc03e1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_call_proposed_service_fee
+    - node.type.call
+id: node.call.field_call_proposed_service_fee
+field_name: field_call_proposed_service_fee
+entity_type: node
+bundle: call
+label: 'Proposed service fee'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

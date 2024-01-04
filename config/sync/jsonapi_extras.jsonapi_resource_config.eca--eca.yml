@@ -1,0 +1,105 @@
+uuid: 67bc387b-75ea-4ed3-955b-38aea81782f7
+langcode: en
+status: true
+dependencies:
+  module:
+    - eca
+    - jsonapi_defaults
+third_party_settings:
+  jsonapi_defaults:
+    page_limit: 50
+id: eca--eca
+disabled: true
+path: eca/eca
+resourceType: eca--eca
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  modeller:
+    disabled: false
+    fieldName: modeller
+    publicName: modeller
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  version:
+    disabled: false
+    fieldName: version
+    publicName: version
+    enhancer:
+      id: ''
+  weight:
+    disabled: false
+    fieldName: weight
+    publicName: weight
+    enhancer:
+      id: ''
+  events:
+    disabled: false
+    fieldName: events
+    publicName: events
+    enhancer:
+      id: ''
+  conditions:
+    disabled: false
+    fieldName: conditions
+    publicName: conditions
+    enhancer:
+      id: ''
+  gateways:
+    disabled: false
+    fieldName: gateways
+    publicName: gateways
+    enhancer:
+      id: ''
+  actions:
+    disabled: false
+    fieldName: actions
+    publicName: actions
+    enhancer:
+      id: ''

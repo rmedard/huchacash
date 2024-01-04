@@ -1,0 +1,20 @@
+services:
+  hucha_settings.data_accessor:
+    class: Drupal\dinger_settings\Service\DataAccessor
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+
+  hucha_settings.utils_service:
+    class: Drupal\dinger_settings\Service\UtilsService
+    arguments: [ ]
+
+  hucha_settings.entity_handler_service:
+    class: Drupal\dinger_settings\Service\EntityHandlerService
+    arguments:
+      - '@logger.factory'
+
+  hucha_settings.orders_service:
+    class: Drupal\dinger_settings\Service\OrdersService
+    arguments:
+      - '@logger.factory'

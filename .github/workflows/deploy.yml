@@ -1,0 +1,25 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy HuchaCash Core
+      id: deploy-drupal
+      uses: appleboy/ssh-action@v1.0.2
+      with:
+        host: ${{secrets.SSH_HOST}}
+        key: ${{secrets.SSH_KEY}}
+        username: ${{secrets.SSH_USERNAME}}
+
+        script: |
+          cd  /var/www/vhosts/hucha.cash/
+          git pull
+          echo 'HuchaCash deployed successfully'
