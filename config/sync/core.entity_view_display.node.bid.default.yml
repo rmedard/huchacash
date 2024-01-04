@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.bid.field_bid_amount
+    - field.field.node.bid.field_bid_call
     - field.field.node.bid.field_bid_customer
     - field.field.node.bid.field_bid_status
     - field.field.node.bid.field_bid_type

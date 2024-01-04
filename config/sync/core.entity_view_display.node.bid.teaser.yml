@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.bid.field_bid_amount
+    - field.field.node.bid.field_bid_call
     - field.field.node.bid.field_bid_customer
     - field.field.node.bid.field_bid_status
     - field.field.node.bid.field_bid_type
