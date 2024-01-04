@@ -1,0 +1,17 @@
+uuid: d998b311-7018-4af7-8640-0d57ef7a6ed4
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'Order item'
+type: order_item
+description: ''
+help: ''
+new_revision: false
+preview_mode: 0
+display_submitted: false

@@ -1,0 +1,24 @@
+uuid: d7c931f0-8b25-46b8-8645-7fe7eaaf3101
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_pref_route_from_radius
+field_name: field_pref_route_from_radius
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

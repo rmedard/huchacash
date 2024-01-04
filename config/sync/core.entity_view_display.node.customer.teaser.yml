@@ -1,0 +1,34 @@
+uuid: 6b9e3561-b2c0-4c56-9d11-336ca7a152f6
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.customer.field_customer_available_balance
+    - field.field.node.customer.field_customer_firstname
+    - field.field.node.customer.field_customer_lastname
+    - field.field.node.customer.field_customer_pending_balance
+    - field.field.node.customer.field_customer_phone
+    - field.field.node.customer.field_customer_pref_routes
+    - field.field.node.customer.field_customer_user
+    - node.type.customer
+  module:
+    - user
+id: node.customer.teaser
+targetEntityType: node
+bundle: customer
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_customer_available_balance: true
+  field_customer_firstname: true
+  field_customer_lastname: true
+  field_customer_pending_balance: true
+  field_customer_phone: true
+  field_customer_pref_routes: true
+  field_customer_user: true

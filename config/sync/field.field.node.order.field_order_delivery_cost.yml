@@ -1,0 +1,23 @@
+uuid: 48c5bf84-7442-447c-bab7-f66fca675d33
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_delivery_cost
+    - node.type.order
+id: node.order.field_order_delivery_cost
+field_name: field_order_delivery_cost
+entity_type: node
+bundle: order
+label: 'Delivery cost'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal
