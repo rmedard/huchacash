@@ -1,0 +1,23 @@
+uuid: 14bfacbc-a1e3-42ca-a792-9b8f082eaa2a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tx_amount
+    - node.type.transaction
+id: node.transaction.field_tx_amount
+field_name: field_tx_amount
+entity_type: node
+bundle: transaction
+label: Amount
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: €
+field_type: decimal

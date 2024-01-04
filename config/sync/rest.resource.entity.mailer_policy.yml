@@ -1,0 +1,18 @@
+uuid: 528a1aac-96f0-48b1-860e-8f4d739addf6
+langcode: en
+status: false
+dependencies:
+  module:
+    - serialization
+    - simple_oauth
+    - symfony_mailer
+id: entity.mailer_policy
+plugin_id: 'entity:mailer_policy'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth2

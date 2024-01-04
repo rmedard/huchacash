@@ -1,0 +1,8 @@
+uuid: 03bdc19e-30c2-444a-ac16-dc94b7de8bd6
+langcode: en
+status: true
+dependencies: {  }
+id: simple_datetime
+label: 'Simple DateTime'
+locked: false
+pattern: 'd-M-Y H:i'
