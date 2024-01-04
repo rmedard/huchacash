@@ -1,0 +1,10 @@
+name: OAuth Custom Grant
+description: 'Provides a custom oauth grant type that uses Gmail'
+package: Dinger Custom Modules
+
+type: module
+core_version_requirement: ^9 || ^10
+version: '9.x-1.0'
+dependencies:
+  - rest:rest
+  - simple_oauth:simple_oauth

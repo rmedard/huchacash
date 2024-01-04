@@ -1,0 +1,17 @@
+uuid: 36d78454-7bd0-4cdf-841e-3b96b69c67d3
+langcode: en
+status: true
+dependencies:
+  module:
+    - dinger_settings
+    - serialization
+    - simple_oauth
+id: me_resource
+plugin_id: me_resource
+granularity: method
+configuration:
+  GET:
+    supported_formats:
+      - json
+    supported_auth:
+      - oauth2

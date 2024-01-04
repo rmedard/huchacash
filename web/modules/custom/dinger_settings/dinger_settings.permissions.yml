@@ -1,0 +1,3 @@
+access me resource:
+    title: 'Access Me resource'
+    description: 'Access Me resource. This returns currently logged-in user with attached customer, if any.'

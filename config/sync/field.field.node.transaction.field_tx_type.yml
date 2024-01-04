@@ -1,0 +1,21 @@
+uuid: cfbecd1d-2fc3-48b6-b139-64b809df16e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tx_type
+    - node.type.transaction
+  module:
+    - options
+id: node.transaction.field_tx_type
+field_name: field_tx_type
+entity_type: node
+bundle: transaction
+label: Type
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,36 @@
+dinger_settings.admin_settings:
+  path: '/admin/config/dinger_global_settings'
+  defaults:
+    _form: '\Drupal\dinger_settings\Form\DingerSettingsConfigForm'
+    _title: 'Dinger settings configuration'
+  requirements:
+    _permission: 'administer site configuration'
+dinger_settings.create_order:
+  path: '/%jsonapi%/order/add'
+  methods: ['POST']
+  defaults:
+    _jsonapi_resource: Drupal\dinger_settings\Resource\CreateOrder
+    _jsonapi_resource_types: ['node--order']
+  requirements:
+    _entity_create_access: 'order'
+dinger_settings.stripe_webhook_capture:
+  path: '/hucha-stripe/{token}'
+  defaults:
+    _controller: '\Drupal\dinger_settings\Controller\StripeController::capture'
+    _title: 'Stripe Webhook Controller'
+  requirements:
+    _custom_access: '\Drupal\dinger_settings\Controller\StripeController::authorize'
+dinger_settings.expire_node_capture:
+  path: '/expire-node/{token}'
+  defaults:
+    _controller: '\Drupal\dinger_settings\Controller\ExpiredNodesController::capture'
+    _title: 'Expired Nodes Controller'
+  requirements:
+    _custom_access: '\Drupal\dinger_settings\Controller\ExpiredNodesController::authorize'
+dinger_settings.social_auth_capture:
+  path: '/social-auth/{token}'
+  defaults:
+    _controller: '\Drupal\dinger_settings\Controller\SocialAuthController::capture'
+    _title: 'Social auth Controller'
+  requirements:
+    _custom_access: '\Drupal\dinger_settings\Controller\SocialAuthController::authorize'

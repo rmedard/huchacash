@@ -1,0 +1,25 @@
+uuid: 6b0ca5b0-5cdf-40c4-bb01-012a8b7c2a03
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pref_route_to_radius
+    - node.type.preferred_route
+id: node.preferred_route.field_pref_route_to_radius
+field_name: field_pref_route_to_radius
+entity_type: node
+bundle: preferred_route
+label: 'To Radius'
+description: 'Radius around the ''to'' address in kilometres'
+required: true
+translatable: false
+default_value:
+  -
+    value: 2
+default_value_callback: ''
+settings:
+  min: 2
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

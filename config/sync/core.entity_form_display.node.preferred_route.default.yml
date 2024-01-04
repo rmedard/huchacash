@@ -1,0 +1,89 @@
+uuid: 124d3a3c-5b90-4ac8-850d-4dccf4a512dd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.preferred_route.field_pref_route_customer
+    - field.field.node.preferred_route.field_pref_route_from
+    - field.field.node.preferred_route.field_pref_route_from_radius
+    - field.field.node.preferred_route.field_pref_route_from_str
+    - field.field.node.preferred_route.field_pref_route_to
+    - field.field.node.preferred_route.field_pref_route_to_radius
+    - field.field.node.preferred_route.field_pref_route_to_str
+    - node.type.preferred_route
+  module:
+    - geolocation
+id: node.preferred_route.default
+targetEntityType: node
+bundle: preferred_route
+mode: default
+content:
+  field_pref_route_customer:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_pref_route_from:
+    type: geolocation_latlng
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_pref_route_from_radius:
+    type: number
+    weight: 4
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_pref_route_from_str:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_pref_route_to:
+    type: geolocation_latlng
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_pref_route_to_radius:
+    type: number
+    weight: 7
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_pref_route_to_str:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  path: true
+  promote: true
+  publish_on: true
+  status: true
+  sticky: true
+  uid: true
+  unpublish_on: true

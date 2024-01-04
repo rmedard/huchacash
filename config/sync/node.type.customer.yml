@@ -1,0 +1,17 @@
+uuid: 7100b05c-9c3d-4a00-8da3-4e0c8c4bf57a
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Customer
+type: customer
+description: ''
+help: ''
+new_revision: false
+preview_mode: 0
+display_submitted: false

@@ -1,0 +1,289 @@
+<?php
+/**
+ * @file
+ * A description of what your module does.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
+use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
+use Drupal\file\FileInterface;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function dinger_settings_entity_type_alter(array &$entity_types): void
+{
+  $nodeType = $entity_types['node'];
+  if ($nodeType instanceof EntityTypeInterface) {
+    $nodeType->addConstraint('UniqueCallPerOrder');
+    $nodeType->addConstraint('AmountPerCallType');
+    $nodeType->addConstraint('BidAmountPerType');
+  }
+}
+
+/**
+ * Implements hook_entity_bundle_field_info_alter().
+ */
+function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInterface $entity_type, $bundle): void
+{
+  if ($entity_type->id() == 'user' && $bundle == 'user') {
+    $profilePictureFieldDefinition = BaseFieldDefinition::create('string')
+      ->setLabel(t('User profile picture'))
+      ->setName(t('User profile picture'))
+      ->setDescription(t('Computed url to the profile picture of user'))
+      ->setComputed(true)
+      ->setClass(UserProfilePictureComputedField::class);
+    $fields['field_profile_picture'] = $profilePictureFieldDefinition;
+
+    $userRolesFieldDefinition = BaseFieldDefinition::create('string')
+      ->setLabel(t('User roles'))
+      ->setName(t('User roles'))
+      ->setDescription(t('Computed roles of the of user'))
+      ->setComputed(true)
+      ->setClass(UserRolesComputedField::class);
+    $fields['field_user_roles'] = $userRolesFieldDefinition;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function dinger_settings_node_presave(NodeInterface $node): void
+{
+  if ($node->isNew()) {
+    $reference = '_' . Drupal::service('hucha_settings.utils_service')->generateRandomId();
+    switch ($node->bundle()) {
+      case 'customer':
+        $node->setTitle('CUS' . $reference);
+        break;
+      case 'order':
+        $node->setTitle('ORD' . $reference);
+        $node->set('field_order_flagged_expiration', false);
+        break;
+      case 'call':
+        $node->setTitle('CAL' . $reference);
+        break;
+      case 'bid':
+        $node->setTitle('BID' . $reference);
+        break;
+      case 'transaction':
+        $node->setTitle('TX' . $reference);
+        break;
+      case 'order_item':
+        $node->setTitle('ORD_IT' . $reference);
+        break;
+      case 'preferred_route':
+        $node->setTitle('ROUTE' . $reference);
+        break;
+    }
+  }
+
+  if ($node->bundle() == 'bid') {
+    if ($node->get('field_bid_type')->value == 'accept') {
+      $node->set('field_bid_status', 'accepted');
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function dinger_settings_node_update(NodeInterface $node): void
+{
+  switch ($node->bundle()) {
+    case 'call':
+      /** @var NodeInterface $order **/
+      $order = $node->get('field_call_order')->entity;
+      if ($node->get('field_call_status')->value == 'expired') {
+        $newOrderStatus = 'cancelled';
+        $isActive = Drupal::service('hucha_settings.orders_service')->isActive($order);
+        if ($isActive) {
+          $newOrderStatus = 'idle';
+        }
+        $order->set('field_order_status', $newOrderStatus);
+        $order->set('field_order_flagged_expiration', true);
+        $order->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function dinger_settings_file_presave(FileInterface $file): void
+{
+  if ($file->isNew()) {
+    $reference = '_' . Drupal::service('hucha_settings.utils_service')->generateRandomId();
+    $file->setFilename('file_' . $reference);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function dinger_settings_user_presave(UserInterface $user): void
+{
+  if ($user->isNew()) {
+    $rolesQueryValue = Drupal::request()->query->get('roles', false);
+    if ($rolesQueryValue !== false) {
+      Drupal::logger('dinger_settings')->info('User roles: ' . $rolesQueryValue);
+      $rolesIds = explode('|', $rolesQueryValue);
+      foreach ($rolesIds as $roleId) {
+        $user->addRole(trim($roleId));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function dinger_settings_user_insert(UserInterface $user): void
+{
+  if ($user->hasRole('customer')) {
+    $firstname = Drupal::request()->query->get('firstname', '');
+    $lastname = Drupal::request()->query->get('lastname', '');
+    $phone = Drupal::request()->query->get('phone', '');
+    try {
+      Node::create([
+        'type' => 'customer',
+        'title' => 'reference_nbr',
+        'field_customer_firstname' => $firstname,
+        'field_customer_lastname' => $lastname,
+        'field_customer_phone' => $phone,
+        'field_customer_available_balance' => 0,
+        'field_customer_pending_balance' => 0,
+        'field_customer_user' => $user->id(),
+        'uid' => $user->id()
+      ])->save();
+      Drupal::logger('dinger_settings')->info('New customer created');
+    } catch (EntityStorageException $e) {
+      Drupal::logger('dinger_settings')->error('Creating customer failed: ' . $e->getMessage());
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function dinger_settings_node_insert(EntityInterface $entity): void
+{
+  if ($entity instanceof NodeInterface) {
+    $entityHandler = Drupal::service('hucha_settings.entity_handler_service');
+    switch ($entity->bundle()) {
+//      case 'call':
+//        $entityHandler->onCallInserted($entity);
+//        break;
+      case 'bid':
+        $entityHandler->onBidInserted($entity);
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function dinger_settings_cron(): void
+{
+  $logger = Drupal::logger('dinger_settings');
+  $dataAccessor = Drupal::service('hucha_settings.data_accessor');
+  $utils = Drupal::service('hucha_settings.utils_service');
+
+  /**
+   * Cancel expired calls
+   */
+  $expiredCalls = $dataAccessor->getExpiredCalls();
+  if (!empty($expiredCalls)) {
+    foreach ($expiredCalls as $expiredCallId => $expiredCall) {
+      if ($expiredCall instanceof NodeInterface) {
+        try {
+          $order = $expiredCall->get('field_call_order')->entity;
+          if ($utils->isBeforeNow($order->get('field_order_delivery_time')->date)) {
+            $order->set('field_order_status', 'cancelled');
+          } else {
+            $order->set('field_order_status', 'idle');
+          }
+          $expiredCall->set('field_call_status', 'expired');
+          $order->save();
+          $expiredCall->save();
+        } catch (EntityStorageException $e) {
+          $options = ['@message' => $e->getMessage()];
+          $logger->error(t('Updating expired order or call failed. Message: @message', $options));
+        }
+      }
+    }
+  }
+
+  /**
+   * Cancel expired orders
+   */
+  $expiredIdleOrders = $dataAccessor->getOrdersExpiringInHours(0, 'idle', false);
+  if (!empty($expiredIdleOrders)) {
+    foreach ($expiredIdleOrders as $idleOrderId => $expiredIdleOrder) {
+      if ($expiredIdleOrder instanceof NodeInterface) {
+        try {
+          $expiredIdleOrder->set('field_order_status', 'cancelled');
+          $expiredIdleOrder->save();
+        } catch (EntityStorageException $e) {
+          $options = ['@id' => $idleOrderId, '@message' => $e->getMessage()];
+          $logger->error(t('Updating expired order @id failed. Message: @message', $options));
+        }
+      }
+    }
+  }
+
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_access().
+ */
+function dinger_settings_node_access(EntityInterface $entity, $operation, AccountInterface $account): AccessResult
+{
+
+  if ($account instanceof UserInterface && $account->hasRole('administrator')) {
+    return AccessResult::allowed();
+  }
+
+  if ($entity instanceof NodeInterface && $entity->bundle() == 'bid') {
+    if ($operation === 'update') {
+      $bidCreator = $entity
+        ->get('field_bid_customer')->entity
+        ->get('field_customer_user')->entity;
+      $relatedCallCreator = $entity
+        ->get('field_bid_call')->entity
+        ->get('field_call_order')->entity
+        ->get('field_order_creator')->entity
+        ->get('field_customer_user')->entity;
+
+      $data = [
+        'entity type' => $entity->bundle(),
+        'entity id' => $entity->id(),
+        'logged-in user' => $account->id(),
+        'operation' => $operation,
+        'bidder' => $bidCreator->id(),
+        'caller' => $relatedCallCreator->id()
+      ];
+      Drupal::logger('Node Access')->info('<pre><code>' . print_r($data, TRUE) . '</code></pre>');
+
+
+      if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
+        return AccessResult::allowed();
+      }
+      if ($relatedCallCreator instanceof UserInterface and $relatedCallCreator->id() === $account->id()) {
+        return AccessResult::allowed();
+      }
+    }
+  }
+  return AccessResult::neutral();
+}

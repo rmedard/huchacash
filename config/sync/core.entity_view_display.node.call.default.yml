@@ -1,0 +1,77 @@
+uuid: 79c9d77e-95e2-43f3-a5a6-21aed910cefd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.call.field_call_bids
+    - field.field.node.call.field_call_expiry_time
+    - field.field.node.call.field_call_order
+    - field.field.node.call.field_call_proposed_service_fee
+    - field.field.node.call.field_call_status
+    - field.field.node.call.field_call_type
+    - node.type.call
+  module:
+    - datetime
+    - options
+    - user
+id: node.call.default
+targetEntityType: node
+bundle: call
+mode: default
+content:
+  field_call_bids:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  field_call_expiry_time:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_call_order:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 107
+    region: content
+  field_call_proposed_service_fee:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  field_call_status:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_call_type:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

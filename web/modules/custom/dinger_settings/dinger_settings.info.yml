@@ -1,0 +1,8 @@
+name: Dinger Settings
+description: 'This module handles global Hucha Cash settings.'
+package: Dinger Custom Modules
+configure: dinger_settings.admin_settings
+
+type: module
+core_version_requirement: ^9 || ^10
+version: '9.x-1.0'

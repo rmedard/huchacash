@@ -1,0 +1,166 @@
+uuid: 5f220b67-aad0-4882-a2db-0cb8eca5752e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.transaction
+  module:
+    - jsonapi_defaults
+third_party_settings:
+  jsonapi_defaults:
+    default_include:
+      - field_tx_from
+      - field_tx_to
+    default_sorting:
+      'sort:titleSort#path': created
+      'sort:titleSort#direction': DESC
+    page_limit: 50
+id: node--transaction
+disabled: false
+path: transactions
+resourceType: transaction
+resourceFields:
+  nid:
+    disabled: false
+    fieldName: nid
+    publicName: nid
+    enhancer:
+      id: ''
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  vid:
+    disabled: true
+    fieldName: vid
+    publicName: vid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: true
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  type:
+    disabled: false
+    fieldName: type
+    publicName: type
+    enhancer:
+      id: ''
+  revision_timestamp:
+    disabled: true
+    fieldName: revision_timestamp
+    publicName: revision_timestamp
+    enhancer:
+      id: ''
+  revision_uid:
+    disabled: true
+    fieldName: revision_uid
+    publicName: revision_uid
+    enhancer:
+      id: ''
+  revision_log:
+    disabled: true
+    fieldName: revision_log
+    publicName: revision_log
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  uid:
+    disabled: false
+    fieldName: uid
+    publicName: uid
+    enhancer:
+      id: ''
+  title:
+    disabled: false
+    fieldName: title
+    publicName: title
+    enhancer:
+      id: ''
+  created:
+    disabled: false
+    fieldName: created
+    publicName: created
+    enhancer:
+      id: ''
+  changed:
+    disabled: false
+    fieldName: changed
+    publicName: changed
+    enhancer:
+      id: ''
+  promote:
+    disabled: true
+    fieldName: promote
+    publicName: promote
+    enhancer:
+      id: ''
+  sticky:
+    disabled: true
+    fieldName: sticky
+    publicName: sticky
+    enhancer:
+      id: ''
+  default_langcode:
+    disabled: true
+    fieldName: default_langcode
+    publicName: default_langcode
+    enhancer:
+      id: ''
+  revision_default:
+    disabled: true
+    fieldName: revision_default
+    publicName: revision_default
+    enhancer:
+      id: ''
+  revision_translation_affected:
+    disabled: true
+    fieldName: revision_translation_affected
+    publicName: revision_translation_affected
+    enhancer:
+      id: ''
+  path:
+    disabled: true
+    fieldName: path
+    publicName: path
+    enhancer:
+      id: ''
+  field_tx_amount:
+    disabled: false
+    fieldName: field_tx_amount
+    publicName: field_tx_amount
+    enhancer:
+      id: ''
+  field_tx_from:
+    disabled: false
+    fieldName: field_tx_from
+    publicName: field_tx_from
+    enhancer:
+      id: ''
+  field_tx_status:
+    disabled: false
+    fieldName: field_tx_status
+    publicName: field_tx_status
+    enhancer:
+      id: ''
+  field_tx_to:
+    disabled: false
+    fieldName: field_tx_to
+    publicName: field_tx_to
+    enhancer:
+      id: ''
+  field_tx_type:
+    disabled: false
+    fieldName: field_tx_type
+    publicName: field_tx_type
+    enhancer:
+      id: ''

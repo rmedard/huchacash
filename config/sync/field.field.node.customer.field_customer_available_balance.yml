@@ -1,0 +1,25 @@
+uuid: af6a92e4-6f35-4e6d-89e3-c63cf6720d9b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_available_balance
+    - node.type.customer
+id: node.customer.field_customer_available_balance
+field_name: field_customer_available_balance
+entity_type: node
+bundle: customer
+label: 'Available Balance'
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: !!float 0
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

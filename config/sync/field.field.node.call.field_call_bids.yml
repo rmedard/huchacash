@@ -1,0 +1,29 @@
+uuid: 4035c334-b9a2-469d-b21b-96c1df255044
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_call_bids
+    - node.type.bid
+    - node.type.call
+id: node.call.field_call_bids
+field_name: field_call_bids
+entity_type: node
+bundle: call
+label: Bids
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      bid: bid
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

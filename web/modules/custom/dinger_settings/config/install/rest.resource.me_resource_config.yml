@@ -1,0 +1,9 @@
+id: me_resource_config
+plugin_id: me_resource
+granularity: method
+configuration:
+  GET:
+    supported_formats:
+      - json
+    supported_auth:
+      - oauth2

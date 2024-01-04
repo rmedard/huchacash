@@ -1,0 +1,30 @@
+uuid: abe48d44-d09f-4a2c-95eb-405686f7dcf7
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_call_type
+field_name: field_call_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: fixed_price
+      label: 'Fixed price'
+    -
+      value: negotiable
+      label: Negotiable
+    -
+      value: open
+      label: Open
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
