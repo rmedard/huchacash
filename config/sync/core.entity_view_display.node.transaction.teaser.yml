@@ -1,0 +1,30 @@
+uuid: 91696f3d-38b7-4cd7-92dd-882b15a59c77
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.transaction.field_tx_amount
+    - field.field.node.transaction.field_tx_from
+    - field.field.node.transaction.field_tx_status
+    - field.field.node.transaction.field_tx_to
+    - field.field.node.transaction.field_tx_type
+    - node.type.transaction
+  module:
+    - user
+id: node.transaction.teaser
+targetEntityType: node
+bundle: transaction
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_tx_amount: true
+  field_tx_from: true
+  field_tx_status: true
+  field_tx_to: true
+  field_tx_type: true

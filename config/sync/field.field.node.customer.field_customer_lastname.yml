@@ -1,0 +1,19 @@
+uuid: bd24b514-20e7-41b2-8491-207ee85d8c27
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_lastname
+    - node.type.customer
+id: node.customer.field_customer_lastname
+field_name: field_customer_lastname
+entity_type: node
+bundle: customer
+label: Lastname
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

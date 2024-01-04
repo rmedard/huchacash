@@ -1,0 +1,92 @@
+uuid: ea050141-be6b-4e80-88dc-002a3a5eb812
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.call.field_call_bids
+    - field.field.node.call.field_call_expiry_time
+    - field.field.node.call.field_call_order
+    - field.field.node.call.field_call_proposed_service_fee
+    - field.field.node.call.field_call_status
+    - field.field.node.call.field_call_type
+    - node.type.call
+  module:
+    - datetime
+    - scheduler
+id: node.call.default
+targetEntityType: node
+bundle: call
+mode: default
+content:
+  field_call_bids:
+    type: entity_reference_autocomplete
+    weight: 26
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_call_expiry_time:
+    type: datetime_default
+    weight: 4
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_call_order:
+    type: entity_reference_autocomplete
+    weight: 27
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_call_proposed_service_fee:
+    type: number
+    weight: 3
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_call_status:
+    type: options_select
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_call_type:
+    type: options_select
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  scheduler_settings:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  unpublish_on:
+    type: datetime_timestamp_no_default
+    weight: 54
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  path: true
+  promote: true
+  publish_on: true
+  status: true
+  sticky: true
+  uid: true

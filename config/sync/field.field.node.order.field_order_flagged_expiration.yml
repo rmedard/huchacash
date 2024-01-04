@@ -1,0 +1,23 @@
+uuid: b85cd760-db59-44d0-9ec7-53070f471047
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_flagged_expiration
+    - node.type.order
+id: node.order.field_order_flagged_expiration
+field_name: field_order_flagged_expiration
+entity_type: node
+bundle: order
+label: 'Flagged for expiration'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

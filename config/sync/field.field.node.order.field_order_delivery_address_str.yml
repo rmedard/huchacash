@@ -1,0 +1,19 @@
+uuid: 0a5eaaa6-8023-4419-bb48-cd5d88d49ed8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_delivery_address_str
+    - node.type.order
+id: node.order.field_order_delivery_address_str
+field_name: field_order_delivery_address_str
+entity_type: node
+bundle: order
+label: 'Delivery address string'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,8 @@
+uuid: 16227182-93cb-4ccd-9b34-283a7903d594
+langcode: en
+status: true
+dependencies: {  }
+name: 'Email HTML'
+format: email_html
+weight: 0
+filters: {  }

@@ -1,0 +1,67 @@
+uuid: fb4f0793-eb7e-4673-b6f2-d953781735a7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.order_item.field_order_item_description
+    - field.field.node.order_item.field_order_item_link
+    - field.field.node.order_item.field_order_item_photo_url
+    - field.field.node.order_item.field_order_item_price
+    - node.type.order_item
+  module:
+    - link
+    - text
+    - user
+id: node.order_item.default
+targetEntityType: node
+bundle: order_item
+mode: default
+content:
+  field_order_item_description:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_order_item_link:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_order_item_photo_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 107
+    region: content
+  field_order_item_price:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

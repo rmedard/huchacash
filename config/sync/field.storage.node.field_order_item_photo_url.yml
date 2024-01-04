@@ -1,0 +1,23 @@
+uuid: 1db836af-1e2f-4a69-8c21-294f9abb6110
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - link
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_order_item_photo_url
+field_name: field_order_item_photo_url
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 3
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

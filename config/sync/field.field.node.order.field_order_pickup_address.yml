@@ -1,0 +1,21 @@
+uuid: 5ebc2713-b6e9-4d1c-8e3c-bbec2b408dc7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_pickup_address
+    - node.type.order
+  module:
+    - geolocation
+id: node.order.field_order_pickup_address
+field_name: field_order_pickup_address
+entity_type: node
+bundle: order
+label: 'Pickup address'
+description: 'The address where the order is picked up by the executor. E.g.: Shop address, private address'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geolocation
