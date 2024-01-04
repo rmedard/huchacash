@@ -1,0 +1,18 @@
+uuid: 47865dbe-35e1-4dbf-be0c-a29772a29f2a
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.order
+id: node.order.title
+field_name: title
+entity_type: node
+bundle: order
+label: Reference
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

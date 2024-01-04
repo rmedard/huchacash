@@ -1,0 +1,29 @@
+uuid: 67ccce0f-8037-4b18-9aa2-02003450a13f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pref_route_customer
+    - node.type.customer
+    - node.type.preferred_route
+id: node.preferred_route.field_pref_route_customer
+field_name: field_pref_route_customer
+entity_type: node
+bundle: preferred_route
+label: Customer
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      customer: customer
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

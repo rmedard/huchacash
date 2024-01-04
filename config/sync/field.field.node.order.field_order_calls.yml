@@ -1,0 +1,29 @@
+uuid: 59052c47-74b9-4273-9851-88176be2198e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_calls
+    - node.type.call
+    - node.type.order
+id: node.order.field_order_calls
+field_name: field_order_calls
+entity_type: node
+bundle: order
+label: Calls
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      call: call
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,19 @@
+uuid: 1988837d-c096-4eb2-9d4b-e3052bffa171
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_pickup_address_str
+    - node.type.order
+id: node.order.field_order_pickup_address_str
+field_name: field_order_pickup_address_str
+entity_type: node
+bundle: order
+label: 'Pickup address string'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

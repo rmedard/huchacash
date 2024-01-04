@@ -1,0 +1,19 @@
+uuid: df0fe03c-7746-4e95-b2e0-69ff2e65cad3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_firstname
+    - node.type.customer
+id: node.customer.field_customer_firstname
+field_name: field_customer_firstname
+entity_type: node
+bundle: customer
+label: Firstname
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

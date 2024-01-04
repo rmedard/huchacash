@@ -1,0 +1,23 @@
+uuid: 34071d25-de2d-47c4-9c5e-e44c4da54456
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_item_price
+    - node.type.order_item
+id: node.order_item.field_order_item_price
+field_name: field_order_item_price
+entity_type: node
+bundle: order_item
+label: Price
+description: 'The price of order item in the shop '
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

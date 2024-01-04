@@ -1,0 +1,23 @@
+uuid: af5a479f-314b-4840-8aab-8621f9ac7de4
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+    - telephone
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_customer_phone
+field_name: field_customer_phone
+entity_type: node
+type: telephone
+settings: {  }
+module: telephone
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

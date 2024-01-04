@@ -1,0 +1,87 @@
+uuid: dfba08ab-cce2-4246-abbb-9e75bcf9fa80
+langcode: en
+status: true
+dependencies:
+  module:
+    - eca
+    - jsonapi_defaults
+third_party_settings:
+  jsonapi_defaults:
+    page_limit: 50
+id: eca_model--eca_model
+disabled: true
+path: eca_model/eca_model
+resourceType: eca_model--eca_model
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  tags:
+    disabled: false
+    fieldName: tags
+    publicName: tags
+    enhancer:
+      id: ''
+  documentation:
+    disabled: false
+    fieldName: documentation
+    publicName: documentation
+    enhancer:
+      id: ''
+  filename:
+    disabled: false
+    fieldName: filename
+    publicName: filename
+    enhancer:
+      id: ''
+  modeldata:
+    disabled: false
+    fieldName: modeldata
+    publicName: modeldata
+    enhancer:
+      id: ''
