@@ -29,6 +29,7 @@ module:
   eca_ui: 0
   editor: 0
   email_registration: 0
+  entity_update: 0
   field: 0
   field_permissions: 0
   field_ui: 0
@@ -62,6 +63,7 @@ module:
   page_cache: 0
   path: 0
   path_alias: 0
+  phpass: 0
   rest: 0
   restui: 0
   scheduler: 0

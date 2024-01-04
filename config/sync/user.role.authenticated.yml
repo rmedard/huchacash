@@ -9,6 +9,7 @@ dependencies:
   module:
     - comment
     - contact
+    - file
     - filter
     - node
     - openapi
@@ -30,6 +31,7 @@ permissions:
   - 'access site-wide contact form'
   - 'access user profiles'
   - 'create transaction content'
+  - 'delete own files'
   - 'post comments'
   - 'restful get me_resource'
   - 'search content'

@@ -10,7 +10,7 @@ field_name: field_pref_route_to_radius
 entity_type: node
 bundle: preferred_route
 label: 'To Radius'
-description: 'Radius around the ''to'' address in kilometres'
+description: "Radius around the 'to' address in kilometres"
 required: true
 translatable: false
 default_value:
