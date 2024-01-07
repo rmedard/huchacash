@@ -82,7 +82,6 @@
         "drupal/simple_oauth": "^5.2",
         "drupal/symfony_mailer": "^1.0@alpha",
         "drupal/typed_data": "^1.0@beta",
-        "drupal/upgrade_status": "^4.0",
         "drush/drush": "^12",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
