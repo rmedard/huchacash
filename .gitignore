@@ -57,3 +57,5 @@ web/sites/simpletest
 keys/
 tmp/
 mariadb/
+logs/
+.revisium_antivirus_cache
