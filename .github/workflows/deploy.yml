@@ -22,7 +22,7 @@ jobs:
         script: |
           cd  /var/www/vhosts/hucha.cash/
           git pull
-          composer update -y
+          composer install -y
           vendor/drush/drush/drush updb
           vendor/drush/drush/drush cr
           echo 'HuchaCash deployed successfully'
