@@ -1,5 +1,5 @@
 name: OAuth Custom Grant
-description: 'Provides a custom oauth grant type that supports Gmail auth'
+description: 'Provides a custom oauth grant type that supports Gmail'
 package: Dinger Custom Modules
 
 type: module
