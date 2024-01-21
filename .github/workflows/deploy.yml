@@ -13,7 +13,7 @@ jobs:
     steps:
     - name: Deploy HuchaCash Core
       id: deploy-drupal
-      uses: appleboy/ssh-action@v1.0.2
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{secrets.SSH_HOST}}
         key: ${{secrets.SSH_KEY}}
