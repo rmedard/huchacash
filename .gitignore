@@ -59,3 +59,14 @@ tmp/
 mariadb/
 logs/
 .revisium_antivirus_cache
+.bash_history
+.cache/
+.composer/
+.nodenv/
+.php-ini
+.php-version
+.phpenv/
+.rbenv/
+.rnd
+.ssh/
+error_docs/
