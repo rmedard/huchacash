@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e5bb143b4058eb964e173efdb4e5f1c9",
+    "content-hash": "b9c19753903187407b1220d27e97f753",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3208,17 +3208,17 @@
         },
         {
             "name": "drupal/module_filter",
-            "version": "4.1.0",
+            "version": "4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/module_filter.git",
-                "reference": "4.1.0"
+                "reference": "4.1.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/module_filter-4.1.0.zip",
-                "reference": "4.1.0",
-                "shasum": "633ddbd12a3e0c2470ef9a22ed615f75db8f2d46"
+                "url": "https://ftp.drupal.org/files/projects/module_filter-4.1.1.zip",
+                "reference": "4.1.1",
+                "shasum": "7a0e012d25d9af58efe589111333021d19dfe517"
             },
             "require": {
                 "drupal/core": "^9 || ^10",
@@ -3227,8 +3227,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "4.1.0",
-                    "datestamp": "1704729394",
+                    "version": "4.1.1",
+                    "datestamp": "1705957432",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -11619,16 +11619,16 @@
         },
         {
             "name": "open-telemetry/sdk",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opentelemetry-php/sdk.git",
-                "reference": "a827f2544cfcd65eb39bf26bc0c4a0978de426e6"
+                "reference": "818263750d299df5b9612a738440e56d92e5a296"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opentelemetry-php/sdk/zipball/a827f2544cfcd65eb39bf26bc0c4a0978de426e6",
-                "reference": "a827f2544cfcd65eb39bf26bc0c4a0978de426e6",
+                "url": "https://api.github.com/repos/opentelemetry-php/sdk/zipball/818263750d299df5b9612a738440e56d92e5a296",
+                "reference": "818263750d299df5b9612a738440e56d92e5a296",
                 "shasum": ""
             },
             "require": {
@@ -11698,20 +11698,20 @@
                 "issues": "https://github.com/open-telemetry/opentelemetry-php/issues",
                 "source": "https://github.com/open-telemetry/opentelemetry-php"
             },
-            "time": "2024-01-16T21:54:57+00:00"
+            "time": "2024-01-24T12:00:22+00:00"
         },
         {
             "name": "open-telemetry/sem-conv",
-            "version": "1.23.1",
+            "version": "1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opentelemetry-php/sem-conv.git",
-                "reference": "6921f9450510bf8e87c737f731ff818de05bf9c4"
+                "reference": "d03e6501d21c04cd1b1e66e4cbcc7c2dd2e2cfa3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opentelemetry-php/sem-conv/zipball/6921f9450510bf8e87c737f731ff818de05bf9c4",
-                "reference": "6921f9450510bf8e87c737f731ff818de05bf9c4",
+                "url": "https://api.github.com/repos/opentelemetry-php/sem-conv/zipball/d03e6501d21c04cd1b1e66e4cbcc7c2dd2e2cfa3",
+                "reference": "d03e6501d21c04cd1b1e66e4cbcc7c2dd2e2cfa3",
                 "shasum": ""
             },
             "require": {
@@ -11755,7 +11755,7 @@
                 "issues": "https://github.com/open-telemetry/opentelemetry-php/issues",
                 "source": "https://github.com/open-telemetry/opentelemetry-php"
             },
-            "time": "2023-11-21T22:12:22+00:00"
+            "time": "2024-01-23T21:47:17+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -12499,16 +12499,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.56",
+            "version": "1.10.57",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "27816a01aea996191ee14d010f325434c0ee76fa"
+                "reference": "1627b1d03446904aaa77593f370c5201d2ecc34e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/27816a01aea996191ee14d010f325434c0ee76fa",
-                "reference": "27816a01aea996191ee14d010f325434c0ee76fa",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1627b1d03446904aaa77593f370c5201d2ecc34e",
+                "reference": "1627b1d03446904aaa77593f370c5201d2ecc34e",
                 "shasum": ""
             },
             "require": {
@@ -12557,7 +12557,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-15T10:43:00+00:00"
+            "time": "2024-01-24T11:51:34+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -14982,12 +14982,10 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "drupal/gin": 10,
+        "drupal/gin": 5,
         "drupal/jsonapi_resources": 10,
         "drupal/openapi_ui_redoc": 5,
-        "drupal/symfony_mailer": 15,
-        "drupal/typed_data": 10,
-        "drupal/devel": 10
+        "drupal/typed_data": 10
     },
     "prefer-stable": true,
     "prefer-lowest": false,
