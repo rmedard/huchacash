@@ -2,11 +2,22 @@ uuid: 11931e14-f72a-477c-92d1-278709f99401
 langcode: en
 status: true
 dependencies:
+  config:
+    - node.type.customer
+    - node.type.order
+    - node.type.order_item
+    - node.type.preferred_route
   module:
     - file
+    - node
 id: customer
 label: Customer
 weight: 7
 is_admin: null
 permissions:
   - 'delete own files'
+  - 'edit any preferred_route content'
+  - 'edit own customer content'
+  - 'edit own order content'
+  - 'edit own order_item content'
+  - 'edit own preferred_route content'
