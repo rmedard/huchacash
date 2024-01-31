@@ -3,6 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - node.type.bid
+    - node.type.call
     - node.type.customer
     - node.type.order
     - node.type.order_item
@@ -15,6 +17,12 @@ label: Customer
 weight: 7
 is_admin: null
 permissions:
+  - 'create bid content'
+  - 'create call content'
+  - 'create customer content'
+  - 'create order content'
+  - 'create order_item content'
+  - 'create preferred_route content'
   - 'delete own files'
   - 'edit any preferred_route content'
   - 'edit own customer content'
