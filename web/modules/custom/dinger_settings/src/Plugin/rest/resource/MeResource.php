@@ -74,8 +74,8 @@ class MeResource extends ResourceBase
       if (in_array('customer', $roles)) {
         try {
           $this->logger->info('Fetching customer');
-          $customerIds = Drupal::entityTypeManager()->getStorage('node')->getQuery()
-			->accessCheck(true)
+          $customerIds = Drupal::entityTypeManager()
+            ->getStorage('node')->getQuery()->accessCheck()
             ->condition('type', 'customer')
             ->condition('field_customer_user.target_id', $this->loggedUser->id())
             ->execute();
