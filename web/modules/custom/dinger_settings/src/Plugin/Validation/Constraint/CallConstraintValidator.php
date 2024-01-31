@@ -32,6 +32,7 @@ class CallConstraintValidator extends ConstraintValidator
   {
     try {
       $callsCount = Drupal::entityTypeManager()->getStorage('node')->getQuery()
+        ->accessCheck(false)
         ->condition('type', 'call')
         ->condition('nid', $call->id(), '<>')
         ->condition('field_call_order.target_id', $call->get('field_call_order')->target_id)
