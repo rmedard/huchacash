@@ -10,6 +10,7 @@ dependencies:
     - node.type.order_item
     - node.type.preferred_route
   module:
+    - field_permissions
     - file
     - node
 id: customer
@@ -20,12 +21,21 @@ permissions:
   - 'create bid content'
   - 'create call content'
   - 'create customer content'
+  - 'create field_order_delivery_address_str'
+  - 'create field_order_pickup_address_str'
   - 'create order content'
   - 'create order_item content'
   - 'create preferred_route content'
   - 'delete own files'
   - 'edit any preferred_route content'
   - 'edit own customer content'
+  - 'edit own field_order_delivery_address_str'
+  - 'edit own field_order_pickup_address_str'
   - 'edit own order content'
   - 'edit own order_item content'
   - 'edit own preferred_route content'
+  - 'view field_order_delivery_address_str'
+  - 'view field_order_pickup_address_str'
+  - 'view own field_order_delivery_address_str'
+  - 'view own field_order_flagged_expiration'
+  - 'view own field_order_pickup_address_str'
