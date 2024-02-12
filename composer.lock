@@ -4407,16 +4407,16 @@
         },
         {
             "name": "google/cloud-tasks",
-            "version": "v1.14.1",
+            "version": "v1.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-tasks.git",
-                "reference": "c1b534f8716278ea53eabc6f8573e8b7c88c2a51"
+                "reference": "823814acb28afa9ac444d67287d9a00f0896f2cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-tasks/zipball/c1b534f8716278ea53eabc6f8573e8b7c88c2a51",
-                "reference": "c1b534f8716278ea53eabc6f8573e8b7c88c2a51",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-tasks/zipball/823814acb28afa9ac444d67287d9a00f0896f2cd",
+                "reference": "823814acb28afa9ac444d67287d9a00f0896f2cd",
                 "shasum": ""
             },
             "require": {
@@ -4452,9 +4452,9 @@
             ],
             "description": "Google Cloud Tasks Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-tasks/tree/v1.14.1"
+                "source": "https://github.com/googleapis/google-cloud-php-tasks/tree/v1.14.2"
             },
-            "time": "2024-01-19T15:59:50+00:00"
+            "time": "2024-02-09T19:51:53+00:00"
         },
         {
             "name": "google/common-protos",
@@ -11407,16 +11407,16 @@
         },
         {
             "name": "drupal/coder",
-            "version": "8.3.22",
+            "version": "8.3.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pfrenssen/coder.git",
-                "reference": "ba6e62303d567863275fb086941f50a06dc7d08f"
+                "reference": "1a1613d83c08dac5be593f2775c9eccae1b41805"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pfrenssen/coder/zipball/ba6e62303d567863275fb086941f50a06dc7d08f",
-                "reference": "ba6e62303d567863275fb086941f50a06dc7d08f",
+                "url": "https://api.github.com/repos/pfrenssen/coder/zipball/1a1613d83c08dac5be593f2775c9eccae1b41805",
+                "reference": "1a1613d83c08dac5be593f2775c9eccae1b41805",
                 "shasum": ""
             },
             "require": {
@@ -11454,7 +11454,7 @@
                 "issues": "https://www.drupal.org/project/issues/coder",
                 "source": "https://www.drupal.org/project/coder"
             },
-            "time": "2023-10-15T09:55:50+00:00"
+            "time": "2024-01-27T18:13:12+00:00"
         },
         {
             "name": "drupal/core-dev",
