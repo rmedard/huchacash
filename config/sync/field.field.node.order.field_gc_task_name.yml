@@ -1,0 +1,19 @@
+uuid: 421140b5-2ff3-40e8-8015-e3db49c4c562
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_gc_task_name
+    - node.type.order
+id: node.order.field_gc_task_name
+field_name: field_gc_task_name
+entity_type: node
+bundle: order
+label: 'GC Task Name'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

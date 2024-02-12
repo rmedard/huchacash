@@ -26,7 +26,7 @@ class UtilsService
     return $random_string;
   }
 
-  public function isBeforeNow(DrupalDateTime $date): bool
+  public function isInThePast(DrupalDateTime $date): bool
   {
     $timezone = new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $now = new DrupalDateTime('now');

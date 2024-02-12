@@ -18,3 +18,7 @@ services:
     class: Drupal\dinger_settings\Service\OrdersService
     arguments:
       - '@logger.factory'
+
+  dinger_settings.google_cloud_service:
+    class: Drupal\dinger_settings\Service\GoogleCloudService
+    arguments: ['@config.factory', '@logger.factory']

@@ -1,4 +1,4 @@
-uuid: 7017c51f-fdbd-4557-85ff-db5397835f56
+uuid: 14622e07-a73c-471d-bbf3-6ea0a01f5635
 langcode: en
 status: true
 dependencies:
@@ -8,11 +8,14 @@ dependencies:
 third_party_settings:
   field_permissions:
     permission_type: custom
-id: node.field_order_flagged_expiration
-field_name: field_order_flagged_expiration
+id: node.field_gc_task_name
+field_name: field_gc_task_name
 entity_type: node
-type: boolean
-settings: {  }
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
 module: core
 locked: false
 cardinality: 1

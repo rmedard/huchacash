@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.order.field_gc_task_name
     - field.field.node.order.field_order_calls
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
@@ -11,7 +12,6 @@ dependencies:
     - field.field.node.order.field_order_delivery_cost
     - field.field.node.order.field_order_delivery_time
     - field.field.node.order.field_order_executor
-    - field.field.node.order.field_order_flagged_expiration
     - field.field.node.order.field_order_items
     - field.field.node.order.field_order_pickup_address
     - field.field.node.order.field_order_pickup_address_str
@@ -33,6 +33,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_gc_task_name: true
   field_order_calls: true
   field_order_creator: true
   field_order_delivery_address: true
@@ -40,7 +41,6 @@ hidden:
   field_order_delivery_cost: true
   field_order_delivery_time: true
   field_order_executor: true
-  field_order_flagged_expiration: true
   field_order_items: true
   field_order_pickup_address: true
   field_order_pickup_address_str: true

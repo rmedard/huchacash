@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.order.field_gc_task_name
     - field.field.node.order.field_order_calls
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
@@ -10,7 +11,6 @@ dependencies:
     - field.field.node.order.field_order_delivery_cost
     - field.field.node.order.field_order_delivery_time
     - field.field.node.order.field_order_executor
-    - field.field.node.order.field_order_flagged_expiration
     - field.field.node.order.field_order_items
     - field.field.node.order.field_order_pickup_address
     - field.field.node.order.field_order_pickup_address_str
@@ -27,6 +27,14 @@ targetEntityType: node
 bundle: order
 mode: default
 content:
+  field_gc_task_name:
+    type: string_textfield
+    weight: 26
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_order_calls:
     type: entity_reference_autocomplete
     weight: 14
@@ -83,13 +91,6 @@ content:
       match_limit: 10
       size: 60
       placeholder: ''
-    third_party_settings: {  }
-  field_order_flagged_expiration:
-    type: boolean_checkbox
-    weight: 15
-    region: content
-    settings:
-      display_label: true
     third_party_settings: {  }
   field_order_items:
     type: entity_reference_autocomplete
@@ -156,6 +157,8 @@ hidden:
   created: true
   path: true
   promote: true
+  publish_on: true
   status: true
   sticky: true
   uid: true
+  unpublish_on: true

@@ -1,0 +1,33 @@
+uuid: 7729a7f3-48c0-4fe2-9bdd-38706ac4851b
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.order
+  module:
+    - dinger_settings
+    - eca_content
+id: process_h9zowbo
+modeller: bpmn_io
+label: createOrderExpirerGCTask
+version: 1.0.0
+weight: null
+events:
+  Event_0fmnvb3:
+    plugin: 'content_entity:presave'
+    label: onOrderPresave
+    configuration:
+      type: 'node order'
+    successors:
+      -
+        id: Activity_15bm887
+        condition: ''
+conditions: {  }
+gateways: {  }
+actions:
+  Activity_15bm887:
+    plugin: dinger_settings_create_gc_action
+    label: createGCTask
+    configuration:
+      object: node
+    successors: {  }

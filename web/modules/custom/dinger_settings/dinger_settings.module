@@ -67,7 +67,6 @@ function dinger_settings_node_presave(NodeInterface $node): void
         break;
       case 'order':
         $node->setTitle('ORD' . $reference);
-        $node->set('field_order_flagged_expiration', false);
         break;
       case 'call':
         $node->setTitle('CAL' . $reference);
@@ -105,12 +104,15 @@ function dinger_settings_node_update(NodeInterface $node): void
       $order = $node->get('field_call_order')->entity;
       if ($node->get('field_call_status')->value == 'expired') {
         $newOrderStatus = 'cancelled';
-        $isActive = Drupal::service('hucha_settings.orders_service')->isActive($order);
+        /**
+         * @var \Drupal\dinger_settings\Service\OrdersService $ordersService
+         */
+        $ordersService = Drupal::service('hucha_settings.orders_service');
+        $isActive = $ordersService->isActive($order);
         if ($isActive) {
           $newOrderStatus = 'idle';
         }
         $order->set('field_order_status', $newOrderStatus);
-        $order->set('field_order_flagged_expiration', true);
         $order->save();
       }
       break;
@@ -123,7 +125,11 @@ function dinger_settings_node_update(NodeInterface $node): void
 function dinger_settings_file_presave(FileInterface $file): void
 {
   if ($file->isNew()) {
-    $reference = '_' . Drupal::service('hucha_settings.utils_service')->generateRandomId();
+    /**
+     * @var \Drupal\dinger_settings\Service\UtilsService $utilsService
+     */
+    $utilsService = Drupal::service('hucha_settings.utils_service');
+    $reference = '_' . $utilsService->generateRandomId();
     $file->setFilename('file_' . $reference);
   }
 }
@@ -197,6 +203,11 @@ function dinger_settings_node_insert(EntityInterface $entity): void
 function dinger_settings_cron(): void
 {
   $logger = Drupal::logger('dinger_settings');
+
+  /**
+   * @var \Drupal\dinger_settings\Service\DataAccessor $dataAccessor
+   * @var \Drupal\dinger_settings\Service\UtilsService $utils
+   */
   $dataAccessor = Drupal::service('hucha_settings.data_accessor');
   $utils = Drupal::service('hucha_settings.utils_service');
 
@@ -209,7 +220,7 @@ function dinger_settings_cron(): void
       if ($expiredCall instanceof NodeInterface) {
         try {
           $order = $expiredCall->get('field_call_order')->entity;
-          if ($utils->isBeforeNow($order->get('field_order_delivery_time')->date)) {
+          if ($utils->isInThePast($order->get('field_order_delivery_time')->date)) {
             $order->set('field_order_status', 'cancelled');
           } else {
             $order->set('field_order_status', 'idle');
@@ -228,7 +239,7 @@ function dinger_settings_cron(): void
   /**
    * Cancel expired orders
    */
-  $expiredIdleOrders = $dataAccessor->getOrdersExpiringInHours(0, 'idle', false);
+  $expiredIdleOrders = $dataAccessor->getOrdersExpiringInHours(0, 'idle');
   if (!empty($expiredIdleOrders)) {
     foreach ($expiredIdleOrders as $idleOrderId => $expiredIdleOrder) {
       if ($expiredIdleOrder instanceof NodeInterface) {
