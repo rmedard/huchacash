@@ -18,7 +18,7 @@ id: process_ybirra6
 modeller: bpmn_io
 label: onCallUpdate
 version: 1.0.0
-weight: null
+weight: -10
 events:
   Event_0pwwj2t:
     plugin: 'content_entity:update'

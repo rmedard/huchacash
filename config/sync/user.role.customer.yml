@@ -21,6 +21,7 @@ permissions:
   - 'create bid content'
   - 'create call content'
   - 'create customer content'
+  - 'create field_gc_task_id'
   - 'create field_order_delivery_address_str'
   - 'create field_order_pickup_address_str'
   - 'create order content'

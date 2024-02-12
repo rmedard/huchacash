@@ -34,7 +34,7 @@ class DataAccessor
     $this->logger = $logger->get('dinger_settings_data');
   }
 
-  public function getOrdersExpiringInHours(int $hours = 0, $orderStatus = 'any', $forGC = false): array {
+  public function getOrdersExpiringInHours(int $hours = 0, $orderStatus = 'any'): array {
     $now = new DrupalDateTime('now');
     $now->setTimezone(new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
     $now->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
@@ -46,15 +46,12 @@ class DataAccessor
 
     try {
       $query = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->accessCheck()
         ->condition('type', 'order')
         ->condition('field_order_delivery_time', $now, '<=');
 
       if ($orderStatus !== 'any') {
         $query->condition('field_order_status', $orderStatus);
-      }
-
-      if ($forGC) {
-        $query->condition('field_order_flagged_expiration', 0);
       }
 
       $expiringOrderIds = $query->execute();
@@ -76,6 +73,7 @@ class DataAccessor
     $now->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
     try {
       $query = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->accessCheck()
         ->condition('type', 'call')
         ->condition('field_call_expiry_time', $now, '<');
       $expiredCallIds = $query->execute();

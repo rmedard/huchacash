@@ -1,0 +1,17 @@
+uuid: 27f27cdd-23c4-48d4-9b8f-166cd4ddb4b2
+langcode: en
+status: true
+dependencies: {  }
+id: dev
+label: Dev
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../config/dev
+module:
+  symfony_mailer: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }
