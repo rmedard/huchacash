@@ -126,24 +126,29 @@ final class GoogleCloudService {
   }
 
   private function checkEligibility(NodeInterface $order): bool {
-    if ($order->isNew()) return TRUE;
+    if (!$order->isNew()) {
+      /**
+       * @var DrupalDateTime $currentDeliverDate
+       */
+      $currentDeliverDate = $order->get('field_order_delivery_time')->date;
+      $now = new DrupalDateTime('now');
+      $now->setTimezone(new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+      $isDeliveryTimeInPast = $currentDeliverDate->getTimestamp() < $now->getTimestamp();
+      if ($isDeliveryTimeInPast) {
+        return FALSE;
+      }
 
-    /**
-     * @var DrupalDateTime $currentDeliverDate
-     */
-    $currentDeliverDate = $order->get('field_order_delivery_time')->date;
-    $now = new DrupalDateTime('now');
-    $now->setTimezone(new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
-    $isDeliveryTimeInPast = $currentDeliverDate->getTimestamp() < $now->getTimestamp();
-    if ($isDeliveryTimeInPast) return FALSE;
-
-    /**
-     * @var NodeInterface $originalOrder
-     * @var DrupalDateTime $originalDeliverDate
-     */
-    $originalOrder = $order->original;
-    $originalDeliverDate = $originalOrder->get('field_order_delivery_time')->date;
-    return $originalDeliverDate->getTimestamp() !== $currentDeliverDate->getTimestamp();
+      /**
+       * @var NodeInterface $originalOrder
+       * @var DrupalDateTime $originalDeliverDate
+       */
+      $originalOrder = $order->original;
+      if (isset($originalOrder)) {
+        $originalDeliverDate = $originalOrder->get('field_order_delivery_time')->date;
+        return $originalDeliverDate->getTimestamp() !== $currentDeliverDate->getTimestamp();
+      }
+    }
+    return TRUE;
   }
 
 }
