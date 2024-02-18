@@ -86,7 +86,7 @@
         "google/cloud-tasks": "^1.14",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
-        "stripe/stripe-php": "^13.9",
+        "stripe/stripe-php": "^v13.11.0",
         "vlucas/phpdotenv": "^5.1",
         "webflo/drupal-finder": "^1.2"
     },
