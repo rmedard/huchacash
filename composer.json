@@ -78,6 +78,7 @@
         "drupal/module_filter": "^4.1",
         "drupal/openapi_jsonapi": "^3.0",
         "drupal/openapi_ui_redoc": "^1.0@RC",
+        "drupal/pathauto": "^1.12",
         "drupal/restui": "^1.21",
         "drupal/simple_oauth": "^5.2",
         "drupal/symfony_mailer": "^1.4",
@@ -86,7 +87,7 @@
         "google/cloud-tasks": "^1.14",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
-        "stripe/stripe-php": "^v13.11.0",
+        "stripe/stripe-php": "^13.10.0",
         "vlucas/phpdotenv": "^5.1",
         "webflo/drupal-finder": "^1.2"
     },
