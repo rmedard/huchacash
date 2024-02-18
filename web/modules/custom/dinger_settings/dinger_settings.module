@@ -185,6 +185,7 @@ function dinger_settings_user_insert(UserInterface $user): void
 function dinger_settings_node_insert(EntityInterface $entity): void
 {
   if ($entity instanceof NodeInterface) {
+    /* @var \Drupal\dinger_settings\Service\EntityHandlerService $entityHandler */
     $entityHandler = Drupal::service('hucha_settings.entity_handler_service');
     switch ($entity->bundle()) {
 //      case 'call':

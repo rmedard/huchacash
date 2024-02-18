@@ -21,7 +21,6 @@ permissions:
   - 'create bid content'
   - 'create call content'
   - 'create customer content'
-  - 'create field_gc_task_id'
   - 'create field_order_delivery_address_str'
   - 'create field_order_pickup_address_str'
   - 'create order content'
@@ -38,5 +37,4 @@ permissions:
   - 'view field_order_delivery_address_str'
   - 'view field_order_pickup_address_str'
   - 'view own field_order_delivery_address_str'
-  - 'view own field_order_flagged_expiration'
   - 'view own field_order_pickup_address_str'
