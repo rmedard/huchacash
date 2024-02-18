@@ -1,6 +1,7 @@
 _core:
   default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
 module:
+  action: 0
   admin_toolbar: 0
   automated_cron: 0
   big_pipe: 0
@@ -67,7 +68,6 @@ module:
   phpass: 0
   rest: 0
   restui: 0
-  scheduler: 0
   schemata: 0
   schemata_json_schema: 0
   search: 0
@@ -78,12 +78,14 @@ module:
   taxonomy: 0
   telephone: 0
   text: 0
+  token: 0
   toolbar: 0
   tour: 0
   typed_data: 0
   update: 0
   user: 0
   views_ui: 0
+  pathauto: 1
   views: 10
   minimal: 1000
 theme:

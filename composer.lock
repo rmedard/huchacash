@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0ecf403ec06ab85c8fda06864398b5a",
+    "content-hash": "2cf22cbe68c30fbc3ddc30bdf4e66371",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1770,7 +1770,7 @@
             "extra": {
                 "drupal": {
                     "version": "2.0.0",
-                    "datestamp": "1699259254",
+                    "datestamp": "1707999066",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2203,6 +2203,99 @@
                 "source": "https://github.com/drupal/core-recommended/tree/10.2.3"
             },
             "time": "2024-02-07T22:44:48+00:00"
+        },
+        {
+            "name": "drupal/ctools",
+            "version": "4.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/ctools.git",
+                "reference": "4.0.4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/ctools-4.0.4.zip",
+                "reference": "4.0.4",
+                "shasum": "4a2474eb2fd525b2add2db0e855c135ba7f0fb70"
+            },
+            "require": {
+                "drupal/core": "^9.3 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "4.0.4",
+                    "datestamp": "1684299878",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "branch-alias": {
+                    "dev-8.x-3.x": "3.x-dev"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Kris Vanderwater (EclipseGc)",
+                    "homepage": "https://www.drupal.org/u/eclipsegc",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Jakob Perry (japerry)",
+                    "homepage": "https://www.drupal.org/u/japerry",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Tim Plunkett (tim.plunkett)",
+                    "homepage": "https://www.drupal.org/u/timplunkett",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "James Gilliland (neclimdul)",
+                    "homepage": "https://www.drupal.org/u/neclimdul",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Daniel Wehner (dawehner)",
+                    "homepage": "https://www.drupal.org/u/dawehner",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "joelpittet",
+                    "homepage": "https://www.drupal.org/user/160302"
+                },
+                {
+                    "name": "merlinofchaos",
+                    "homepage": "https://www.drupal.org/user/26979"
+                },
+                {
+                    "name": "neclimdul",
+                    "homepage": "https://www.drupal.org/user/48673"
+                },
+                {
+                    "name": "sdboyer",
+                    "homepage": "https://www.drupal.org/user/146719"
+                },
+                {
+                    "name": "sun",
+                    "homepage": "https://www.drupal.org/user/54136"
+                },
+                {
+                    "name": "tim.plunkett",
+                    "homepage": "https://www.drupal.org/user/241634"
+                }
+            ],
+            "description": "Provides a number of utility and helper APIs for Drupal developers and site builders.",
+            "homepage": "https://www.drupal.org/project/ctools",
+            "support": {
+                "source": "https://git.drupalcode.org/project/ctools",
+                "issues": "https://www.drupal.org/project/issues/ctools"
+            }
         },
         {
             "name": "drupal/devel",
@@ -3563,6 +3656,74 @@
             }
         },
         {
+            "name": "drupal/pathauto",
+            "version": "1.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/pathauto.git",
+                "reference": "8.x-1.12"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/pathauto-8.x-1.12.zip",
+                "reference": "8.x-1.12",
+                "shasum": "b7b6432e315e38e59a7c6cc117134326c580de4c"
+            },
+            "require": {
+                "drupal/core": "^9.3 || ^10",
+                "drupal/ctools": "*",
+                "drupal/token": "*"
+            },
+            "suggest": {
+                "drupal/redirect": "When installed Pathauto will provide a new \"Update Action\" in case your URLs change. This is the recommended update action and is considered the best practice for SEO and usability."
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.12",
+                    "datestamp": "1696776683",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9 || ^10"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Berdir",
+                    "homepage": "https://www.drupal.org/user/214652"
+                },
+                {
+                    "name": "Dave Reid",
+                    "homepage": "https://www.drupal.org/user/53892"
+                },
+                {
+                    "name": "Freso",
+                    "homepage": "https://www.drupal.org/user/27504"
+                },
+                {
+                    "name": "greggles",
+                    "homepage": "https://www.drupal.org/user/36762"
+                }
+            ],
+            "description": "Provides a mechanism for modules to automatically generate aliases for the content they manage.",
+            "homepage": "https://www.drupal.org/project/pathauto",
+            "support": {
+                "source": "https://cgit.drupalcode.org/pathauto",
+                "issues": "https://www.drupal.org/project/issues/pathauto",
+                "documentation": "https://www.drupal.org/docs/8/modules/pathauto"
+            }
+        },
+        {
             "name": "drupal/restui",
             "version": "1.21.0",
             "source": {
@@ -3899,6 +4060,75 @@
             "homepage": "https://www.drupal.org/project/symfony_mailer",
             "support": {
                 "source": "https://git.drupalcode.org/project/symfony_mailer"
+            }
+        },
+        {
+            "name": "drupal/token",
+            "version": "1.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/token.git",
+                "reference": "8.x-1.13"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/token-8.x-1.13.zip",
+                "reference": "8.x-1.13",
+                "shasum": "f2a074b51726de3727c1d900237d6d471806a4d2"
+            },
+            "require": {
+                "drupal/core": "^9.2 || ^10"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.13",
+                    "datestamp": "1697885927",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": ">=9"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Berdir",
+                    "homepage": "https://www.drupal.org/user/214652"
+                },
+                {
+                    "name": "Dave Reid",
+                    "homepage": "https://www.drupal.org/user/53892"
+                },
+                {
+                    "name": "eaton",
+                    "homepage": "https://www.drupal.org/user/16496"
+                },
+                {
+                    "name": "fago",
+                    "homepage": "https://www.drupal.org/user/16747"
+                },
+                {
+                    "name": "greggles",
+                    "homepage": "https://www.drupal.org/user/36762"
+                },
+                {
+                    "name": "mikeryan",
+                    "homepage": "https://www.drupal.org/user/4420"
+                }
+            ],
+            "description": "Provides a user interface for the Token API, some missing core tokens.",
+            "homepage": "https://www.drupal.org/project/token",
+            "support": {
+                "source": "https://git.drupalcode.org/project/token"
             }
         },
         {
@@ -4438,16 +4668,16 @@
         },
         {
             "name": "google/gax",
-            "version": "v1.27.0",
+            "version": "v1.28.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/gax-php.git",
-                "reference": "7d2533e84480018a351e9c3e20a284342ea7a75e"
+                "reference": "dfca60f46fed8d9a4d9d2ece7286f18d53d3ebad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/gax-php/zipball/7d2533e84480018a351e9c3e20a284342ea7a75e",
-                "reference": "7d2533e84480018a351e9c3e20a284342ea7a75e",
+                "url": "https://api.github.com/repos/googleapis/gax-php/zipball/dfca60f46fed8d9a4d9d2ece7286f18d53d3ebad",
+                "reference": "dfca60f46fed8d9a4d9d2ece7286f18d53d3ebad",
                 "shasum": ""
             },
             "require": {
@@ -4487,9 +4717,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/gax-php/issues",
-                "source": "https://github.com/googleapis/gax-php/tree/v1.27.0"
+                "source": "https://github.com/googleapis/gax-php/tree/v1.28.0"
             },
-            "time": "2024-02-07T23:12:02+00:00"
+            "time": "2024-02-15T19:05:13+00:00"
         },
         {
             "name": "google/grpc-gcp",
@@ -4582,16 +4812,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v3.25.2",
+            "version": "v3.25.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "83ea4c147718666ce6a9b9332ac2aa588c9211eb"
+                "reference": "983a87f4f8798a90ca3a25b0f300b8fda38df643"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/83ea4c147718666ce6a9b9332ac2aa588c9211eb",
-                "reference": "83ea4c147718666ce6a9b9332ac2aa588c9211eb",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/983a87f4f8798a90ca3a25b0f300b8fda38df643",
+                "reference": "983a87f4f8798a90ca3a25b0f300b8fda38df643",
                 "shasum": ""
             },
             "require": {
@@ -4620,9 +4850,9 @@
                 "proto"
             ],
             "support": {
-                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v3.25.2"
+                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v3.25.3"
             },
-            "time": "2024-01-09T22:12:32+00:00"
+            "time": "2024-02-15T21:11:49+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -7256,16 +7486,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v13.10.0",
+            "version": "v13.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "7571f6001f122db539901bda113aef7ed7af421a"
+                "reference": "d92a95bd61be5d3141d86986c3b454065f9fcc13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/7571f6001f122db539901bda113aef7ed7af421a",
-                "reference": "7571f6001f122db539901bda113aef7ed7af421a",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/d92a95bd61be5d3141d86986c3b454065f9fcc13",
+                "reference": "d92a95bd61be5d3141d86986c3b454065f9fcc13",
                 "shasum": ""
             },
             "require": {
@@ -7309,9 +7539,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v13.10.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v13.11.0"
             },
-            "time": "2024-02-01T22:16:21+00:00"
+            "time": "2024-02-16T00:23:50+00:00"
         },
         {
             "name": "symfony/console",
@@ -11505,16 +11735,16 @@
         },
         {
             "name": "mglaman/phpstan-drupal",
-            "version": "1.2.6",
+            "version": "1.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mglaman/phpstan-drupal.git",
-                "reference": "ba8678f8cbea42cc41022c21751004eb677cf5a4"
+                "reference": "32f79fcf48c74532014248687ae3850581a22416"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mglaman/phpstan-drupal/zipball/ba8678f8cbea42cc41022c21751004eb677cf5a4",
-                "reference": "ba8678f8cbea42cc41022c21751004eb677cf5a4",
+                "url": "https://api.github.com/repos/mglaman/phpstan-drupal/zipball/32f79fcf48c74532014248687ae3850581a22416",
+                "reference": "32f79fcf48c74532014248687ae3850581a22416",
                 "shasum": ""
             },
             "require": {
@@ -11589,7 +11819,7 @@
             "description": "Drupal extension and rules for PHPStan",
             "support": {
                 "issues": "https://github.com/mglaman/phpstan-drupal/issues",
-                "source": "https://github.com/mglaman/phpstan-drupal/tree/1.2.6"
+                "source": "https://github.com/mglaman/phpstan-drupal/tree/1.2.7"
             },
             "funding": [
                 {
@@ -11605,7 +11835,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-16T00:42:10+00:00"
+            "time": "2024-02-14T04:38:08+00:00"
         },
         {
             "name": "micheh/phpcs-gitlab",
@@ -12906,16 +13136,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.57",
+            "version": "1.10.58",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "1627b1d03446904aaa77593f370c5201d2ecc34e"
+                "reference": "a23518379ec4defd9e47cbf81019526861623ec2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1627b1d03446904aaa77593f370c5201d2ecc34e",
-                "reference": "1627b1d03446904aaa77593f370c5201d2ecc34e",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a23518379ec4defd9e47cbf81019526861623ec2",
+                "reference": "a23518379ec4defd9e47cbf81019526861623ec2",
                 "shasum": ""
             },
             "require": {
@@ -12964,7 +13194,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-24T11:51:34+00:00"
+            "time": "2024-02-12T20:02:57+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -14757,16 +14987,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.8.1",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "14f5fff1e64118595db5408e946f3a22c75807f7"
+                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/14f5fff1e64118595db5408e946f3a22c75807f7",
-                "reference": "14f5fff1e64118595db5408e946f3a22c75807f7",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
+                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
                 "shasum": ""
             },
             "require": {
@@ -14833,7 +15063,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-01-11T20:47:48+00:00"
+            "time": "2024-02-16T15:06:51+00:00"
         },
         {
             "name": "symfony/browser-kit",
