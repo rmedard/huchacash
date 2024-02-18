@@ -79,7 +79,6 @@
         "drupal/openapi_jsonapi": "^3.0",
         "drupal/openapi_ui_redoc": "^1.0@RC",
         "drupal/restui": "^1.21",
-        "drupal/scheduler": "^2.0",
         "drupal/simple_oauth": "^5.2",
         "drupal/symfony_mailer": "^1.4",
         "drupal/typed_data": "^1.0@beta",
