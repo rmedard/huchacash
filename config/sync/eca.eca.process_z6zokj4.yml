@@ -58,11 +58,14 @@ actions:
         id: Activity_0wby919
         condition: ''
   Activity_0wby919:
-    plugin: eca_list_add_entity
+    plugin: eca_set_field_value
     label: attachCallToOrder
     configuration:
-      method: append
-      index: ''
-      list_token: 'node:field_order_calls'
-      object: node
+      field_name: field_order_calls
+      field_value: '[node:nid]'
+      method: 'append:not_full'
+      strip_tags: false
+      trim: false
+      save_entity: true
+      object: 'node:field_call_order'
     successors: {  }
