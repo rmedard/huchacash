@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -80,28 +81,31 @@ class ExpiredNodesController extends ControllerBase
       return $response;
     }
 
-    if ($type === 'call') {
-      $callStatus = $node->get('field_call_status')->value;
-      if ($callStatus == 'live') {
-        $this->logger->info($this->t('Call @id has expired', ['@id' => $node->id()]));
-        try {
-          $node->set('field_call_status', 'expired');
-          $node->save();
-        } catch (EntityStorageException $e) {
-          $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
+    switch ($type) {
+      case GcNodeType::CALL:
+        $callStatus = $node->get('field_call_status')->value;
+        if ($callStatus == 'live') {
+          $this->logger->info($this->t('Call @id has expired', ['@id' => $node->id()]));
+          try {
+            $node->set('field_call_status', 'expired');
+            $node->save();
+          } catch (EntityStorageException $e) {
+            $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
+          }
         }
-      }
-    } elseif ($type === 'order') {
-      $orderStatus = $node->get('field_order_status')->value;
-      if ($orderStatus == 'idle') {
-        $this->logger->info($this->t('Order @id has expired', ['@id' => $node->id()]));
-        try {
-          $node->set('field_order_status', 'cancelled');
-          $node->save();
-        } catch (EntityStorageException $e) {
-          $this->logger->error('Updating Order failed: ' . $e->getMessage());
+        break;
+      case GcNodeType::ORDER:
+        $orderStatus = $node->get('field_order_status')->value;
+        if ($orderStatus == 'idle') {
+          $this->logger->info($this->t('Order @id has expired', ['@id' => $node->id()]));
+          try {
+            $node->set('field_order_status', 'cancelled');
+            $node->save();
+          } catch (EntityStorageException $e) {
+            $this->logger->error('Updating Order failed: ' . $e->getMessage());
+          }
         }
-      }
+        break;
     }
 
     $response->setContent('Success!');

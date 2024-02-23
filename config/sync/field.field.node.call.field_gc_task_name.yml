@@ -1,0 +1,19 @@
+uuid: 4c196c38-baff-45e4-b795-f39d5db87883
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_gc_task_name
+    - node.type.call
+id: node.call.field_gc_task_name
+field_name: field_gc_task_name
+entity_type: node
+bundle: call
+label: 'GC Task Name'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

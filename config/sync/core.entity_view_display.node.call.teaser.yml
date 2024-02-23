@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.call.field_call_proposed_service_fee
     - field.field.node.call.field_call_status
     - field.field.node.call.field_call_type
+    - field.field.node.call.field_gc_task_name
     - node.type.call
   module:
     - user
@@ -30,3 +31,4 @@ hidden:
   field_call_proposed_service_fee: true
   field_call_status: true
   field_call_type: true
+  field_gc_task_name: true

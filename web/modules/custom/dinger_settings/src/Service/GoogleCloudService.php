@@ -10,6 +10,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\ValidationException;
@@ -20,12 +21,15 @@ use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
+use http\Exception\InvalidArgumentException;
 
 /**
  * Google Cloud Services
  */
 
 final class GoogleCloudService {
+
+  const GC_TASK_FIELD_NAME = 'field_gc_task_name';
 
   /**
    * @var \Drupal\Core\Logger\LoggerChannelInterface
@@ -46,19 +50,19 @@ final class GoogleCloudService {
   }
 
   /**
-   * @param \Drupal\node\NodeInterface $order
+   * @param \Drupal\node\NodeInterface $targetNode
+   * @param \Drupal\Core\Datetime\DrupalDateTime $triggerTime
    *
    * @return void
    */
-  public function createOrderExpirationTask(NodeInterface $order): void {
-    $isEligible = $this->checkEligibility($order);
-    if ($isEligible) {
-      $taskName = trim($order->get('field_gc_task_name')->getString());
+  public function createOrderExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): void {
+    if ($this->isEligible($targetNode, $triggerTime)) {
+      $taskName = trim($targetNode->get(self::GC_TASK_FIELD_NAME)->getString());
       try {
         if (!empty($taskName)) {
           $this->deleteGcTask($taskName);
         }
-        $this->createGcTask($order);
+        $this->createGcTask($targetNode, $triggerTime);
       } catch (ApiException | ValidationException $e) {
         $this->loggerFactory->error('Creating gc task failed: ' . $e);
       }
@@ -69,21 +73,24 @@ final class GoogleCloudService {
    * @throws \Google\ApiCore\ApiException
    * @throws \Google\ApiCore\ValidationException
    */
-  private function createGcTask(NodeInterface $order): void {
-    $this->loggerFactory->info('Creating GC Task for order ' . $order->id());
-    /**
-     * @var DrupalDateTime $deliveryTime
-     */
-    $deliveryTime = $order->get('field_order_delivery_time')->date;
+  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): void {
+    $this->loggerFactory->info('Creating GC Task for order ' . $targetNode->id());
     $config = $this->configFactory->get('dinger_settings');
     $projectId = $config->get('gc_tasks_project_id');
     $location = $config->get('gc_tasks_location');
     $queue = $config->get('gc_tasks_queue');
     $callBackToken = $config->get('callback_token');
     $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
-    $expireNodeCallbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken;
+
     $scheduleTime = new Timestamp();
-    $scheduleTime->fromDateTime($deliveryTime->getPhpDateTime());
+    $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
+
+    $expireNodeCallbackUrl = match ($targetNode->bundle()) {
+      GcNodeType::CALL => $config->get('call_expire_function'),
+      GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
+      default => throw new InvalidArgumentException('Unsupported Node Type'),
+    };
+
     $taskRequest = (new CreateTaskRequest())
       ->setParent($formattedParent)
       ->setTask((new Task())
@@ -91,10 +98,10 @@ final class GoogleCloudService {
         ->setHttpRequest((new HttpRequest())
           ->setHttpMethod(HttpMethod::POST)
           ->setUrl($expireNodeCallbackUrl)
-          ->setBody(json_encode(['json' => ['uuid' => $order->uuid(), 'type' => 'order']]))));
+          ->setBody(json_encode(['json' => ['uuid' => $targetNode->uuid(), 'type' => $targetNode->bundle()]]))));
     $task = $this->getGcTasksClient()->createTask($taskRequest);
     // Don't call save() because this action is triggered from preSave state
-    $order->set('field_gc_task_name', $task->getName());
+    $targetNode->set(self::GC_TASK_FIELD_NAME, $task->getName());
   }
 
   private function deleteGcTask(string $taskName): void {
@@ -125,30 +132,14 @@ final class GoogleCloudService {
     }
   }
 
-  private function checkEligibility(NodeInterface $order): bool {
-    if (!$order->isNew()) {
-      /**
-       * @var DrupalDateTime $currentDeliverDate
-       */
-      $currentDeliverDate = $order->get('field_order_delivery_time')->date;
-      $now = new DrupalDateTime('now');
-      $now->setTimezone(new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
-      $isDeliveryTimeInPast = $currentDeliverDate->getTimestamp() < $now->getTimestamp();
-      if ($isDeliveryTimeInPast) {
-        return FALSE;
-      }
-
-      /**
-       * @var NodeInterface $originalOrder
-       * @var DrupalDateTime $originalDeliverDate
-       */
-      $originalOrder = $order->original;
-      if (isset($originalOrder)) {
-        $originalDeliverDate = $originalOrder->get('field_order_delivery_time')->date;
-        return $originalDeliverDate->getTimestamp() !== $currentDeliverDate->getTimestamp();
-      }
+  private function isEligible(NodeInterface $targetNode, DrupalDateTime $triggerTime): bool {
+    if (!$targetNode->hasField(self::GC_TASK_FIELD_NAME)) {
+      return FALSE;
     }
-    return TRUE;
+
+    $now = new DrupalDateTime('now');
+    $now->setTimezone(new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+    return $triggerTime->getTimestamp() > $now->getTimestamp();
   }
 
 }

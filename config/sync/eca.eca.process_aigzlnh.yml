@@ -1,49 +1,49 @@
-uuid: 7729a7f3-48c0-4fe2-9bdd-38706ac4851b
+uuid: 4518524f-b493-4e0c-ab7e-d850331614c9
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.order
+    - node.type.call
   module:
     - dinger_settings
     - eca_content
-id: process_h9zowbo
+id: process_aigzlnh
 modeller: bpmn_io
-label: createOrderExpirerGCTask
+label: createCallExpirerGCTask
 version: 1.0.0
 weight: null
 events:
   Event_0fmnvb3:
     plugin: 'content_entity:presave'
-    label: onOrderPresave
+    label: onCallPresave
     configuration:
-      type: 'node order'
+      type: 'node call'
     successors:
       -
-        id: Gateway_1nqduuz
+        id: Gateway_0jjfwof
         condition: ''
 conditions:
-  Flow_0pkomif:
+  Flow_1p5gvmq:
     plugin: eca_entity_is_new
     configuration:
       negate: false
       entity: node
-  Flow_026tn95:
+  Flow_02te2vv:
     plugin: eca_entity_field_value_changed
     configuration:
       negate: false
-      field_name: field_order_delivery_time
+      field_name: field_call_expiry_time
       entity: node
 gateways:
-  Gateway_1nqduuz:
+  Gateway_0jjfwof:
     type: 0
     successors:
       -
         id: Activity_15bm887
-        condition: Flow_0pkomif
+        condition: Flow_1p5gvmq
       -
         id: Activity_15bm887
-        condition: Flow_026tn95
+        condition: Flow_02te2vv
 actions:
   Activity_15bm887:
     plugin: dinger_settings_create_gc_action
