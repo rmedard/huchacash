@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
-    - field.field.node.customer.field_customer_firstname
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
     - field.field.node.customer.field_customer_phone
@@ -37,14 +36,6 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 106
-    region: content
-  field_customer_firstname:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 102
     region: content
   field_customer_lastname:
     type: string
