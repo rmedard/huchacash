@@ -1,11 +1,11 @@
-uuid: df35e18a-3416-40c1-a0ea-07adb4d0a5b2
+uuid: 25a90079-5041-43cf-acce-732b1471b2df
 langcode: en
 status: true
 dependencies:
   config:
-    - eca.eca.process_h9zowbo
-id: process_h9zowbo
-label: createOrderExpirerGCTask
+    - eca.eca.process_aigzlnh
+id: process_aigzlnh
+label: createCallExpirerGCTask
 tags:
   - untagged
 documentation: ''
@@ -13,17 +13,17 @@ filename: ''
 modeldata: |
   <?xml version="1.0" encoding="UTF-8"?>
   <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
-    <bpmn2:process id="Process_h9zOWBo" name="createOrderExpirerGCTask" isExecutable="true" camunda:versionTag="1.0.0">
-      <bpmn2:startEvent id="Event_0fmnvb3" name="onOrderPresave" camunda:modelerTemplate="org.drupal.event.content_entity:presave">
+    <bpmn2:process id="Process_aIgzLNh" name="createCallExpirerGCTask" isExecutable="true" camunda:versionTag="1.0.0">
+      <bpmn2:startEvent id="Event_0fmnvb3" name="onCallPresave" camunda:modelerTemplate="org.drupal.event.content_entity:presave">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="content_entity:presave" />
           </camunda:properties>
           <camunda:field name="type">
-            <camunda:string>node order</camunda:string>
+            <camunda:string>node call</camunda:string>
           </camunda:field>
         </bpmn2:extensionElements>
-        <bpmn2:outgoing>Flow_0umds5v</bpmn2:outgoing>
+        <bpmn2:outgoing>Flow_1vlr97g</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:task id="Activity_15bm887" name="createGCTask" camunda:modelerTemplate="org.drupal.action.dinger_settings_create_gc_action">
         <bpmn2:extensionElements>
@@ -34,10 +34,16 @@ modeldata: |
             <camunda:string>node</camunda:string>
           </camunda:field>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>Flow_0pkomif</bpmn2:incoming>
-        <bpmn2:incoming>Flow_026tn95</bpmn2:incoming>
+        <bpmn2:incoming>Flow_1p5gvmq</bpmn2:incoming>
+        <bpmn2:incoming>Flow_02te2vv</bpmn2:incoming>
       </bpmn2:task>
-      <bpmn2:sequenceFlow id="Flow_0pkomif" name="isNew" camunda:modelerTemplate="org.drupal.condition.eca_entity_is_new" sourceRef="Gateway_1nqduuz" targetRef="Activity_15bm887">
+      <bpmn2:exclusiveGateway id="Gateway_0jjfwof">
+        <bpmn2:incoming>Flow_1vlr97g</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_1p5gvmq</bpmn2:outgoing>
+        <bpmn2:outgoing>Flow_02te2vv</bpmn2:outgoing>
+      </bpmn2:exclusiveGateway>
+      <bpmn2:sequenceFlow id="Flow_1vlr97g" sourceRef="Event_0fmnvb3" targetRef="Gateway_0jjfwof" />
+      <bpmn2:sequenceFlow id="Flow_1p5gvmq" name="isNew" camunda:modelerTemplate="org.drupal.condition.eca_entity_is_new" sourceRef="Gateway_0jjfwof" targetRef="Activity_15bm887">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="eca_entity_is_new" />
@@ -50,19 +56,13 @@ modeldata: |
           </camunda:field>
         </bpmn2:extensionElements>
       </bpmn2:sequenceFlow>
-      <bpmn2:exclusiveGateway id="Gateway_1nqduuz">
-        <bpmn2:incoming>Flow_0umds5v</bpmn2:incoming>
-        <bpmn2:outgoing>Flow_0pkomif</bpmn2:outgoing>
-        <bpmn2:outgoing>Flow_026tn95</bpmn2:outgoing>
-      </bpmn2:exclusiveGateway>
-      <bpmn2:sequenceFlow id="Flow_0umds5v" sourceRef="Event_0fmnvb3" targetRef="Gateway_1nqduuz" />
-      <bpmn2:sequenceFlow id="Flow_026tn95" name="isDeliveryTimeUpdated" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value_changed" sourceRef="Gateway_1nqduuz" targetRef="Activity_15bm887">
+      <bpmn2:sequenceFlow id="Flow_02te2vv" name="expiryTimeUpdated" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value_changed" sourceRef="Gateway_0jjfwof" targetRef="Activity_15bm887">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="eca_entity_field_value_changed" />
           </camunda:properties>
           <camunda:field name="field_name">
-            <camunda:string>field_order_delivery_time</camunda:string>
+            <camunda:string>field_call_expiry_time</camunda:string>
           </camunda:field>
           <camunda:field name="negate">
             <camunda:string>no</camunda:string>
@@ -74,38 +74,38 @@ modeldata: |
       </bpmn2:sequenceFlow>
     </bpmn2:process>
     <bpmndi:BPMNDiagram id="sid-d4d8d274-ec9a-4ded-9a0d-16d6afd66021">
-      <bpmndi:BPMNPlane id="sid-6da1faa1-8874-4e52-bb5f-7a9a3758caa5" bpmnElement="Process_h9zOWBo">
-        <bpmndi:BPMNShape id="Event_0exs95w_di" bpmnElement="Event_0fmnvb3">
-          <dc:Bounds x="222" y="142" width="36" height="36" />
-          <bpmndi:BPMNLabel>
-            <dc:Bounds x="199" y="118" width="81" height="14" />
-          </bpmndi:BPMNLabel>
-        </bpmndi:BPMNShape>
+      <bpmndi:BPMNPlane id="sid-6da1faa1-8874-4e52-bb5f-7a9a3758caa5" bpmnElement="Process_aIgzLNh">
         <bpmndi:BPMNShape id="Activity_15bm887_di" bpmnElement="Activity_15bm887">
-          <dc:Bounds x="710" y="120" width="100" height="80" />
+          <dc:Bounds x="780" y="60" width="100" height="80" />
           <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Gateway_1nqduuz_di" bpmnElement="Gateway_1nqduuz" isMarkerVisible="true">
-          <dc:Bounds x="455" y="135" width="50" height="50" />
+        <bpmndi:BPMNShape id="Gateway_0jjfwof_di" bpmnElement="Gateway_0jjfwof" isMarkerVisible="true">
+          <dc:Bounds x="425" y="75" width="50" height="50" />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNEdge id="Flow_0pkomif_di" bpmnElement="Flow_0pkomif">
-          <di:waypoint x="505" y="160" />
-          <di:waypoint x="710" y="160" />
+        <bpmndi:BPMNShape id="Event_0exs95w_di" bpmnElement="Event_0fmnvb3">
+          <dc:Bounds x="222" y="82" width="36" height="36" />
           <bpmndi:BPMNLabel>
-            <dc:Bounds x="593" y="142" width="30" height="14" />
+            <dc:Bounds x="204" y="58" width="72" height="14" />
+          </bpmndi:BPMNLabel>
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNEdge id="Flow_1vlr97g_di" bpmnElement="Flow_1vlr97g">
+          <di:waypoint x="258" y="100" />
+          <di:waypoint x="425" y="100" />
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_1p5gvmq_di" bpmnElement="Flow_1p5gvmq">
+          <di:waypoint x="475" y="100" />
+          <di:waypoint x="780" y="100" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="613" y="82" width="30" height="14" />
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNEdge>
-        <bpmndi:BPMNEdge id="Flow_0umds5v_di" bpmnElement="Flow_0umds5v">
-          <di:waypoint x="258" y="160" />
-          <di:waypoint x="455" y="160" />
-        </bpmndi:BPMNEdge>
-        <bpmndi:BPMNEdge id="Flow_026tn95_di" bpmnElement="Flow_026tn95">
-          <di:waypoint x="480" y="185" />
-          <di:waypoint x="480" y="300" />
-          <di:waypoint x="760" y="300" />
-          <di:waypoint x="760" y="200" />
+        <bpmndi:BPMNEdge id="Flow_02te2vv_di" bpmnElement="Flow_02te2vv">
+          <di:waypoint x="450" y="125" />
+          <di:waypoint x="450" y="230" />
+          <di:waypoint x="830" y="230" />
+          <di:waypoint x="830" y="140" />
           <bpmndi:BPMNLabel>
-            <dc:Bounds x="565" y="286" width="86" height="27" />
+            <dc:Bounds x="586" y="216" width="83" height="27" />
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNEdge>
       </bpmndi:BPMNPlane>

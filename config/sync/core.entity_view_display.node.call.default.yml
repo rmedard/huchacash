@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.call.field_call_proposed_service_fee
     - field.field.node.call.field_call_status
     - field.field.node.call.field_call_type
+    - field.field.node.call.field_gc_task_name
     - node.type.call
   module:
     - datetime
@@ -68,6 +69,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 105
+    region: content
+  field_gc_task_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 116
     region: content
   links:
     settings: {  }

@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.call.field_call_proposed_service_fee
     - field.field.node.call.field_call_status
     - field.field.node.call.field_call_type
+    - field.field.node.call.field_gc_task_name
     - node.type.call
   module:
     - datetime
@@ -61,6 +62,14 @@ content:
     weight: 2
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_gc_task_name:
+    type: string_textfield
+    weight: 26
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   scheduler_settings:
     weight: 50
