@@ -19,7 +19,7 @@ mode: default
 content:
   field_call_bids:
     type: entity_reference_autocomplete
-    weight: 26
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
@@ -35,7 +35,7 @@ content:
     third_party_settings: {  }
   field_call_order:
     type: entity_reference_autocomplete
-    weight: 27
+    weight: 1
     region: content
     settings:
       match_operator: CONTAINS
@@ -58,7 +58,7 @@ content:
     third_party_settings: {  }
   field_call_type:
     type: options_select
-    weight: 1
+    weight: 2
     region: content
     settings: {  }
     third_party_settings: {  }

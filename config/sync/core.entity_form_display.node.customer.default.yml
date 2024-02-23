@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
     - field.field.node.customer.field_customer_firstname
     - field.field.node.customer.field_customer_lastname
@@ -18,9 +19,15 @@ targetEntityType: node
 bundle: customer
 mode: default
 content:
+  field_customer_age_range:
+    type: options_select
+    weight: 4
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   field_customer_available_balance:
     type: number
-    weight: 5
+    weight: 6
     region: content
     settings:
       placeholder: ''
@@ -43,21 +50,21 @@ content:
     third_party_settings: {  }
   field_customer_pending_balance:
     type: number
-    weight: 4
+    weight: 5
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_customer_phone:
     type: telephone_default
-    weight: 26
+    weight: 8
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_customer_pref_routes:
     type: entity_reference_autocomplete
-    weight: 27
+    weight: 9
     region: content
     settings:
       match_operator: CONTAINS
@@ -77,7 +84,7 @@ content:
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 6
+    weight: 7
     region: content
     settings:
       display_label: true

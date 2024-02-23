@@ -160,6 +160,7 @@ function dinger_settings_user_insert(UserInterface $user): void
     $firstname = Drupal::request()->query->get('firstname', '');
     $lastname = Drupal::request()->query->get('lastname', '');
     $phone = Drupal::request()->query->get('phone', '');
+    $ageRange = Drupal::request()->query->get('ageRange', '');
     try {
       Node::create([
         'type' => 'customer',
@@ -167,6 +168,7 @@ function dinger_settings_user_insert(UserInterface $user): void
         'field_customer_firstname' => $firstname,
         'field_customer_lastname' => $lastname,
         'field_customer_phone' => $phone,
+        'field_customer_age_range' => $ageRange,
         'field_customer_available_balance' => 0,
         'field_customer_pending_balance' => 0,
         'field_customer_user' => $user->id(),

@@ -1,0 +1,40 @@
+uuid: a738113a-1214-4e55-b4c4-b4513819e506
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+    - options
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_customer_age_range
+field_name: field_customer_age_range
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: under_18
+      label: 'Under 18'
+    -
+      value: '18_25'
+      label: 18-25
+    -
+      value: '26_35'
+      label: 26-35
+    -
+      value: '36_50'
+      label: 36-50
+    -
+      value: over_50
+      label: 'Over 50'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
