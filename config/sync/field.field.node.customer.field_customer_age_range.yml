@@ -1,0 +1,21 @@
+uuid: 49dad580-94ad-4fb5-b7be-b93ff85f7afa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_age_range
+    - node.type.customer
+  module:
+    - options
+id: node.customer.field_customer_age_range
+field_name: field_customer_age_range
+entity_type: node
+bundle: customer
+label: 'Age range'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

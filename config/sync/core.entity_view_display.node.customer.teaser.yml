@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
     - field.field.node.customer.field_customer_firstname
     - field.field.node.customer.field_customer_lastname
@@ -25,6 +26,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_customer_age_range: true
   field_customer_available_balance: true
   field_customer_firstname: true
   field_customer_lastname: true
