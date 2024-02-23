@@ -157,7 +157,6 @@ function dinger_settings_user_presave(UserInterface $user): void
 function dinger_settings_user_insert(UserInterface $user): void
 {
   if ($user->hasRole('customer')) {
-    $firstname = Drupal::request()->query->get('firstname', '');
     $lastname = Drupal::request()->query->get('lastname', '');
     $phone = Drupal::request()->query->get('phone', '');
     $ageRange = Drupal::request()->query->get('ageRange', '');
@@ -165,7 +164,6 @@ function dinger_settings_user_insert(UserInterface $user): void
       Node::create([
         'type' => 'customer',
         'title' => 'reference_nbr',
-        'field_customer_firstname' => $firstname,
         'field_customer_lastname' => $lastname,
         'field_customer_phone' => $phone,
         'field_customer_age_range' => $ageRange,
