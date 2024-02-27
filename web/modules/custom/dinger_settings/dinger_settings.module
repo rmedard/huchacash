@@ -170,7 +170,7 @@ function dinger_settings_user_insert(UserInterface $user): void
         'field_customer_available_balance' => 0,
         'field_customer_pending_balance' => 0,
         'field_customer_user' => $user->id(),
-        'uid' => $user->id()
+        'uid' => $user->id(),
       ])->save();
       Drupal::logger('dinger_settings')->info('New customer created');
     } catch (EntityStorageException $e) {
@@ -194,6 +194,11 @@ function dinger_settings_node_insert(EntityInterface $entity): void
       case 'bid':
         $entityHandler->onBidInserted($entity);
         break;
+      case 'article':
+        /** @var \Drupal\path_alias\AliasManager $pathManager */
+        $pathManager = Drupal::service('path_alias.manager');
+        $alias = $pathManager->getAliasByPath('/node/' . $entity->id());
+        Drupal::logger('pathautoLogger')->info($alias);
     }
   }
 }
@@ -284,7 +289,7 @@ function dinger_settings_node_access(EntityInterface $entity, $operation, Accoun
         'logged-in user' => $account->id(),
         'operation' => $operation,
         'bidder' => $bidCreator->id(),
-        'caller' => $relatedCallCreator->id()
+        'caller' => $relatedCallCreator->id(),
       ];
       Drupal::logger('Node Access')->info('<pre><code>' . print_r($data, TRUE) . '</code></pre>');
 
