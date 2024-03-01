@@ -2,18 +2,14 @@
 
 namespace Drupal\dinger_settings\Controller;
 
-use DateTimeZone;
 use Drupal;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Utils\GcNodeType;
-use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +38,7 @@ class ExpiredNodesController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('token');
+    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): StripeController|static
