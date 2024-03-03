@@ -47,7 +47,7 @@ class StripeController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('token');
+    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): StripeController|static
