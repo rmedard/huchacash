@@ -8,6 +8,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\node\Entity\Node;
+use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +45,7 @@ class SocialAuthController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('token');
+    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): StripeController|static
@@ -53,6 +55,9 @@ class SocialAuthController extends ControllerBase
     );
   }
 
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
   public function capture(Request $request): Response
   {
     $response = new Response();
@@ -69,13 +74,27 @@ class SocialAuthController extends ControllerBase
     if ($data['email_verified'] === true) {
       $email = $data['email'];
       $user = user_load_by_mail($email);
-      if ($user instanceof UserInterface) {
-
-      } else {
+      if (!$user instanceof UserInterface) {
         $photo_url = $data['picture'];
         $first_name = $data['given_name'];
         $last_name = $data['family_name'];
 
+        $user = User::create();
+        $user->setUsername($email); //This username must be unique and accept only a-Z,0-9, - _ @ .
+        $user->setPassword("azerty");
+        $user->enforceIsNew();
+        $user->setEmail($email);
+        $user->addRole('customer'); //E.g: authenticated or administrator
+        $user->activate();
+        $result = $user->save();
+        if ($result === SAVED_NEW) {
+          Node::create([
+            'type' => 'customer',
+            'title' => 'New Customer',
+            'field_customer_lastname' => $last_name,
+            'field_customer_user' => $user->id()
+          ])->save();
+        }
       }
       $response->setContent('Google signed in successfully');
       $response->setStatusCode(Response::HTTP_OK);
