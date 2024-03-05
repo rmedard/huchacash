@@ -204,6 +204,13 @@ function dinger_settings_node_insert(EntityInterface $entity): void
 }
 
 /**
+ * Implements hook_preprocess_HOOK().
+ */
+function dinger_settings_preprocess_page(&$variables) {
+  Drupal::logger('xxx')->debug(Drupal::request()->getRequestUri());
+}
+
+/**
  * Implements hook_cron().
  */
 function dinger_settings_cron(): void
