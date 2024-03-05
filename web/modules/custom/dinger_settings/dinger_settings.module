@@ -206,8 +206,11 @@ function dinger_settings_node_insert(EntityInterface $entity): void
 /**
  * Implements hook_preprocess_HOOK().
  */
-function dinger_settings_preprocess_page(&$variables) {
-  Drupal::logger('xxx')->debug(Drupal::request()->getRequestUri());
+function dinger_settings_preprocess_page(&$variables): void {
+  if (Drupal::request()->getRequestUri() === '/page/hucha-cash-terms-and-conditions') {
+    $target = Drupal::request()->query->get('target');
+    Drupal::logger('xxx')->debug($target);
+  }
 }
 
 /**
