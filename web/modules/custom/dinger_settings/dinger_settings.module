@@ -208,8 +208,9 @@ function dinger_settings_node_insert(EntityInterface $entity): void
  */
 function dinger_settings_preprocess_page(&$variables): void {
   if (Drupal::request()->getRequestUri() === '/page/hucha-cash-terms-and-conditions') {
+    Drupal::logger('xxx')->debug('Query Str: ' . Drupal::request()->getQueryString());
     $target = Drupal::request()->query->get('target');
-    Drupal::logger('xxx')->debug($target);
+    Drupal::logger('xxx')->debug('target: ' . $target);
   }
 }
 
