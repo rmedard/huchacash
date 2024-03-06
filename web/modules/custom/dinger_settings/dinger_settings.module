@@ -208,8 +208,7 @@ function dinger_settings_node_insert(EntityInterface $entity): void
  */
 function dinger_settings_preprocess_page(&$variables): void {
   if (Drupal::request()->query->has('target')) {
-    $target = Drupal::request()->query->get('target');
-    Drupal::logger('xxx')->debug('target: ' . $target);
+    $variables['target_device'] = Drupal::request()->query->get('target');
   }
 }
 
