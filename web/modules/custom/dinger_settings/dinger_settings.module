@@ -235,14 +235,18 @@ function dinger_settings_cron(): void
       if ($expiredCall instanceof NodeInterface) {
         try {
           $order = $expiredCall->get('field_call_order')->entity;
-          if ($utils->isInThePast($order->get('field_order_delivery_time')->date)) {
-            $order->set('field_order_status', 'cancelled');
+          if ($order == null) {
+            $logger->error('No order attached to call ' . $expiredCallId . ' found');
           } else {
-            $order->set('field_order_status', 'idle');
+            if ($utils->isInThePast($order->get('field_order_delivery_time')->date)) {
+              $order->set('field_order_status', 'cancelled');
+            } else {
+              $order->set('field_order_status', 'idle');
+            }
+            $expiredCall->set('field_call_status', 'expired');
+            $order->save();
+            $expiredCall->save();
           }
-          $expiredCall->set('field_call_status', 'expired');
-          $order->save();
-          $expiredCall->save();
         } catch (EntityStorageException $e) {
           $options = ['@message' => $e->getMessage()];
           $logger->error(t('Updating expired order or call failed. Message: @message', $options));
