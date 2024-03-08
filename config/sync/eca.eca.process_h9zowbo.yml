@@ -11,7 +11,7 @@ id: process_h9zowbo
 modeller: bpmn_io
 label: createOrderExpirerGCTask
 version: 1.0.0
-weight: null
+weight: -4
 events:
   Event_0fmnvb3:
     plugin: 'content_entity:presave'

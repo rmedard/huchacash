@@ -16,7 +16,7 @@ id: process_z6zokj4
 modeller: bpmn_io
 label: onCallCreated
 version: 1.0.0
-weight: -10
+weight: -8
 events:
   Event_0fs98m0:
     plugin: 'content_entity:insert'
