@@ -1,0 +1,155 @@
+uuid: 1c69d076-d8c1-484a-a476-2db98dee77df
+langcode: en
+status: true
+dependencies:
+  config:
+    - eca.eca.process_ldwgdyq
+id: process_ldwgdyq
+label: onBidCreated
+tags:
+  - untagged
+documentation: ''
+filename: ''
+modeldata: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <bpmn2:process id="Process_lDwgDyQ" name="onBidCreated" isExecutable="true" camunda:versionTag="1.0.0">
+      <bpmn2:startEvent id="Event_0rroo4h" camunda:modelerTemplate="org.drupal.event.content_entity:insert">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="content_entity:insert" />
+          </camunda:properties>
+          <camunda:field name="type">
+            <camunda:string>node bid</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:outgoing>Flow_0xiidpb</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:exclusiveGateway id="Gateway_10yp8rk">
+        <bpmn2:incoming>Flow_1k9nham</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_0xgk8c8</bpmn2:outgoing>
+      </bpmn2:exclusiveGateway>
+      <bpmn2:sequenceFlow id="Flow_0xiidpb" sourceRef="Event_0rroo4h" targetRef="Activity_16j77wy" />
+      <bpmn2:task id="Activity_16j77wy" name="attachBidToCall" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_set_field_value" />
+          </camunda:properties>
+          <camunda:field name="method">
+            <camunda:string>append:not_full</camunda:string>
+          </camunda:field>
+          <camunda:field name="strip_tags">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="trim">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="field_name">
+            <camunda:string>field_call_bids</camunda:string>
+          </camunda:field>
+          <camunda:field name="save_entity">
+            <camunda:string>yes</camunda:string>
+          </camunda:field>
+          <camunda:field name="field_value">
+            <camunda:string>[node:id]</camunda:string>
+          </camunda:field>
+          <camunda:field name="object">
+            <camunda:string>node:field_bid_call</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_0xiidpb</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_1k9nham</bpmn2:outgoing>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_1k9nham" sourceRef="Activity_16j77wy" targetRef="Gateway_10yp8rk" />
+      <bpmn2:task id="Activity_0eegumj" name="setCallAttributed" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_set_field_value" />
+          </camunda:properties>
+          <camunda:field name="method">
+            <camunda:string>set:clear</camunda:string>
+          </camunda:field>
+          <camunda:field name="strip_tags">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="trim">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="field_name">
+            <camunda:string>field_call_status</camunda:string>
+          </camunda:field>
+          <camunda:field name="save_entity">
+            <camunda:string>yes</camunda:string>
+          </camunda:field>
+          <camunda:field name="field_value">
+            <camunda:string>attributed</camunda:string>
+          </camunda:field>
+          <camunda:field name="object">
+            <camunda:string>node:field_bid_call</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_0xgk8c8</bpmn2:incoming>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_0xgk8c8" name="isAcceptBid" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value" sourceRef="Gateway_10yp8rk" targetRef="Activity_0eegumj">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_entity_field_value" />
+          </camunda:properties>
+          <camunda:field name="field_name">
+            <camunda:string>field_bid_type</camunda:string>
+          </camunda:field>
+          <camunda:field name="operator">
+            <camunda:string>equal</camunda:string>
+          </camunda:field>
+          <camunda:field name="expected_value">
+            <camunda:string>accept</camunda:string>
+          </camunda:field>
+          <camunda:field name="type">
+            <camunda:string>value</camunda:string>
+          </camunda:field>
+          <camunda:field name="case">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="negate">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="entity">
+            <camunda:string>node</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+      </bpmn2:sequenceFlow>
+    </bpmn2:process>
+    <bpmndi:BPMNDiagram id="sid-d6dee60c-4b6c-4672-af9b-ba2dbf0ae769">
+      <bpmndi:BPMNPlane id="sid-1c2c31d3-39b4-4663-a471-d62bf6d9c373" bpmnElement="Process_lDwgDyQ">
+        <bpmndi:BPMNShape id="Event_0rroo4h_di" bpmnElement="Event_0rroo4h">
+          <dc:Bounds x="252" y="102" width="36" height="36" />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_16j77wy_di" bpmnElement="Activity_16j77wy">
+          <dc:Bounds x="600" y="80" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Gateway_10yp8rk_di" bpmnElement="Gateway_10yp8rk" isMarkerVisible="true">
+          <dc:Bounds x="945" y="95" width="50" height="50" />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_0eegumj_di" bpmnElement="Activity_0eegumj">
+          <dc:Bounds x="1240" y="80" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNEdge id="Flow_0xiidpb_di" bpmnElement="Flow_0xiidpb">
+          <di:waypoint x="288" y="120" />
+          <di:waypoint x="600" y="120" />
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_1k9nham_di" bpmnElement="Flow_1k9nham">
+          <di:waypoint x="700" y="120" />
+          <di:waypoint x="945" y="120" />
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_0xgk8c8_di" bpmnElement="Flow_0xgk8c8">
+          <di:waypoint x="995" y="120" />
+          <di:waypoint x="1240" y="120" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="1090" y="102" width="58" height="14" />
+          </bpmndi:BPMNLabel>
+        </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+  </bpmn2:definitions>

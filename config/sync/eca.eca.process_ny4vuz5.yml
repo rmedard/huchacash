@@ -11,7 +11,7 @@ id: process_ny4vuz5
 modeller: bpmn_io
 label: onOrderCreated
 version: 1.0.0
-weight: -10
+weight: -6
 events:
   Event_0pchcgm:
     plugin: 'content_entity:insert'

@@ -40,25 +40,4 @@ class EntityHandlerService {
       }
     }
   }
-
-  public function onBidInserted(NodeInterface $bid): void {
-    $call = $bid->get('field_bid_call')->entity;
-    if ($call instanceof NodeInterface) {
-      $bids = $call->get('field_call_bids');
-      if ($bids instanceof FieldItemListInterface) {
-        $bids->appendItem(['target_id' => $bid->id()]);
-      }
-
-      if ($bid->get('field_bid_status')->value == 'accepted') {
-        $call->set('field_call_status', 'attributed');
-      }
-
-      try {
-        $call->save();
-        $this->logger->info('Call updated successfully');
-      } catch (EntityStorageException $e) {
-        $this->logger->error('Updating bid failed: ' . $e->getMessage());
-      }
-    }
-  }
 }

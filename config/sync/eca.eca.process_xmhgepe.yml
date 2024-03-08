@@ -18,7 +18,7 @@ id: process_xmhgepe
 modeller: bpmn_io
 label: onBidUpdate
 version: 1.0.0
-weight: -10
+weight: -9
 events:
   Event_12gnwc0:
     plugin: 'content_entity:update'
