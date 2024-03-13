@@ -75,7 +75,7 @@ actions:
     configuration:
       field_name: field_call_bids
       token_name: call_bids
-      object: 'node:field_bid_call:field_call_bids'
+      object: 'node:field_bid_call'
     successors:
       -
         id: Activity_0btrdp0
