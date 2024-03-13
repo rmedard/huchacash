@@ -60,7 +60,9 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
 function dinger_settings_node_presave(NodeInterface $node): void
 {
   if ($node->isNew()) {
-    $reference = '_' . Drupal::service('hucha_settings.utils_service')->generateRandomId();
+    /** @var \Drupal\dinger_settings\Service\UtilsService $utilsService **/
+    $utilsService = Drupal::service('hucha_settings.utils_service');
+    $reference = '_' . $utilsService->generateRandomId();
     switch ($node->bundle()) {
       case 'customer':
         $node->setTitle('CUS' . $reference);
@@ -86,9 +88,20 @@ function dinger_settings_node_presave(NodeInterface $node): void
     }
   }
 
-  if ($node->bundle() == 'bid') {
-    if ($node->get('field_bid_type')->value == 'accept') {
-      $node->set('field_bid_status', 'accepted');
+  if ($node->bundle() == 'order') {
+    /**
+     * Update order total price
+     */
+    $currentTotalPrice = doubleval($node->get('field_order_shopping_total_cost')->getString());
+    /** @var \Drupal\Core\Field\EntityReferenceFieldItemList $orderItems **/
+    $orderItems = $node->get('field_order_items');
+    $totalPrice = 0;
+    foreach ($orderItems->referencedEntities() as $delta => $orderItem) {
+      $totalPrice += doubleval($orderItem->get('field_order_item_price')->getString());
+    }
+
+    if ($currentTotalPrice !== $totalPrice) {
+      $node->set('field_order_shopping_total_cost', $totalPrice);
     }
   }
 }

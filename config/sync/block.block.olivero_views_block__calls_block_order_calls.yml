@@ -1,0 +1,33 @@
+uuid: b7cbf652-3508-47a6-b54a-fd7e4ed02faf
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.calls
+  module:
+    - node
+    - views
+  theme:
+    - olivero
+id: olivero_views_block__calls_block_order_calls
+theme: olivero
+region: content
+weight: 0
+provider: null
+plugin: 'views_block:calls-block_order_calls'
+settings:
+  id: 'views_block:calls-block_order_calls'
+  label: 'Order Calls'
+  label_display: visible
+  provider: views
+  context_mapping: {  }
+  views_label: 'Order Calls'
+  items_per_page: none
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      order: order

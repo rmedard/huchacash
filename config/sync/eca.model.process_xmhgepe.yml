@@ -115,7 +115,7 @@ modeldata: |
             <camunda:string>call_bids</camunda:string>
           </camunda:field>
           <camunda:field name="object">
-            <camunda:string>node:field_bid_call:field_call_bids</camunda:string>
+            <camunda:string>node:field_bid_call</camunda:string>
           </camunda:field>
         </bpmn2:extensionElements>
         <bpmn2:incoming>Flow_1m1fs2p</bpmn2:incoming>
