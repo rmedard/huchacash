@@ -50,7 +50,7 @@ class BiddingService {
 
           $existingBidIds = $this->entityTypeManager
             ->getStorage('node')
-            ->getQuery()
+            ->getQuery()->accessCheck(FALSE)
             ->condition('type', 'bid')
             ->condition('nid', $bid->id(), '<>')
             ->condition('field_bid_call.target_id', $call->id())
