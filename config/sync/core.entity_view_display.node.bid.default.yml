@@ -26,7 +26,15 @@ content:
       scale: 2
       prefix_suffix: true
     third_party_settings: {  }
-    weight: 105
+    weight: 4
+    region: content
+  field_bid_call:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
     region: content
   field_bid_customer:
     type: entity_reference_label
@@ -34,26 +42,25 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 103
+    weight: 2
     region: content
   field_bid_status:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 104
+    weight: 3
     region: content
   field_bid_type:
     type: list_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 102
+    weight: 0
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 5
     region: content
-hidden:
-  field_bid_call: true
+hidden: {  }
