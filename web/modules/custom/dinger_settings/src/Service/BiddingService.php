@@ -10,6 +10,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use http\Exception\InvalidArgumentException;
 
 class BiddingService {
 
@@ -37,37 +38,59 @@ class BiddingService {
 
   public function onBidUpdated(NodeInterface $bid): void {
 
+    if ($bid->isNew()) {
+      throw new InvalidArgumentException('Bid has invalid state. Should not be new.');
+    }
+
     /** @var $initialBid NodeInterface */
     $initialBid = $bid->original;
     $bidStatus = $bid->get('field_bid_status')->getString();
     $bidStatusUpdated = $bidStatus !== $initialBid->get('field_bid_status')->getString();
     if ($bidStatusUpdated) {
       if ($bidStatus === 'confirmed') {
-
-        try {
-          /** @var $call NodeInterface */
-          $call = $bid->get('field_bid_call')->entity;
-
-          $existingBidIds = $this->entityTypeManager
-            ->getStorage('node')
-            ->getQuery()->accessCheck(FALSE)
-            ->condition('type', 'bid')
-            ->condition('nid', $bid->id(), '<>')
-            ->condition('field_bid_call.target_id', $call->id())
-            ->execute();
-          $bids = Node::loadMultiple($existingBidIds);
-          foreach ($bids as $bidId => $bid) {
-            $bid->set('field_bid_status', 'rejected');
-            $bid->save();
-          }
-
-          $call->set('field_call_status', 'attributed');
-          $call->save();
-        }
-        catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
-          $this->logger->error($e);
-        }
+        $this->processConfirmedBid($bid);
       }
+    }
+  }
+
+  public function onBidCreated(NodeInterface $bid): void {
+    if (!$bid->isNew()) {
+      throw new InvalidArgumentException('Bid has invalid state. Should be new.');
+    }
+
+    /** @var $call NodeInterface */
+    $call = $bid->get('field_bid_call')->entity;
+    $call->get('field_call_bids')->appendItem(['target_id' => $bid->id()]);
+
+    $bidStatus = $bid->get('field_bid_status')->getString();
+    if ($bidStatus === 'confirmed') {
+      $this->processConfirmedBid($bid);
+    }
+  }
+
+  private function processConfirmedBid(NodeInterface $bid): void {
+    try {
+      /** @var $call NodeInterface */
+      $call = $bid->get('field_bid_call')->entity;
+
+      $existingBidIds = $this->entityTypeManager
+        ->getStorage('node')
+        ->getQuery()->accessCheck(FALSE)
+        ->condition('type', 'bid')
+        ->condition('nid', $bid->id(), '<>')
+        ->condition('field_bid_call.target_id', $call->id())
+        ->execute();
+      $bids = Node::loadMultiple($existingBidIds);
+      foreach ($bids as $bidId => $bid) {
+        $bid->set('field_bid_status', 'rejected');
+        $bid->save();
+      }
+
+      $call->set('field_call_status', 'attributed');
+      $call->save();
+    }
+    catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
+      $this->logger->error($e);
     }
   }
 }
