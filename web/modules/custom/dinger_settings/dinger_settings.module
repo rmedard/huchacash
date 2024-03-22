@@ -86,6 +86,10 @@ function dinger_settings_node_presave(NodeInterface $node): void
         $node->setTitle('ROUTE' . $reference);
         break;
     }
+  } else {
+    if ($node->bundle() == 'bid') {
+      Drupal::logger('Bid Update Presave')->debug(t('Bid @id update presave', ['@id' => $node->id()]));
+    }
   }
 
   if ($node->bundle() == 'order') {
@@ -128,6 +132,9 @@ function dinger_settings_node_update(NodeInterface $node): void
         $order->set('field_order_status', $newOrderStatus);
         $order->save();
       }
+      break;
+    case 'bid':
+      Drupal::logger('Bid Update')->debug(t('Bid @id updated', ['@id' => $node->id()]));
       break;
   }
 }
