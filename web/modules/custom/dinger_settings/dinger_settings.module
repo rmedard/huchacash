@@ -295,7 +295,7 @@ function dinger_settings_node_access(EntityInterface $entity, $operation, Accoun
         'bidder' => $bidCreator->id(),
         'caller' => $relatedCallCreator->id(),
       ];
-      Drupal::logger('Node Access')->info('<pre><code>' . print_r($data, TRUE) . '</code></pre>');
+      Drupal::logger('Bid Update')->info('<pre><code>' . print_r($data, TRUE) . '</code></pre>');
 
 
       if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
