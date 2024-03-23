@@ -10,7 +10,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
-use http\Exception\InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CallsService {
 
@@ -39,7 +39,7 @@ class CallsService {
   public function onCallUpdated(NodeInterface $call): void {
 
     if ($call->isNew()) {
-      throw new InvalidArgumentException('Call has invalid state. Should not be new.');
+      throw new BadRequestHttpException('Call has invalid state. Should not be new.');
     }
 
     /** @var $originalCall NodeInterface */
