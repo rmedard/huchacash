@@ -10,7 +10,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
-use http\Exception\InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class BiddingService {
 
@@ -39,7 +39,7 @@ class BiddingService {
   public function onBidUpdated(NodeInterface $bid): void {
 
     if ($bid->isNew()) {
-      throw new InvalidArgumentException('Bid has invalid state. Should not be new.');
+      throw new BadRequestHttpException('Bid has invalid state. Should not be new.');
     }
 
     /** @var $initialBid NodeInterface */
@@ -55,7 +55,7 @@ class BiddingService {
 
   public function onBidCreated(NodeInterface $bid): void {
     if (!$bid->isNew()) {
-      throw new InvalidArgumentException('Bid has invalid state. Should be new.');
+      throw new BadRequestHttpException('Bid has invalid state. Should be new.');
     }
 
     /** @var $call NodeInterface */

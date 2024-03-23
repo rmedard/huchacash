@@ -136,6 +136,7 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
   if ($entity->bundle() === 'bid') {
     /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
     $biddingService = Drupal::service('hucha_settings.bidding_service');
+    $entity->enforceIsNew();
     $biddingService->onBidCreated($entity);
   }
 }
