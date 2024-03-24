@@ -2,6 +2,7 @@
 
 namespace Drupal\dinger_settings\Service;
 
+use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
@@ -53,8 +54,7 @@ class CallsService {
         $order = $call->get('field_call_order')->entity;
         switch ($callStatus) {
           case 'attributed':
-            $order->set('field_order_status', 'delivering');
-            $order->save();
+            $this->processAttributedCall($call);
             break;
           case 'cancelled':
           case 'expired':
@@ -78,6 +78,31 @@ class CallsService {
       } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
         $this->logger->error($e);
       }
+    }
+  }
+
+  private function processAttributedCall(NodeInterface $call): void {
+    $callStatus = $call->get('field_bid_status')->getString();
+    if ($callStatus !== 'attributed') {
+      throw new BadRequestHttpException(t('Call @id has invalid status. @invalid should be attributed', [
+        '@id' => $call->id(),
+        '@status' => $callStatus
+      ]));
+    }
+
+    /** @var $order NodeInterface */
+    $order = $call->get('field_call_order')->entity;
+    /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
+    $biddingService = Drupal::service('hucha_settings.bidding_service');
+    $confirmedBid = $biddingService->findCallConfirmedBid($call);
+    try {
+      $order
+        ->set('field_order_status', 'delivering')
+        ->set('field_order_executor.target_id', $confirmedBid->get('field_bid_customer')->entity->id())
+        ->save();
+    }
+    catch (EntityStorageException $e) {
+      $this->logger->error($e);
     }
   }
 }
