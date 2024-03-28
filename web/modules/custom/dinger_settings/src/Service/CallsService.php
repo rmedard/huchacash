@@ -82,7 +82,7 @@ class CallsService {
   }
 
   private function processAttributedCall(NodeInterface $call): void {
-    $callStatus = $call->get('field_bid_status')->getString();
+    $callStatus = $call->get('field_call_status')->getString();
     if ($callStatus !== 'attributed') {
       throw new BadRequestHttpException(t('Call @id has invalid status. @invalid should be attributed', [
         '@id' => $call->id(),
