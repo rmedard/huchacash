@@ -84,13 +84,13 @@
         "drupal/symfony_mailer": "^1.4",
         "drupal/typed_data": "^1.0@beta",
         "drush/drush": "^12",
-        "google/cloud-firestore": "^1.43",
         "google/cloud-tasks": "^1.14",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
         "stripe/stripe-php": "^13.10.0",
         "vlucas/phpdotenv": "^5.1",
-        "webflo/drupal-finder": "^1.2"
+        "webflo/drupal-finder": "^1.2",
+        "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
         "drupal/core-dev": "^10",
@@ -115,10 +115,16 @@
             "drupal/core-project-message": true,
             "drupal/core-vendor-hardening": true,
             "php-http/discovery": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "extra": {
+        "merge-plugin": {
+            "include": [
+                "web/modules/custom/*/composer.json"
+            ]
+        },
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
