@@ -1,0 +1,24 @@
+uuid: e3615df3-6b35-4ae1-8812-d2d26676ccc9
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_call_order_confirm_nbr
+field_name: field_call_order_confirm_nbr
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

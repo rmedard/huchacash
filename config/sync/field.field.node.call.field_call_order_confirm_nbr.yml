@@ -1,0 +1,23 @@
+uuid: 24ae338c-2f7a-4cf7-9888-92febbf2395b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_call_order_confirm_nbr
+    - node.type.call
+id: node.call.field_call_order_confirm_nbr
+field_name: field_call_order_confirm_nbr
+entity_type: node
+bundle: call
+label: 'Order Confirmation Number'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer
