@@ -8,12 +8,6 @@ use Google\Cloud\Firestore\Transaction;
 
 class FirestoreCloudService {
 
-  protected CallsService $callsService;
-
-  public function __construct(CallsService $callsService) {
-    $this->callsService = $callsService;
-  }
-
   /**
    * @param $callId
    * @param $orderNumber
