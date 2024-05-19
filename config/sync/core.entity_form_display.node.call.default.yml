@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.call.field_call_bids
     - field.field.node.call.field_call_expiry_time
     - field.field.node.call.field_call_order
+    - field.field.node.call.field_call_order_confirm_nbr
     - field.field.node.call.field_call_proposed_service_fee
     - field.field.node.call.field_call_status
     - field.field.node.call.field_call_type
@@ -42,6 +43,13 @@ content:
       match_operator: CONTAINS
       match_limit: 10
       size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_call_order_confirm_nbr:
+    type: number
+    weight: 56
+    region: content
+    settings:
       placeholder: ''
     third_party_settings: {  }
   field_call_proposed_service_fee:

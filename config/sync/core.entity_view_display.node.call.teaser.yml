@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.call.field_call_bids
     - field.field.node.call.field_call_expiry_time
     - field.field.node.call.field_call_order
+    - field.field.node.call.field_call_order_confirm_nbr
     - field.field.node.call.field_call_proposed_service_fee
     - field.field.node.call.field_call_status
     - field.field.node.call.field_call_type
@@ -28,6 +29,7 @@ hidden:
   field_call_bids: true
   field_call_expiry_time: true
   field_call_order: true
+  field_call_order_confirm_nbr: true
   field_call_proposed_service_fee: true
   field_call_status: true
   field_call_type: true
