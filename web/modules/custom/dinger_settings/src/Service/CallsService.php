@@ -81,12 +81,18 @@ class CallsService {
     }
   }
 
+  public function getNextOrderNumber (): int {
+    $orderNumber = Drupal::state()->get('next_order_number', 1);
+    Drupal::state()->set('next_order_number', $orderNumber + 1);
+    return $orderNumber;
+  }
+
   private function processAttributedCall(NodeInterface $call): void {
     $callStatus = $call->get('field_call_status')->getString();
     if ($callStatus !== 'attributed') {
       throw new BadRequestHttpException(t('Call @id has invalid status. @invalid should be attributed', [
         '@id' => $call->id(),
-        '@status' => $callStatus
+        '@status' => $callStatus,
       ]));
     }
 

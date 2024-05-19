@@ -16,6 +16,7 @@ use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+use Google\Cloud\Core\Exception\GoogleException;
 
 /**
  * Implements hook_entity_type_alter().
@@ -89,6 +90,24 @@ function dinger_settings_node_presave(NodeInterface $node): void
   } else {
     if ($node->bundle() == 'bid') {
       Drupal::logger('Bid Update Presave')->debug(t('Bid @id update presave', ['@id' => $node->id()]));
+    }
+
+    if ($node->bundle() == 'call') {
+      $orderAttributed = $node->get('field_call_status')->getString() === 'attributed';
+      if ($orderAttributed) {
+        /** @var \Drupal\dinger_settings\Service\CallsService $callsService **/
+        /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
+        $callsService = Drupal::service('hucha_settings.calls_service');
+        $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+        $nextOrderNumber = $callsService->getNextOrderNumber();
+        try {
+          $firestoreService->setCallOrderNumber($node->id(), $nextOrderNumber);
+          $node->set('field_call_order_confirm_nbr', $nextOrderNumber);
+        }
+        catch (GoogleException $e) {
+          Drupal::logger('Call Update Presave')->error($e);
+        }
+      }
     }
   }
 

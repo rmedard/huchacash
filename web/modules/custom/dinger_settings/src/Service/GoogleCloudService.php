@@ -21,7 +21,7 @@ use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
-use http\Exception\InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Google Cloud Services
@@ -88,7 +88,7 @@ final class GoogleCloudService {
     $expireNodeCallbackUrl = match ($targetNode->bundle()) {
       GcNodeType::CALL => $config->get('call_expire_function'),
       GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
-      default => throw new InvalidArgumentException('Unsupported Node Type'),
+      default => throw new BadRequestHttpException('Unsupported Node Type'),
     };
 
     $taskRequest = (new CreateTaskRequest())

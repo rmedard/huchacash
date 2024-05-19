@@ -34,3 +34,7 @@ services:
   dinger_settings.google_cloud_service:
     class: Drupal\dinger_settings\Service\GoogleCloudService
     arguments: ['@config.factory', '@logger.factory']
+
+  dinger_settings.firestore_cloud_service:
+    class: Drupal\dinger_settings\Service\FirestoreCloudService
+    arguments: ['@hucha_settings.calls_service']

@@ -84,6 +84,7 @@
         "drupal/symfony_mailer": "^1.4",
         "drupal/typed_data": "^1.0@beta",
         "drush/drush": "^12",
+        "google/cloud-firestore": "^1.43",
         "google/cloud-tasks": "^1.14",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
