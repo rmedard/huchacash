@@ -11,6 +11,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Google\Cloud\Core\Exception\GoogleException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CallsService {
@@ -96,6 +97,9 @@ class CallsService {
       ]));
     }
 
+    /**
+     * Set order delivery executor
+     */
     /** @var $order NodeInterface */
     $order = $call->get('field_call_order')->entity;
     /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
@@ -106,8 +110,17 @@ class CallsService {
         ->set('field_order_status', 'delivering')
         ->set('field_order_executor.target_id', $confirmedBid->get('field_bid_customer')->entity->id())
         ->save();
+
+      /**
+       * Compute order number & update firestore
+       */
+      /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
+      $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+      $nextOrderNumber = $this->getNextOrderNumber();
+      $firestoreService->setCallOrderNumber($call->id(), $nextOrderNumber);
+      $call->set('field_call_order_confirm_nbr', $nextOrderNumber);
     }
-    catch (EntityStorageException $e) {
+    catch (EntityStorageException|GoogleException $e) {
       $this->logger->error($e);
     }
   }

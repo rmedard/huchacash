@@ -87,28 +87,6 @@ function dinger_settings_node_presave(NodeInterface $node): void
         $node->setTitle('ROUTE' . $reference);
         break;
     }
-  } else {
-    if ($node->bundle() == 'bid') {
-      Drupal::logger('Bid Update Presave')->debug(t('Bid @id update presave', ['@id' => $node->id()]));
-    }
-
-    if ($node->bundle() == 'call') {
-      $orderAttributed = $node->get('field_call_status')->getString() === 'attributed';
-      if ($orderAttributed) {
-        /** @var \Drupal\dinger_settings\Service\CallsService $callsService **/
-        /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
-        $callsService = Drupal::service('hucha_settings.calls_service');
-        $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
-        $nextOrderNumber = $callsService->getNextOrderNumber();
-        try {
-          $firestoreService->setCallOrderNumber($node->id(), $nextOrderNumber);
-          $node->set('field_call_order_confirm_nbr', $nextOrderNumber);
-        }
-        catch (GoogleException $e) {
-          Drupal::logger('Call Update Presave')->error($e);
-        }
-      }
-    }
   }
 
   if ($node->bundle() == 'order') {
@@ -290,20 +268,6 @@ function dinger_settings_cron(): void
           }
         }
       }
-    }
-  }
-
-  $debugGoogle = true;
-  if ($debugGoogle === true) {
-    Drupal::logger('XXX')->debug('About to call Firestore Cloud');
-
-    /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
-    $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
-    try {
-      $firestoreService->setCallOrderNumber('AdLHOojxQrhzwY3Qiuph', 11);
-    }
-    catch (GoogleException $e) {
-      Drupal::logger('DingerSettings')->error($e);
     }
   }
 }

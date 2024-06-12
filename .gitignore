@@ -70,3 +70,5 @@ logs/
 .rnd
 .ssh/
 error_docs/
+
+.ddev/
