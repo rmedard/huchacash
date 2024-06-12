@@ -37,4 +37,5 @@ services:
 
   dinger_settings.firestore_cloud_service:
     class: Drupal\dinger_settings\Service\FirestoreCloudService
-    arguments: [ ]
+    arguments:
+      - '@logger.factory'
