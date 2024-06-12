@@ -292,6 +292,20 @@ function dinger_settings_cron(): void
       }
     }
   }
+
+  $debugGoogle = true;
+  if ($debugGoogle === true) {
+    Drupal::logger('XXX')->debug('About to call Firestore Cloud');
+
+    /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
+    $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+    try {
+      $firestoreService->setCallOrderNumber('AdLHOojxQrhzwY3Qiuph', 11);
+    }
+    catch (GoogleException $e) {
+      Drupal::logger('DingerSettings')->error($e);
+    }
+  }
 }
 
 /**
@@ -336,3 +350,4 @@ function dinger_settings_node_access(EntityInterface $entity, $operation, Accoun
   }
   return AccessResult::neutral();
 }
+
