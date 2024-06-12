@@ -108,7 +108,7 @@ class CallsService {
     try {
       $order
         ->set('field_order_status', 'delivering')
-        ->set('field_order_executor.target_id', $confirmedBid->get('field_bid_customer')->entity->id())
+        ->set('field_order_executor', $confirmedBid->get('field_bid_customer')->entity)
         ->save();
 
       /**
