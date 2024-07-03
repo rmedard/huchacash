@@ -7,6 +7,7 @@ use Drupal\node\Entity\Node;
 use Google\Cloud\Core\Timestamp;
 
 class Order {
+  public string $nid;
   public string $id;
   public string $type;
   public string $orderNumber;
@@ -21,6 +22,7 @@ class Order {
   public float $shoppingCost;
 
   public function __construct(Node $order) {
+    $this->nid = $order->id();
     $this->id = $order->uuid();
     $this->type = $order->get('field_order_type')->getString();
     $this->orderNumber = $order->id();

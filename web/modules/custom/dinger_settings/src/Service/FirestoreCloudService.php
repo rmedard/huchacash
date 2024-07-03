@@ -20,24 +20,32 @@ final class FirestoreCloudService {
   protected LoggerChannelInterface $logger;
 
   /**
+   * @var \Google\Cloud\Firestore\FirestoreClient
+   */
+  protected FirestoreClient $firestoreClient;
+
+  /**
    * @param LoggerChannelFactory $logger
+   *
+   * @throws \Google\Cloud\Core\Exception\GoogleException
    */
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('firestore_service');
+
+    /** Initialise Firestore Client **/
+    $settingsFileLocation = Settings::get('gc_tasks_settings_file');
+    $this->firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
   }
   /**
    * @param $callId
    * @param $orderNumber
    *
-   * @throws \Google\Cloud\Core\Exception\GoogleException
    */
   public function setCallOrderNumber($callId, $orderNumber): void {
     $this->logger->info('Firestore Cloud: Setting order number. CallId: @callId | OrderNbr: @orderNbr', ['@callId' => $callId, '@orderNbr' => $orderNumber]);
-    $settingsFileLocation = Settings::get('gc_tasks_settings_file');
-    $firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
-    $callReference = $firestoreClient->collection('live_calls')->document($callId);
-    $firestoreClient->runTransaction(function(Transaction $transaction) use ($callReference, $orderNumber) {
+    $callReference = $this->firestoreClient->collection('live_calls')->document($callId);
+    $this->firestoreClient->runTransaction(function(Transaction $transaction) use ($callReference, $orderNumber) {
       $transaction->update($callReference, [
         [
           'path' => 'order_confirmation_number',
@@ -47,9 +55,7 @@ final class FirestoreCloudService {
     });
   }
 
-  /**
-   * @throws \Google\Cloud\Core\Exception\GoogleException
-   */
+
   public function createFireCall(Node $call): void {
 
     $this->logger->info('Firestore Cloud: Creating fireCall. CallId: @callId', ['@callId' => $call->uuid()]);
@@ -57,9 +63,7 @@ final class FirestoreCloudService {
 
     $this->logger->info('<pre><code>' . print_r($fireCall, TRUE) . '</code></pre>');
 
-    $settingsFileLocation = Settings::get('gc_tasks_settings_file');
-    $firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
-    $collectionReference = $firestoreClient->collection('live_calls');
+    $collectionReference = $this->firestoreClient->collection('live_calls');
     $result = $collectionReference
       ->document($fireCall->id)
       ->create($fireCall->toFirestoreBody());
