@@ -11,7 +11,7 @@ third_party_settings:
 name: Bid
 type: bid
 description: 'An offer from a customer to execute an order'
-help: ''
+help: null
 new_revision: false
 preview_mode: 0
 display_submitted: false
