@@ -60,7 +60,9 @@ class FireCall {
       'caller_name' => $this->caller->lastname,
       'proposed_fee' => $this->proposedFee,
       'shopping_cost' => $this->order->shoppingCost,
-      'can_bargain' => $this->canBargain
+      'can_bargain' => $this->canBargain,
+      'order_number' => $this->order->nid,
+      'order_confirmation_number' => 0
     ];
   }
 }
