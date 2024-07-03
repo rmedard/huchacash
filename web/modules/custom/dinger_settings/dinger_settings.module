@@ -136,6 +136,12 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
     $entity->enforceIsNew();
     $biddingService->onBidCreated($entity);
   }
+
+  if ($entity->bundle() === 'call') {
+    /** @var \Drupal\dinger_settings\Service\CallsService $callsService **/
+    $callsService = Drupal::service('hucha_settings.calls_service');
+    $callsService->onCallInserted($entity);
+  }
 }
 
 /**

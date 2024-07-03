@@ -34,4 +34,10 @@ class UtilsService
     $date->setTimezone($timezone);
     return $now->getTimestamp() - $date->getTimestamp() >= 0;
   }
+
+  public static function dateTimeToTimestamp(DrupalDateTime $dateTime): int {
+    $timezone = new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
+    $dateTime->setTimezone($timezone);
+    return $dateTime->getTimestamp();
+  }
 }

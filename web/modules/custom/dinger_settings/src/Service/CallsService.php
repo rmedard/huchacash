@@ -38,6 +38,39 @@ class CallsService {
     $this->logger = $logger->get('hucha_bidding_service');
   }
 
+  public function onCallInserted(NodeInterface $call): void {
+    try {
+
+      if ($call->get('field_call_status')->getString() == 'live') {
+
+        /** Update order status **/
+        $order = $call->get('field_call_order')->entity;
+        if ($order instanceof NodeInterface) {
+          try {
+            $order->set('field_order_status', 'bidding');
+            $order->field_order_calls[] = ['target_id' => $call->id()];
+            $order->save();
+            $this->logger->info(t('Order @reference status updated for call @callReference',
+              [
+                '@reference' => $order->getTitle(),
+                '@callReference' => $call->getTitle()
+              ]));
+          } catch (EntityStorageException $e) {
+            $this->logger->error('Attaching call to order failed. Order: ' . $order->id() . '. Error: ' . $e->getMessage());
+          }
+        }
+
+        /** Create fireCall **/
+        /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
+        $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+        $firestoreService->createFireCall($call);
+      }
+    }
+    catch (GoogleException $e) {
+      $this->logger->error($e);
+    }
+  }
+
   public function onCallUpdated(NodeInterface $call): void {
 
     if ($call->isNew()) {

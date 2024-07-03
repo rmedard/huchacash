@@ -5,6 +5,8 @@ namespace Drupal\dinger_settings\Service;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
+use Drupal\dinger_settings\Model\FireCall;
+use Drupal\node\Entity\Node;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Firestore\Transaction;
 
@@ -45,4 +47,22 @@ final class FirestoreCloudService {
     });
   }
 
+  /**
+   * @throws \Google\Cloud\Core\Exception\GoogleException
+   */
+  public function createFireCall(Node $call): void {
+
+    $this->logger->info('Firestore Cloud: Creating fireCall. CallId: @callId', ['@callId' => $call->uuid()]);
+    $fireCall = new FireCall($call);
+
+    $this->logger->info('<pre><code>' . print_r($fireCall, TRUE) . '</code></pre>');
+
+    $settingsFileLocation = Settings::get('gc_tasks_settings_file');
+    $firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
+    $collectionReference = $firestoreClient->collection('live_calls');
+    $result = $collectionReference
+      ->document($fireCall->id)
+      ->create($fireCall->toFirestoreBody());
+    $this->logger->info('<pre><code>' . print_r($result, TRUE) . '</code></pre>');
+  }
 }
