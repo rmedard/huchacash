@@ -82,7 +82,7 @@
         "drupal/restui": "^1.21",
         "drupal/simple_oauth": "^5.2",
         "drupal/symfony_mailer": "^1.4",
-        "drupal/typed_data": "^1.0@beta",
+        "drupal/typed_data": "2.1.x-dev@dev",
         "drush/drush": "^12",
         "google/cloud-firestore": "^1.44",
         "google/cloud-tasks": "^1.14",
