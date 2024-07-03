@@ -8,11 +8,12 @@ use Drupal\dinger_settings\Model\SubModel\UserDetails;
 use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\node\Entity\Node;
 use Google\Cloud\Core\GeoPoint;
+use Google\Cloud\Core\Timestamp;
 
 class FireCall {
   public string $id;
   public string $status;
-  public int $expirationTime;
+  public Timestamp $expirationTime;
 
   public Order $order;
 
@@ -24,7 +25,7 @@ class FireCall {
   public function __construct(Node $call) {
     $this->id = $call->uuid();
     $this->status = $call->get('field_call_status')->getString();
-    $this->expirationTime = UtilsService::dateTimeToTimestamp($call->get('field_call_expiry_time')->date);
+    $this->expirationTime = UtilsService::dateTimeToGcTimestamp($call->get('field_call_expiry_time')->date);
 
     /** @var \Drupal\node\Entity\Node $orderEntity **/
     $orderEntity = $call->get('field_call_order')->entity;

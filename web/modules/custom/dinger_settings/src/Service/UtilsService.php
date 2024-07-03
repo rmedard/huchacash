@@ -7,6 +7,7 @@ use Drupal;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Exception;
+use Google\Cloud\Core\Timestamp;
 
 class UtilsService
 {
@@ -35,9 +36,9 @@ class UtilsService
     return $now->getTimestamp() - $date->getTimestamp() >= 0;
   }
 
-  public static function dateTimeToTimestamp(DrupalDateTime $dateTime): int {
+  public static function dateTimeToGcTimestamp(DrupalDateTime $dateTime): Timestamp {
     $timezone = new DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $dateTime->setTimezone($timezone);
-    return $dateTime->getTimestamp();
+    return new Timestamp($dateTime->getPhpDateTime());
   }
 }
