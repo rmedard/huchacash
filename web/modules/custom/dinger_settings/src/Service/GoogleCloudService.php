@@ -86,8 +86,7 @@ final class GoogleCloudService {
     $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
     $expireNodeCallbackUrl = match ($targetNode->bundle()) {
-      GcNodeType::CALL => $config->get('call_expire_function'),
-      GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
+      GcNodeType::CALL, GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
       default => throw new BadRequestHttpException('Unsupported Node Type'),
     };
 

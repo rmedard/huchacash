@@ -9,7 +9,7 @@ dependencies:
     - eca_content
 id: process_h9zowbo
 modeller: bpmn_io
-label: createOrderExpirerGCTask
+label: onOrderPresave
 version: 1.0.0
 weight: -4
 events:
@@ -26,7 +26,7 @@ conditions:
   Flow_0pkomif:
     plugin: eca_entity_is_new
     configuration:
-      negate: false
+      negate: true
       entity: node
   Flow_026tn95:
     plugin: eca_entity_field_value_changed
@@ -39,8 +39,11 @@ gateways:
     type: 0
     successors:
       -
-        id: Activity_15bm887
+        id: Gateway_1p18cn5
         condition: Flow_0pkomif
+  Gateway_1p18cn5:
+    type: 0
+    successors:
       -
         id: Activity_15bm887
         condition: Flow_026tn95
