@@ -3,14 +3,9 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.call.field_call_order
-    - field.field.node.order.field_order_calls
-    - field.field.node.order.field_order_status
-    - field.storage.node.field_call_order
-    - field.storage.node.field_order_calls
-    - field.storage.node.field_order_status
     - node.type.call
   module:
+    - dinger_settings
     - eca_content
 id: process_z6zokj4
 modeller: bpmn_io
@@ -28,7 +23,7 @@ events:
         id: Activity_1uf4tjx
         condition: ''
       -
-        id: Activity_025pm1z
+        id: Activity_1qpe5p5
         condition: ''
 conditions: {  }
 gateways: {  }
@@ -42,30 +37,18 @@ actions:
       subject: 'You call is created'
       message: 'Your call has been successfully created!'
     successors: {  }
-  Activity_025pm1z:
-    plugin: eca_set_field_value
-    label: setBiddingOrder
+  Activity_1qpe5p5:
+    plugin: dinger_settings_create_gc_action
+    label: createGcAction
     configuration:
-      field_name: field_order_status
-      field_value: bidding
-      method: 'set:clear'
-      strip_tags: false
-      trim: true
-      save_entity: true
-      object: 'node:field_call_order'
+      object: node
     successors:
       -
-        id: Activity_0wby919
+        id: Activity_0qx7oix
         condition: ''
-  Activity_0wby919:
-    plugin: eca_set_field_value
-    label: attachCallToOrder
+  Activity_0qx7oix:
+    plugin: dinger_settings_create_firecall_action
+    label: createFireCall
     configuration:
-      field_name: field_order_calls
-      field_value: '[node:nid]'
-      method: 'append:not_full'
-      strip_tags: false
-      trim: false
-      save_entity: true
-      object: 'node:field_call_order'
+      object: node
     successors: {  }

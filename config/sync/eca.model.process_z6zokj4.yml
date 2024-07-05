@@ -24,7 +24,7 @@ modeldata: |
           </camunda:field>
         </bpmn2:extensionElements>
         <bpmn2:outgoing>Flow_1s8hl4i</bpmn2:outgoing>
-        <bpmn2:outgoing>Flow_1l0yyhe</bpmn2:outgoing>
+        <bpmn2:outgoing>Flow_0wy8vqa</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:sequenceFlow id="Flow_1s8hl4i" sourceRef="Event_0fs98m0" targetRef="Activity_1uf4tjx" />
       <bpmn2:task id="Activity_1uf4tjx" name="sendEmailToCaller" camunda:modelerTemplate="org.drupal.action.action_send_email_action">
@@ -47,67 +47,31 @@ modeldata: |
         </bpmn2:extensionElements>
         <bpmn2:incoming>Flow_1s8hl4i</bpmn2:incoming>
       </bpmn2:task>
-      <bpmn2:task id="Activity_025pm1z" name="setBiddingOrder" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
+      <bpmn2:task id="Activity_1qpe5p5" name="createGcAction" camunda:modelerTemplate="org.drupal.action.dinger_settings_create_gc_action">
         <bpmn2:extensionElements>
           <camunda:properties>
-            <camunda:property name="pluginid" value="eca_set_field_value" />
+            <camunda:property name="pluginid" value="dinger_settings_create_gc_action" />
           </camunda:properties>
-          <camunda:field name="method">
-            <camunda:string>set:clear</camunda:string>
-          </camunda:field>
-          <camunda:field name="strip_tags">
-            <camunda:string>no</camunda:string>
-          </camunda:field>
-          <camunda:field name="trim">
-            <camunda:string>yes</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_name">
-            <camunda:string>field_order_status</camunda:string>
-          </camunda:field>
-          <camunda:field name="save_entity">
-            <camunda:string>yes</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_value">
-            <camunda:string>bidding</camunda:string>
-          </camunda:field>
           <camunda:field name="object">
-            <camunda:string>node:field_call_order</camunda:string>
+            <camunda:string>node</camunda:string>
           </camunda:field>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>Flow_1l0yyhe</bpmn2:incoming>
-        <bpmn2:outgoing>Flow_0ztmpy9</bpmn2:outgoing>
+        <bpmn2:incoming>Flow_0wy8vqa</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_0rpw6wz</bpmn2:outgoing>
       </bpmn2:task>
-      <bpmn2:sequenceFlow id="Flow_1l0yyhe" sourceRef="Event_0fs98m0" targetRef="Activity_025pm1z" />
-      <bpmn2:task id="Activity_0wby919" name="attachCallToOrder" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
+      <bpmn2:sequenceFlow id="Flow_0wy8vqa" sourceRef="Event_0fs98m0" targetRef="Activity_1qpe5p5" />
+      <bpmn2:task id="Activity_0qx7oix" name="createFireCall" camunda:modelerTemplate="org.drupal.action.dinger_settings_create_firecall_action">
         <bpmn2:extensionElements>
           <camunda:properties>
-            <camunda:property name="pluginid" value="eca_set_field_value" />
+            <camunda:property name="pluginid" value="dinger_settings_create_firecall_action" />
           </camunda:properties>
-          <camunda:field name="method">
-            <camunda:string>append:not_full</camunda:string>
-          </camunda:field>
-          <camunda:field name="strip_tags">
-            <camunda:string>no</camunda:string>
-          </camunda:field>
-          <camunda:field name="trim">
-            <camunda:string>no</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_name">
-            <camunda:string>field_order_calls</camunda:string>
-          </camunda:field>
-          <camunda:field name="save_entity">
-            <camunda:string>yes</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_value">
-            <camunda:string>[node:nid]</camunda:string>
-          </camunda:field>
           <camunda:field name="object">
-            <camunda:string>node:field_call_order</camunda:string>
+            <camunda:string>node</camunda:string>
           </camunda:field>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>Flow_0ztmpy9</bpmn2:incoming>
+        <bpmn2:incoming>Flow_0rpw6wz</bpmn2:incoming>
       </bpmn2:task>
-      <bpmn2:sequenceFlow id="Flow_0ztmpy9" sourceRef="Activity_025pm1z" targetRef="Activity_0wby919" />
+      <bpmn2:sequenceFlow id="Flow_0rpw6wz" sourceRef="Activity_1qpe5p5" targetRef="Activity_0qx7oix" />
     </bpmn2:process>
     <bpmndi:BPMNDiagram id="sid-9c0b3133-a25b-47b9-91cb-1b743253cf09">
       <bpmndi:BPMNPlane id="sid-2d706e61-220c-452c-9767-e4ae5ae7415f" bpmnElement="Process_z6ZokJ4">
@@ -118,30 +82,29 @@ modeldata: |
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Activity_12xic58_di" bpmnElement="Activity_1uf4tjx">
-          <dc:Bounds x="420" y="-50" width="100" height="80" />
+          <dc:Bounds x="510" y="80" width="100" height="80" />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Activity_1cdbz2r_di" bpmnElement="Activity_0wby919">
-          <dc:Bounds x="780" y="130" width="100" height="80" />
+        <bpmndi:BPMNShape id="Activity_1qpe5p5_di" bpmnElement="Activity_1qpe5p5">
+          <dc:Bounds x="510" y="270" width="100" height="80" />
+          <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Activity_025pm1z_di" bpmnElement="Activity_025pm1z">
-          <dc:Bounds x="520" y="130" width="100" height="80" />
+        <bpmndi:BPMNShape id="Activity_0qx7oix_di" bpmnElement="Activity_0qx7oix">
+          <dc:Bounds x="730" y="270" width="100" height="80" />
           <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
         <bpmndi:BPMNEdge id="Flow_1s8hl4i_di" bpmnElement="Flow_1s8hl4i">
           <di:waypoint x="248" y="120" />
-          <di:waypoint x="399" y="120" />
-          <di:waypoint x="399" y="-10" />
-          <di:waypoint x="420" y="-10" />
+          <di:waypoint x="510" y="120" />
         </bpmndi:BPMNEdge>
-        <bpmndi:BPMNEdge id="Flow_1l0yyhe_di" bpmnElement="Flow_1l0yyhe">
+        <bpmndi:BPMNEdge id="Flow_0wy8vqa_di" bpmnElement="Flow_0wy8vqa">
           <di:waypoint x="248" y="120" />
-          <di:waypoint x="334" y="120" />
-          <di:waypoint x="334" y="170" />
-          <di:waypoint x="520" y="170" />
+          <di:waypoint x="284" y="120" />
+          <di:waypoint x="284" y="310" />
+          <di:waypoint x="510" y="310" />
         </bpmndi:BPMNEdge>
-        <bpmndi:BPMNEdge id="Flow_0ztmpy9_di" bpmnElement="Flow_0ztmpy9">
-          <di:waypoint x="620" y="170" />
-          <di:waypoint x="780" y="170" />
+        <bpmndi:BPMNEdge id="Flow_0rpw6wz_di" bpmnElement="Flow_0rpw6wz">
+          <di:waypoint x="610" y="310" />
+          <di:waypoint x="730" y="310" />
         </bpmndi:BPMNEdge>
       </bpmndi:BPMNPlane>
     </bpmndi:BPMNDiagram>
