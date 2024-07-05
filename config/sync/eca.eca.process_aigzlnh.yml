@@ -9,7 +9,7 @@ dependencies:
     - eca_content
 id: process_aigzlnh
 modeller: bpmn_io
-label: createCallExpirerGCTask
+label: onCallPresave
 version: 1.0.0
 weight: -5
 events:
@@ -23,24 +23,27 @@ events:
         id: Gateway_0jjfwof
         condition: ''
 conditions:
-  Flow_1p5gvmq:
-    plugin: eca_entity_is_new
-    configuration:
-      negate: false
-      entity: node
   Flow_02te2vv:
     plugin: eca_entity_field_value_changed
     configuration:
       negate: false
       field_name: field_call_expiry_time
       entity: node
+  Flow_1pqqlnj:
+    plugin: eca_entity_is_new
+    configuration:
+      negate: true
+      entity: node
 gateways:
   Gateway_0jjfwof:
     type: 0
     successors:
       -
-        id: Activity_15bm887
-        condition: Flow_1p5gvmq
+        id: Gateway_00b4ycb
+        condition: Flow_1pqqlnj
+  Gateway_00b4ycb:
+    type: 0
+    successors:
       -
         id: Activity_15bm887
         condition: Flow_02te2vv

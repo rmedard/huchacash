@@ -26,6 +26,7 @@ modeldata: |
         <bpmn2:outgoing>Flow_1v1jzdk</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:task id="Activity_05ue232" name="createGcTask" camunda:modelerTemplate="org.drupal.action.dinger_settings_create_gc_action">
+        <bpmn2:documentation>Create Gc Task that will trigger order expiration.</bpmn2:documentation>
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="dinger_settings_create_gc_action" />
