@@ -55,7 +55,6 @@ final class FirestoreCloudService {
     });
   }
 
-
   public function createFireCall(Node $call): void {
 
     $this->logger->info('Firestore Cloud: Creating fireCall. CallId: @callId', ['@callId' => $call->uuid()]);
@@ -67,6 +66,12 @@ final class FirestoreCloudService {
     $result = $collectionReference
       ->document($fireCall->id)
       ->create($fireCall->toFirestoreBody());
+    $this->logger->info('<pre><code>' . print_r($result, TRUE) . '</code></pre>');
+  }
+
+  public function deleteFireCall(Node $call): void {
+    $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $call->uuid()]);
+    $result = $this->firestoreClient->collection('live_calls')->document($call->id())->delete();
     $this->logger->info('<pre><code>' . print_r($result, TRUE) . '</code></pre>');
   }
 }

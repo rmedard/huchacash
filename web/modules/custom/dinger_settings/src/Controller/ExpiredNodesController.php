@@ -85,6 +85,11 @@ class ExpiredNodesController extends ControllerBase
           try {
             $node->set('field_call_status', 'expired');
             $node->save();
+
+            /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreCloudService **/
+            $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
+            $firestoreCloudService->deleteFireCall($node);
+
           } catch (EntityStorageException $e) {
             $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
           }
@@ -105,7 +110,7 @@ class ExpiredNodesController extends ControllerBase
     }
 
     $response->setContent('Success!');
-    $response->setStatusCode(200);
+    $response->setStatusCode(Response::HTTP_OK);
     return $response;
   }
 

@@ -10,6 +10,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Google\ApiCore\ApiException;
@@ -29,12 +30,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class GoogleCloudService {
 
-  const GC_TASK_FIELD_NAME = 'field_gc_task_name';
-
   /**
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
-  protected LoggerChannelInterface $loggerFactory;
+  protected LoggerChannelInterface $logger;
 
   /**
    * Constructs a GoogleCloudService object.
@@ -46,35 +45,36 @@ final class GoogleCloudService {
     private readonly ConfigFactoryInterface $configFactory,
     private readonly LoggerChannelFactoryInterface $loggerFactoryInterface,
   ) {
-    $this->loggerFactory = $this->loggerFactoryInterface->get('GC_Service');
+    $this->logger = $this->loggerFactoryInterface->get('GC_Service');
   }
 
   /**
    * @param \Drupal\node\NodeInterface $targetNode
    * @param \Drupal\Core\Datetime\DrupalDateTime $triggerTime
    *
-   * @return void
+   * @return \Google\Cloud\Tasks\V2\Task|null
    */
-  public function createOrderExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): void {
+  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
-      $taskName = trim($targetNode->get(self::GC_TASK_FIELD_NAME)->getString());
+      $taskName = trim($targetNode->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
       try {
         if (!empty($taskName)) {
           $this->deleteGcTask($taskName);
         }
-        $this->createGcTask($targetNode, $triggerTime);
+        return $this->createGcTask($targetNode, $triggerTime);
       } catch (ApiException | ValidationException $e) {
-        $this->loggerFactory->error('Creating gc task failed: ' . $e);
+        $this->logger->error('Creating gc task failed: ' . $e);
       }
     }
+    return null;
   }
 
   /**
    * @throws \Google\ApiCore\ApiException
    * @throws \Google\ApiCore\ValidationException
    */
-  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): void {
-    $this->loggerFactory->info('Creating GC Task for order ' . $targetNode->id());
+  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
+    $this->logger->info('Creating GC Task for node type: @type | id: @id ', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
     $config = $this->configFactory->get('dinger_settings');
     $projectId = $config->get('gc_tasks_project_id');
     $location = $config->get('gc_tasks_location');
@@ -101,18 +101,20 @@ final class GoogleCloudService {
           ->setBody(json_encode(['json' => ['uuid' => $targetNode->uuid(), 'type' => $targetNode->bundle()]]))));
     $task = $this->getGcTasksClient()->createTask($taskRequest);
     // Don't call save() because this action is triggered from preSave state
-    $targetNode->set(self::GC_TASK_FIELD_NAME, $task->getName());
+//    $targetNode->set(self::GC_TASK_FIELD_NAME, $task->getName());
+//    if ($targetNode->is) //TODO FInd a good way to update call right after it is created
+    return $task;
   }
 
   private function deleteGcTask(string $taskName): void {
-    $this->loggerFactory->info('Deleting DC Task: ' . $taskName);
+    $this->logger->info('Deleting DC Task: ' . $taskName);
     try {
       $this
         ->getGcTasksClient()
         ->deleteTask((new DeleteTaskRequest())->setName($taskName));
     }
     catch (ApiException|ValidationException $e) {
-      $this->loggerFactory->warning('Deleting GC Task failed. ' . $e->getMessage());
+      $this->logger->warning('Deleting GC Task failed. ' . $e->getMessage());
     }
   }
 
@@ -127,13 +129,13 @@ final class GoogleCloudService {
       return new CloudTasksClient(['credentials' => $credentialsArray]);
     }
     catch (ValidationException $e) {
-      $this->loggerFactory->error('Creating GC Tasks Client failed. ' . $e->getMessage());
+      $this->logger->error('Creating GC Tasks Client failed. ' . $e->getMessage());
       throw $e;
     }
   }
 
   private function isEligible(NodeInterface $targetNode, DrupalDateTime $triggerTime): bool {
-    if (!$targetNode->hasField(self::GC_TASK_FIELD_NAME)) {
+    if (!$targetNode->hasField(CreateGcAction::GC_TASK_FIELD_NAME)) {
       return FALSE;
     }
 

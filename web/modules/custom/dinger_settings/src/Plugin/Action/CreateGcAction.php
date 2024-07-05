@@ -11,6 +11,7 @@ use Drupal\Core\Annotation\Action;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -45,6 +46,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class CreateGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
+  const GC_TASK_FIELD_NAME = 'field_gc_task_name';
+
   /**
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
@@ -71,7 +74,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
   }
 
   public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE): bool|AccessResultInterface {
-    $isAllowed = $object instanceof NodeInterface && $object->bundle() === 'order';
+    $isAllowed = $object instanceof NodeInterface && in_array($object->bundle(), ['order', 'call']);
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
 
@@ -79,10 +82,6 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function execute(ContentEntityInterface $entity = NULL): void {
-    /**
-     * @var \Drupal\dinger_settings\Service\GoogleCloudService $gcService
-     */
-    $gcService = Drupal::service('dinger_settings.google_cloud_service');
     if ($entity instanceof NodeInterface) {
       $triggerTime = new DrupalDateTime();
       switch ($entity->bundle()) {
@@ -93,7 +92,20 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
           $triggerTime = $entity->get('field_call_expiry_time')->date;
           break;
       }
-      $gcService->createOrderExpirationTask($entity, $triggerTime);
+
+      /**
+       * Update entity with created Task name
+       * @var \Drupal\dinger_settings\Service\GoogleCloudService $gcService
+       */
+      $gcService = Drupal::service('dinger_settings.google_cloud_service');
+      $expirationTask = $gcService->createNodeExpirationTask($entity, $triggerTime);
+      try {
+        $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+        $entity->save();
+      }
+      catch (EntityStorageException $e) {
+        $this->loggerFactory->error($e);
+      }
     }
   }
 }
