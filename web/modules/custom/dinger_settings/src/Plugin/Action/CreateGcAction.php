@@ -101,7 +101,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
       $expirationTask = $gcService->createNodeExpirationTask($entity, $triggerTime);
       try {
         $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
-        $entity->save();
+        //$entity->save();
       }
       catch (EntityStorageException $e) {
         $this->loggerFactory->error($e);
