@@ -47,7 +47,7 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
       $plugin_id,
       $plugin_definition,
       $container->get('logger.factory'),
-      $container->get('dinger_settings.firestore_cloud_service'),
+      $container->get('dinger_settings.firestore_cloud_service')
     );
   }
 
