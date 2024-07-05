@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f42d3dc3ce198101b1747436ec2f0cde",
+    "content-hash": "2a3e96d311d5ac3e02becd26706510b1",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1749,29 +1749,29 @@
         },
         {
             "name": "drupal/bpmn_io",
-            "version": "1.1.4",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/bpmn_io.git",
-                "reference": "1.1.4"
+                "reference": "2.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/bpmn_io-1.1.4.zip",
-                "reference": "1.1.4",
-                "shasum": "c69acc7ffc624a1dbc2c9ae1aa8a108bfc7381be"
+                "url": "https://ftp.drupal.org/files/projects/bpmn_io-2.0.0.zip",
+                "reference": "2.0.0",
+                "shasum": "b48f17ace706d30be630df5b8c0a3f6dfd355cce"
             },
             "require": {
-                "drupal/core": "^9 || ^10",
-                "drupal/eca": "^1.0",
-                "drupal/eca_modeller_bpmn": "*",
-                "php": ">=7.4"
+                "drupal/core": "^10.3 || ^11",
+                "drupal/eca": "^2.0",
+                "drupal/eca_modeller_bpmn": "^2",
+                "php": ">=8.1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.1.4",
-                    "datestamp": "1716032392",
+                    "version": "2.0.0",
+                    "datestamp": "1718784264",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -1780,7 +1780,7 @@
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [
-                "GPL-2.0+"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
@@ -2480,51 +2480,42 @@
         },
         {
             "name": "drupal/eca",
-            "version": "1.1.7",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/eca.git",
-                "reference": "1.1.7"
+                "reference": "2.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/eca-1.1.7.zip",
-                "reference": "1.1.7",
-                "shasum": "7cdbb11c147fe0da4747a73be46951ed5b21b371"
+                "url": "https://ftp.drupal.org/files/projects/eca-2.0.0.zip",
+                "reference": "2.0.0",
+                "shasum": "dff1fe5c079120e8a760e7bc0f38e2e8b99cd7e4"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.1",
-                "drupal/core": "^9.5 || ^10",
+                "drupal/core": "^10.3||^11",
                 "ext-dom": "*",
                 "ext-json": "*",
                 "mtownsend/xml-to-array": "^2.0",
-                "php": ">=7.4"
+                "php": ">=8.1"
             },
             "require-dev": {
                 "drupal/eca_ui": "*",
-                "drupal/token": "^1.10"
-            },
-            "suggest": {
-                "drupal/context_stack": "Integrates ECA with Context Stacks for more fine-grained control",
-                "drupal/eca_state_machine": "Integrates ECA with State Machine functionality",
-                "drupal/eca_tamper": "Integrates ECA with the Tamper API",
-                "drupal/entity_share": "Integrates ECA with Entity Share functionality",
-                "drupal/group_action": "Integrates ECA with Group Actions if you're using groups",
-                "drupal/token": "Provides the token browser in the UI and offers more token values"
+                "drupal/entity_reference_revisions": "1.x-dev",
+                "drupal/inline_entity_form": "dev-project-update-bot-only",
+                "drupal/paragraphs": "dev-3433816-manual-drupal-11",
+                "drupal/token": "1.x-dev",
+                "roave/security-advisories": "dev-latest"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.1.7",
-                    "datestamp": "1718958107",
+                    "version": "2.0.0",
+                    "datestamp": "1719921732",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
-                    }
-                },
-                "drush": {
-                    "services": {
-                        "drush.services.yml": "^9 || ^10 || ^11"
                     }
                 }
             },
@@ -2555,17 +2546,17 @@
         },
         {
             "name": "drupal/eca_modeller_bpmn",
-            "version": "1.1.7",
+            "version": "2.0.0",
             "require": {
-                "drupal/core": "^9 || ^10",
-                "drupal/eca": "^1",
+                "drupal/core": "^10.3 || ^11",
+                "drupal/eca": "^2",
                 "drupal/eca_ui": "*"
             },
             "type": "metapackage",
             "extra": {
                 "drupal": {
-                    "version": "1.1.7",
-                    "datestamp": "1718958107",
+                    "version": "2.0.0",
+                    "datestamp": "1719921732",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3318,30 +3309,31 @@
         },
         {
             "name": "drupal/jsonapi_extras",
-            "version": "3.25.0",
+            "version": "3.26.0-beta1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jsonapi_extras.git",
-                "reference": "8.x-3.25"
+                "reference": "8.x-3.26-beta1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/jsonapi_extras-8.x-3.25.zip",
-                "reference": "8.x-3.25",
-                "shasum": "ba557127ca560dbf3fae68f76c7720137857f167"
+                "url": "https://ftp.drupal.org/files/projects/jsonapi_extras-8.x-3.26-beta1.zip",
+                "reference": "8.x-3.26-beta1",
+                "shasum": "c598f6d240fcd0c7492427395052f587c1bb21b9"
             },
             "require": {
-                "drupal/core": "^9.2 || ^10",
-                "e0ipso/shaper": "^1"
+                "drupal/core": "^9.5 || ^10 || ^11",
+                "e0ipso/shaper": "^1",
+                "php": ">=8.1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.25",
-                    "datestamp": "1717340217",
+                    "version": "8.x-3.26-beta1",
+                    "datestamp": "1719473945",
                     "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
+                        "status": "not-covered",
+                        "message": "Beta releases are not covered by Drupal security advisories."
                     }
                 }
             },
@@ -3436,27 +3428,27 @@
         },
         {
             "name": "drupal/module_filter",
-            "version": "4.1.1",
+            "version": "5.0.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/module_filter.git",
-                "reference": "4.1.1"
+                "reference": "5.0.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/module_filter-4.1.1.zip",
-                "reference": "4.1.1",
-                "shasum": "7a0e012d25d9af58efe589111333021d19dfe517"
+                "url": "https://ftp.drupal.org/files/projects/module_filter-5.0.1.zip",
+                "reference": "5.0.1",
+                "shasum": "e9686c142a2caf6f8f8c72f7e271f3a963356c15"
             },
             "require": {
-                "drupal/core": "^9 || ^10",
-                "drupal/jquery_ui_autocomplete": "^2.0"
+                "drupal/core": "^10 || ^11",
+                "drupal/jquery_ui_autocomplete": "^2.1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "4.1.1",
-                    "datestamp": "1705957432",
+                    "version": "5.0.1",
+                    "datestamp": "1718638834",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -16185,6 +16177,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/gin": 5,
+        "drupal/jsonapi_extras": 10,
         "drupal/openapi_ui_redoc": 5,
         "drupal/typed_data": 20
     },
