@@ -49,8 +49,17 @@ gateways:
         condition: Flow_02te2vv
 actions:
   Activity_15bm887:
-    plugin: dinger_settings_create_gc_action
-    label: createGCTask
+    plugin: update_gc_task_action
+    label: updateGCTask
+    configuration:
+      object: node
+    successors:
+      -
+        id: Activity_1vnjhdq
+        condition: ''
+  Activity_1vnjhdq:
+    plugin: dinger_settings_update_firecall_action
+    label: updateFireCall
     configuration:
       object: node
     successors: {  }

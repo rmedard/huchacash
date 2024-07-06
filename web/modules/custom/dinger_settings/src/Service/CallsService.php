@@ -131,15 +131,7 @@ class CallsService {
         ->set('field_order_status', 'delivering')
         ->set('field_order_executor', $confirmedBid->get('field_bid_customer')->entity)
         ->save();
-
-      /**
-       * Compute order number & update firestore
-       */
-      /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreService **/
-      $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
-      $nextOrderNumber = $this->getNextOrderNumber();
-      $firestoreService->setCallOrderNumber($call->id(), $nextOrderNumber);
-      $call->set('field_call_order_confirm_nbr', $nextOrderNumber);
+      $call->set('field_call_order_confirm_nbr', $this->getNextOrderNumber());
     }
     catch (EntityStorageException|GoogleException $e) {
       $this->logger->error($e);

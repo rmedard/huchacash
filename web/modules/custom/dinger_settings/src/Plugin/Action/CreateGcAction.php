@@ -44,6 +44,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * The whole action API is subject of change.
  * @see https://www.drupal.org/project/drupal/issues/2011038
  */
+
 final class CreateGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   const GC_TASK_FIELD_NAME = 'field_gc_task_name';
@@ -98,7 +99,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
        * @var \Drupal\dinger_settings\Service\GoogleCloudService $gcService
        */
       $gcService = Drupal::service('dinger_settings.google_cloud_service');
-      $expirationTask = $gcService->createNodeExpirationTask($entity, $triggerTime);
+      $expirationTask = $gcService->upsertNodeExpirationTask($entity, $triggerTime);
       try {
         $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
         //$entity->save();
