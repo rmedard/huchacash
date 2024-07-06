@@ -61,7 +61,7 @@ class FireCall {
       'proposed_fee' => $this->proposedFee,
       'shopping_cost' => $this->order->shoppingCost,
       'can_bargain' => $this->canBargain,
-      'order_number' => $this->order->nid,
+      'order_number' => intval($this->order->nid),
       'order_confirmation_number' => 0
     ];
   }
