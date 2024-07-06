@@ -7,7 +7,7 @@ dependencies:
     - node
 third_party_settings:
   field_permissions:
-    permission_type: public
+    permission_type: custom
 id: node.field_call_order_confirm_nbr
 field_name: field_call_order_confirm_nbr
 entity_type: node
