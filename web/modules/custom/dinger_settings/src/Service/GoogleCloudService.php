@@ -36,16 +36,24 @@ final class GoogleCloudService {
   protected LoggerChannelInterface $logger;
 
   /**
+   * @var \Google\Cloud\Tasks\V2\Client\CloudTasksClient
+   */
+  protected CloudTasksClient $cloudTasksClient;
+
+  /**
    * Constructs a GoogleCloudService object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactoryInterface
+   *
+   * @throws \Google\ApiCore\ValidationException
    */
   public function __construct(
     private readonly ConfigFactoryInterface $configFactory,
     private readonly LoggerChannelFactoryInterface $loggerFactoryInterface,
   ) {
-    $this->logger = $this->loggerFactoryInterface->get('GC_Service');
+    $this->logger = $this->loggerFactoryInterface->get('GoogleCloudService');
+    $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
   }
 
   /**
@@ -54,7 +62,7 @@ final class GoogleCloudService {
    *
    * @return \Google\Cloud\Tasks\V2\Task|null
    */
-  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
+  public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
       $taskName = trim($targetNode->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
       try {
@@ -71,7 +79,6 @@ final class GoogleCloudService {
 
   /**
    * @throws \Google\ApiCore\ApiException
-   * @throws \Google\ApiCore\ValidationException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     $this->logger->info('Creating GC Task for node type: @type | id: @id ', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
@@ -98,18 +105,14 @@ final class GoogleCloudService {
           ->setHttpMethod(HttpMethod::POST)
           ->setUrl($expireNodeCallbackUrl)
           ->setBody(json_encode(['json' => ['uuid' => $targetNode->uuid(), 'type' => $targetNode->bundle()]]))));
-    $task = $this->getGcTasksClient()->createTask($taskRequest);
-    // Don't call save() because this action is triggered from preSave state
-//    $targetNode->set(self::GC_TASK_FIELD_NAME, $task->getName());
-//    if ($targetNode->is) //TODO FInd a good way to update call right after it is created
-    return $task;
+    return $this->cloudTasksClient->createTask($taskRequest);
   }
 
   private function deleteGcTask(string $taskName): void {
     $this->logger->info('Deleting DC Task: ' . $taskName);
     try {
       $this
-        ->getGcTasksClient()
+        ->cloudTasksClient
         ->deleteTask((new DeleteTaskRequest())->setName($taskName));
     }
     catch (ApiException|ValidationException $e) {
@@ -120,7 +123,7 @@ final class GoogleCloudService {
   /**
    * @throws \Google\ApiCore\ValidationException
    */
-  private function getGcTasksClient(): CloudTasksClient {
+  private function instantiateGoogleCloudTasksClient(): CloudTasksClient {
     try {
       $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
       $credentialsData = file_get_contents($gcSettingsFileLocation);
