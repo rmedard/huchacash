@@ -10,7 +10,6 @@ class Order {
   public string $nid;
   public string $id;
   public string $type;
-  public string $orderNumber;
   public Timestamp $deliveryTime;
   public float $deliveryAddressLat;
   public float $deliveryAddressLng;
@@ -25,7 +24,6 @@ class Order {
     $this->nid = $order->id();
     $this->id = $order->uuid();
     $this->type = $order->get('field_order_type')->getString();
-    $this->orderNumber = $order->id();
     $this->deliveryTime = UtilsService::dateTimeToGcTimestamp($order->get('field_order_delivery_time')->date);
     $this->deliveryAddressLat = $order->get('field_order_delivery_address')->lat;
     $this->deliveryAddressLng = $order->get('field_order_delivery_address')->lng;
