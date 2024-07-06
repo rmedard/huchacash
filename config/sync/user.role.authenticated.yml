@@ -9,6 +9,7 @@ dependencies:
   module:
     - comment
     - contact
+    - field_permissions
     - file
     - filter
     - node
@@ -37,3 +38,5 @@ permissions:
   - 'search content'
   - 'skip comment approval'
   - 'use text format basic_html'
+  - 'view field_call_order_confirm_nbr'
+  - 'view own field_call_order_confirm_nbr'
