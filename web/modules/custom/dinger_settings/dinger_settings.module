@@ -59,6 +59,7 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
  */
 function dinger_settings_node_presave(NodeInterface $node): void
 {
+  Drupal::logger('PresaveHook')->info('Presave node type: @type | id: @id', ['@type' => $node->bundle(), '@id' => $node->id()]);
   if ($node->isNew()) {
     /** @var \Drupal\dinger_settings\Service\UtilsService $utilsService **/
     $utilsService = Drupal::service('hucha_settings.utils_service');
