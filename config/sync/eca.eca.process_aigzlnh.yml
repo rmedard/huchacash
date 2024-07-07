@@ -39,7 +39,7 @@ gateways:
     type: 0
     successors:
       -
-        id: Gateway_00b4ycb
+        id: Activity_1vnjhdq
         condition: Flow_1pqqlnj
   Gateway_00b4ycb:
     type: 0
@@ -53,13 +53,13 @@ actions:
     label: updateGCTask
     configuration:
       object: node
-    successors:
-      -
-        id: Activity_1vnjhdq
-        condition: ''
+    successors: {  }
   Activity_1vnjhdq:
     plugin: dinger_settings_update_firecall_action
     label: updateFireCall
     configuration:
       object: node
-    successors: {  }
+    successors:
+      -
+        id: Gateway_00b4ycb
+        condition: ''
