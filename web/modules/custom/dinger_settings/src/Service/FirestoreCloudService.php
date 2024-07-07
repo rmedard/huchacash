@@ -110,6 +110,7 @@ final class FirestoreCloudService {
       }
 
       if (!isEmpty($updates)) {
+        $this->logger->info('Updating fireCall ('. $call->uuid() .') with data: <pre><code>' . print_r($updates, TRUE) . '</code></pre>');
         $callReference = $this->firestoreClient->collection('live_calls')->document($call->uuid());
         $this->firestoreClient->runTransaction(function(Transaction $transaction) use ($callReference, $updates) {
           $transaction->update($callReference, $updates);

@@ -102,6 +102,7 @@ class BiddingService {
   }
 
   private function processConfirmedBid(NodeInterface $bid): void {
+    $this->logger->info('Process confirmed bid. Bid id: @id', ['@id' => $bid->id()]);
     $bidStatus = $bid->get('field_bid_status')->getString();
     if ($bidStatus !== 'confirmed') {
       throw new BadRequestHttpException(t('Bid @id has invalid status. @invalid should be confirmed', [
@@ -111,9 +112,12 @@ class BiddingService {
     }
 
     try {
-      /** @var $call NodeInterface */
+      /**
+       * Updating call and related bids
+       * @var $call NodeInterface
+       */
+      $this->logger->info('Updating call status and related bids for bid @bid', ['@bid' => $bid->id()]);
       $call = $bid->get('field_bid_call')->entity;
-
       $existingBidIds = $this->entityTypeManager
         ->getStorage('node')
         ->getQuery()->accessCheck(FALSE)
