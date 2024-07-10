@@ -55,7 +55,7 @@ class UpdateFireCallAction extends ActionBase implements ContainerFactoryPluginI
   }
 
   public function execute(NodeInterface $call = NULL): void {
-    $this->logger->info('Updating fireCall. Id: ' . $call->uuid());
+    $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
     $this->firestoreCloudService->updateFireCall($call);
   }
 

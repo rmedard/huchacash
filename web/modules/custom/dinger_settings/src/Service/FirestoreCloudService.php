@@ -10,7 +10,6 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Firestore\Transaction;
-use function PHPUnit\Framework\isEmpty;
 
 final class FirestoreCloudService {
 
@@ -61,7 +60,7 @@ final class FirestoreCloudService {
   }
 
   public function updateFireCall(Node $call): void {
-    $this->logger->info('Updating Call. CallId: @callId', ['@callId' => $call->id()]);
+    $this->logger->info('Update FireCall action triggered. CallId: @callId', ['@callId' => $call->id()]);
 
     $initialCall = $call->original;
     $isUpdated = $initialCall != null;
@@ -78,6 +77,7 @@ final class FirestoreCloudService {
       $currentExpirationTime = $call->get('field_call_expiry_time')->date;
       $expirationTimeUpdated = $initialExpirationTime->diff($currentExpirationTime, TRUE)->f > 0;
       if ($expirationTimeUpdated) {
+        $this->logger->info('Call expiry time updated. CallId: @callId', ['@callId' => $call->id()]);
         $updates[] = [
           'path' => 'expiration_time',
           'value' => UtilsService::dateTimeToGcTimestamp($currentExpirationTime)
@@ -89,7 +89,7 @@ final class FirestoreCloudService {
        */
       $initialStatus = $initialCall->get('field_call_status')->getString();
       $currentStatus = $call->get('field_call_status')->getString();
-      $statusUpdated = $initialStatus !== $currentStatus;
+      $statusUpdated = $initialStatus != $currentStatus;
       if ($statusUpdated) {
         $updates[] = [
           'path' => 'status',
@@ -109,7 +109,7 @@ final class FirestoreCloudService {
         ];
       }
 
-      if (!isEmpty($updates)) {
+      if (!empty($updates)) {
         $this->logger->info('Updating fireCall ('. $call->uuid() .') with data: <pre><code>' . print_r($updates, TRUE) . '</code></pre>');
         $callReference = $this->firestoreClient->collection('live_calls')->document($call->uuid());
         $this->firestoreClient->runTransaction(function(Transaction $transaction) use ($callReference, $updates) {

@@ -70,7 +70,7 @@ final class GoogleCloudService {
           $this->deleteGcTask($taskName);
         }
         return $this->createGcTask($targetNode, $triggerTime);
-      } catch (ApiException | ValidationException $e) {
+      } catch (ApiException $e) {
         $this->logger->error('Creating gc task failed: ' . $e);
       }
     }
@@ -115,7 +115,7 @@ final class GoogleCloudService {
         ->cloudTasksClient
         ->deleteTask((new DeleteTaskRequest())->setName($taskName));
     }
-    catch (ApiException|ValidationException $e) {
+    catch (ApiException $e) {
       $this->logger->warning('Deleting GC Task failed. ' . $e->getMessage());
     }
   }
