@@ -33,7 +33,7 @@ final class FirestoreCloudService {
    */
   public function __construct(LoggerChannelFactory $logger)
   {
-    $this->logger = $logger->get('firestore_service');
+    $this->logger = $logger->get('firestoreService');
 
     /** Initialise Firestore Client **/
     $settingsFileLocation = Settings::get('gc_tasks_settings_file');
@@ -61,7 +61,7 @@ final class FirestoreCloudService {
   }
 
   public function updateFireCall(Node $call): void {
-    $this->logger->info('Firestore Cloud: Updating Call. CallId: @callId', ['@callId' => $call->id()]);
+    $this->logger->info('Updating Call. CallId: @callId', ['@callId' => $call->id()]);
 
     $initialCall = $call->original;
     $isUpdated = $initialCall != null;

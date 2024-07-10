@@ -33,7 +33,7 @@ class BiddingService {
   public function __construct(EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactory $logger)
   {
     $this->entityTypeManager = $entityTypeManager;
-    $this->logger = $logger->get('hucha_bidding_service');
+    $this->logger = $logger->get('BiddingService');
   }
 
   public function onBidUpdated(NodeInterface $bid): void {
