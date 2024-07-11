@@ -105,7 +105,7 @@ final class FirestoreCloudService {
       if ($initialOrderConfirmationNbr !== $currentOrderConfirmationNbr) {
         $updates[] = [
           'path' => 'order_confirmation_number',
-          'value' => intval($currentOrderConfirmationNbr)
+          'value' => empty(trim($currentOrderConfirmationNbr)) ? 0 : intval($currentOrderConfirmationNbr)
         ];
       }
 
