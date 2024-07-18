@@ -35,7 +35,7 @@ class CallsService {
   public function __construct(EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactory $logger)
   {
     $this->entityTypeManager = $entityTypeManager;
-    $this->logger = $logger->get('hucha_bidding_service');
+    $this->logger = $logger->get('CallsService');
   }
 
   public function onCallInserted(NodeInterface $call): void {
@@ -96,6 +96,11 @@ class CallsService {
               $order->set('field_order_status', 'idle');
               $order->save();
             }
+            break;
+          case 'completed':
+            $order->set('field_order_status', 'delivered');
+            $order->save();
+
         }
       } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
         $this->logger->error($e);
@@ -130,10 +135,11 @@ class CallsService {
       $order
         ->set('field_order_status', 'delivering')
         ->set('field_order_executor', $confirmedBid->get('field_bid_customer')->entity)
+        ->set('field_order_attributed_call', $call)
         ->save();
       $call->set('field_call_order_confirm_nbr', $this->getNextOrderNumber());
     }
-    catch (EntityStorageException|GoogleException $e) {
+    catch (EntityStorageException $e) {
       $this->logger->error($e);
     }
   }
