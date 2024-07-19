@@ -30,4 +30,4 @@ jobs:
           vendor/drush/drush/drush cim
           vendor/drush/drush/drush updb
           vendor/drush/drush/drush cr
-          echo 'HuchaCash deployed successfully!!'
+          echo 'HuchaCash deployed successfully!!!'
