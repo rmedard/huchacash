@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.transaction.field_tx_amount
+    - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
     - field.field.node.transaction.field_tx_status
     - field.field.node.transaction.field_tx_to
@@ -24,6 +25,7 @@ content:
     region: content
 hidden:
   field_tx_amount: true
+  field_tx_comment: true
   field_tx_from: true
   field_tx_status: true
   field_tx_to: true

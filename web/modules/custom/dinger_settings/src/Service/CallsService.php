@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Google\Cloud\Core\Exception\GoogleException;
@@ -137,7 +138,13 @@ class CallsService {
         ->set('field_order_executor', $confirmedBid->get('field_bid_customer')->entity)
         ->set('field_order_attributed_call', $call)
         ->save();
-      $call->set('field_call_order_confirm_nbr', $this->getNextOrderNumber());
+
+      $systemServiceFeeRate = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_base_service_fee_rate');
+      $confirmedCostBeforeServiceFee = $confirmedBid->get('field_bid_amount')->getString();
+      $call
+        ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber())
+        ->set('field_call_proposed_service_fee', $confirmedCostBeforeServiceFee)
+        ->set('field_call_system_service_fee', $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100);
     }
     catch (EntityStorageException $e) {
       $this->logger->error($e);

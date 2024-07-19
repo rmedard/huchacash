@@ -1,0 +1,19 @@
+uuid: 313ece51-b118-4f96-b368-b5552d9c93b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tx_comment
+    - node.type.transaction
+id: node.transaction.field_tx_comment
+field_name: field_tx_comment
+entity_type: node
+bundle: transaction
+label: Comment
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

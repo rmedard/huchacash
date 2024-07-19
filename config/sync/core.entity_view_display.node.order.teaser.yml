@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.order.field_gc_task_name
+    - field.field.node.order.field_order_attributed_call
     - field.field.node.order.field_order_calls
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
@@ -34,6 +35,7 @@ content:
     region: content
 hidden:
   field_gc_task_name: true
+  field_order_attributed_call: true
   field_order_calls: true
   field_order_creator: true
   field_order_delivery_address: true

@@ -113,23 +113,23 @@ class StripeController extends ControllerBase
         case 'payment_intent.succeeded':
           $paymentIntent = $event->data->jsonSerialize()['object'];
           $customerUuid = $paymentIntent['metadata']['customer_business_id'];
-          $amount = floatval($paymentIntent['amount']) / 100;
+          $amount = doubleval($paymentIntent['amount']) / 100;
           $customer = Drupal::service('entity.repository')->loadEntityByUuid('node', $customerUuid);
           if ($customer instanceof NodeInterface) {
             try {
-              $transaction = Node::create([
+              Node::create([
                 'type' => 'transaction',
                 'field_tx_from' => $customer->id(),
                 'field_tx_to' => $customer->id(),
                 'field_tx_amount' => $amount,
                 'field_tx_type' => 'top_up',
-                'field_tx_status' => 'confirmed',
+                'field_tx_status' => 'paid',
                 'uid' => $customer->get('field_customer_user')->target_id
-              ]);
-              $transaction->save();
-              $balance = floatval($customer->get('field_customer_available_balance')->value);
-              $customer->set('field_customer_available_balance', $balance + $amount);
-              $customer->save();
+              ])->save();
+              $balance = doubleval($customer->get('field_customer_available_balance')->getString());
+              $customer
+                ->set('field_customer_available_balance', $balance + $amount)
+                ->save();
               $this->logger->info('Top-up transaction created successfully');
             } catch (EntityStorageException $e) {
               $this->logger->error('Saving top-up transaction failed: ' . $e->getMessage());

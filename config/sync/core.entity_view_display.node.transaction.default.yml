@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.transaction.field_tx_amount
+    - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
     - field.field.node.transaction.field_tx_status
     - field.field.node.transaction.field_tx_to
@@ -27,6 +28,13 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 101
+    region: content
+  field_tx_comment:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 107
     region: content
   field_tx_from:
     type: entity_reference_label
