@@ -2,7 +2,6 @@
 
 namespace Drupal\dinger_settings\Service;
 
-use Decimal\Decimal;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
@@ -71,9 +70,11 @@ class TransactionsService {
       }
 
       $deliveryFee = doubleval(trim($order->get('field_order_delivery_cost')->getString()));
+      $systemServiceFee = doubleval(trim($order->get('field_order_attributed_call')->entity->get('field_call_system_service_fee')->getString()));
+
       $deliveryFeeTxId = $storage->create([
         'type' => 'transaction',
-        'field_tx_amount' => $deliveryFee,
+        'field_tx_amount' => $deliveryFee - $systemServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_type' => 'delivery_fee',
@@ -81,7 +82,6 @@ class TransactionsService {
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $deliveryFeeTxId]);
 
-      $systemServiceFee = doubleval(trim($order->get('field_order_attributed_call')->entity->get('field_call_system_service_fee')->getString()));
       $systemServiceFeeTxId = $storage->create([
         'type' => 'transaction',
         'field_tx_amount' => $systemServiceFee,

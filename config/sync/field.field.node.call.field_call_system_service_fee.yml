@@ -1,0 +1,23 @@
+uuid: fa498708-675f-4cee-88fa-f410a519e444
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_call_system_service_fee
+    - node.type.call
+id: node.call.field_call_system_service_fee
+field_name: field_call_system_service_fee
+entity_type: node
+bundle: call
+label: 'Service Fee'
+description: 'The fee retained by the system as service fee'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

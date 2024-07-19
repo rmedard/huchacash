@@ -131,8 +131,9 @@ class BiddingService {
         $bid->save();
       }
 
-      $call->set('field_call_status', 'attributed');
-      $call->save();
+      $call
+        ->set('field_call_status', 'attributed')
+        ->save();
     }
     catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
       $this->logger->error($e);

@@ -91,7 +91,7 @@ function dinger_settings_node_presave(NodeInterface $node): void
 
   if ($node->bundle() == 'order') {
     /**
-     * Update order total price
+     * Update order total price (Everytime the order is updated because order items may have changed)
      */
     $currentTotalPrice = doubleval($node->get('field_order_shopping_total_cost')->getString());
     /** @var \Drupal\Core\Field\EntityReferenceFieldItemList $orderItems **/
@@ -123,6 +123,10 @@ function dinger_settings_node_update(NodeInterface $node): void
       $biddingService = Drupal::service('hucha_settings.bidding_service');
       $biddingService->onBidUpdated($node);
       break;
+    case 'order':
+      /** @var \Drupal\dinger_settings\Service\OrdersService $ordersService **/
+      $ordersService = Drupal::service('hucha_settings.orders_service');
+      $ordersService->onOrderUpdated($node);
   }
 }
 

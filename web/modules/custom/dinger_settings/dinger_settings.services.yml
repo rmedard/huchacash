@@ -17,6 +17,12 @@ services:
       - '@entity_type.manager'
       - '@logger.factory'
 
+  hucha_settings.transactions_service:
+    class: Drupal\dinger_settings\Service\TransactionsService
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+
   hucha_settings.utils_service:
     class: Drupal\dinger_settings\Service\UtilsService
     arguments: [ ]

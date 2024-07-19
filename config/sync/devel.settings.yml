@@ -1,7 +1,7 @@
 _core:
   default_config_hash: Aqx6J0yYT6mVqT0fbjeP4JkoL-700nmudVF5d6Pq2Yo
 page_alter: false
-raw_names: false
+raw_names: true
 error_handlers:
   1: 1
 rebuild_theme: false
