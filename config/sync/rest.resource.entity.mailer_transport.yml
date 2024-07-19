@@ -1,0 +1,18 @@
+uuid: 90ad065d-3b15-4133-9eee-f578f66f6b14
+langcode: en
+status: false
+dependencies:
+  module:
+    - serialization
+    - simple_oauth
+    - symfony_mailer
+id: entity.mailer_transport
+plugin_id: 'entity:mailer_transport'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth2
