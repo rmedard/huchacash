@@ -1,5 +1,5 @@
-dinger_settings.admin_settings:
-  path: '/admin/config/dinger_global_settings'
+dinger_settings.global_settings:
+  path: '/admin/config/dinger-global-settings'
   defaults:
     _form: '\Drupal\dinger_settings\Form\DingerSettingsConfigForm'
     _title: 'Dinger settings configuration'
