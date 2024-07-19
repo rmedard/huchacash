@@ -14,4 +14,9 @@ module: {  }
 theme: {  }
 complete_list:
   - dinger_settings.global_settings
+  - symfony_mailer.mailer_policy.symfony_mailer
+  - symfony_mailer.mailer_policy.symfony_mailer.test
+  - symfony_mailer.mailer_policy._
+  - symfony_mailer.mailer_transport.smtp
+  - symfony_mailer.settings
 partial_list: {  }
