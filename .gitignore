@@ -72,3 +72,7 @@ logs/
 error_docs/
 
 .ddev/
+
+config/dev/dinger_settings.global_settings.yml
+config/local/dinger_settings.global_settings.yml
+config/prod/dinger_settings.global_settings.yml
