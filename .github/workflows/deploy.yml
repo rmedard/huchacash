@@ -22,7 +22,8 @@ jobs:
 
         script: |
           cd  /var/www/vhosts/hucha.cash/
-          git pull
+          git fetch --all
+          git reset --hard origin/main
           composer install --no-interaction
           vendor/drush/drush/drush updb
           vendor/drush/drush/drush cr
