@@ -123,7 +123,7 @@ class StripeController extends ControllerBase
                 'field_tx_to' => $customer->id(),
                 'field_tx_amount' => $amount,
                 'field_tx_type' => 'top_up',
-                'field_tx_status' => 'paid',
+                'field_tx_status' => 'confirmed',
                 'uid' => $customer->get('field_customer_user')->target_id
               ])->save();
               $balance = doubleval($customer->get('field_customer_available_balance')->getString());

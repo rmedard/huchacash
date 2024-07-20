@@ -292,34 +292,51 @@ function dinger_settings_node_access(EntityInterface $entity, $operation, Accoun
     return AccessResult::allowed();
   }
 
-  if ($entity instanceof NodeInterface && $entity->bundle() == 'bid') {
-    if ($operation === 'update') {
-      $bidCreator = $entity
-        ->get('field_bid_customer')->entity
-        ->get('field_customer_user')->entity;
-      $relatedCallCreator = $entity
-        ->get('field_bid_call')->entity
-        ->get('field_call_order')->entity
-        ->get('field_order_creator')->entity
-        ->get('field_customer_user')->entity;
+  if ($entity instanceof NodeInterface) {
+    switch ($entity->bundle()) {
+      case 'bid':
+        if ($operation === 'update') {
+          $bidCreator = $entity
+            ->get('field_bid_customer')->entity
+            ->get('field_customer_user')->entity;
+          if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
+            return AccessResult::allowed();
+          }
 
-      $data = [
-        'entity type' => $entity->bundle(),
-        'entity id' => $entity->id(),
-        'logged-in user' => $account->id(),
-        'operation' => $operation,
-        'bidder' => $bidCreator->id(),
-        'caller' => $relatedCallCreator->id(),
-      ];
-      Drupal::logger('Bid Update')->info('<pre><code>' . print_r($data, TRUE) . '</code></pre>');
+          $relatedCallCreator = $entity
+            ->get('field_bid_call')->entity
+            ->get('field_call_order')->entity
+            ->get('field_order_creator')->entity
+            ->get('field_customer_user')->entity;
+          if ($relatedCallCreator instanceof UserInterface and $relatedCallCreator->id() === $account->id()) {
+            return AccessResult::allowed();
+          }
+        }
+        break;
+      case 'call':
+        if ($operation === 'update') {
+          $callCreator = $entity
+            ->get('field_call_order')->entity
+            ->get('field_order_creator')->entity
+            ->get('field_customer_user')->entity;
+          if ($callCreator instanceof UserInterface and $callCreator->id() === $account->id()) {
+            return AccessResult::allowed();
+          }
 
-
-      if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
-        return AccessResult::allowed();
-      }
-      if ($relatedCallCreator instanceof UserInterface and $relatedCallCreator->id() === $account->id()) {
-        return AccessResult::allowed();
-      }
+          /**
+           * Allow order executor to update (complete) call
+           */
+          if ($entity->get('field_call_status')->getString() == 'completed') {
+            $executor = $entity
+              ->get('field_call_order')->entity
+              ->get('field_order_executor')->entity
+              ->get('field_customer_user')->entity;
+            if ($executor instanceof UserInterface and $executor->id() === $account->id()) {
+              return AccessResult::allowed();
+            }
+          }
+        }
+        break;
     }
   }
   return AccessResult::neutral();

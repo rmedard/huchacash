@@ -9,6 +9,7 @@ dependencies:
   module:
     - comment
     - contextual
+    - field_permissions
     - file
     - help
     - node
@@ -45,5 +46,9 @@ permissions:
   - 'edit terms in tags'
   - 'revert all revisions'
   - 'view all revisions'
+  - 'view field_tx_from'
+  - 'view field_tx_type'
+  - 'view own field_tx_from'
+  - 'view own field_tx_type'
   - 'view own unpublished content'
   - 'view the administration theme'
