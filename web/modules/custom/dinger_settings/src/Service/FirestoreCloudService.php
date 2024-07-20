@@ -62,9 +62,9 @@ final class FirestoreCloudService {
   public function updateFireCall(Node $call): void {
     $this->logger->info('Update FireCall action triggered. CallId: @callId', ['@callId' => $call->id()]);
 
-    $initialCall = $call->original;
-    $isUpdated = $initialCall != null;
-    if ($isUpdated and $initialCall instanceof NodeInterface) {
+    $originalCall = $call->original;
+    $isUpdated = $originalCall != null;
+    if ($isUpdated and $originalCall instanceof NodeInterface) {
 
       $updates = [];
 
@@ -73,7 +73,7 @@ final class FirestoreCloudService {
        * @var \Drupal\Core\Datetime\DrupalDateTime $initialExpirationTime *
        * @var \Drupal\Core\Datetime\DrupalDateTime $currentExpirationTime *
        */
-      $initialExpirationTime = $initialCall->get('field_call_expiry_time')->date;
+      $initialExpirationTime = $originalCall->get('field_call_expiry_time')->date;
       $currentExpirationTime = $call->get('field_call_expiry_time')->date;
       $expirationTimeUpdated = $initialExpirationTime->diff($currentExpirationTime, TRUE)->f > 0;
       if ($expirationTimeUpdated) {
@@ -87,7 +87,7 @@ final class FirestoreCloudService {
       /**
        * Check if call status updated
        */
-      $initialStatus = $initialCall->get('field_call_status')->getString();
+      $initialStatus = $originalCall->get('field_call_status')->getString();
       $currentStatus = $call->get('field_call_status')->getString();
       $statusUpdated = $initialStatus != $currentStatus;
       if ($statusUpdated) {
@@ -100,9 +100,9 @@ final class FirestoreCloudService {
       /**
        * Check if order confirmation number has been set for the first time (or changed)
        */
-      $initialOrderConfirmationNbr = $initialCall->get('field_call_order_confirm_nbr')->getString();
+      $originalOrderConfirmationNbr = $originalCall->get('field_call_order_confirm_nbr')->getString();
       $currentOrderConfirmationNbr = $call->get('field_call_order_confirm_nbr')->getString();
-      if ($initialOrderConfirmationNbr !== $currentOrderConfirmationNbr) {
+      if ($originalOrderConfirmationNbr !== $currentOrderConfirmationNbr) {
         $updates[] = [
           'path' => 'order_confirmation_number',
           'value' => empty(trim($currentOrderConfirmationNbr)) ? 0 : intval($currentOrderConfirmationNbr)

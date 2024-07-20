@@ -42,10 +42,10 @@ class BiddingService {
       throw new BadRequestHttpException('Bid has invalid state. Should not be new.');
     }
 
-    /** @var $initialBid NodeInterface */
-    $initialBid = $bid->original;
+    /** @var $originalBid NodeInterface */
+    $originalBid = $bid->original;
     $bidStatus = $bid->get('field_bid_status')->getString();
-    $bidStatusUpdated = $bidStatus !== $initialBid->get('field_bid_status')->getString();
+    $bidStatusUpdated = $bidStatus !== $originalBid->get('field_bid_status')->getString();
     if ($bidStatusUpdated) {
       if ($bidStatus === 'confirmed') {
         $this->processConfirmedBid($bid);
