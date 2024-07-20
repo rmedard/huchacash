@@ -23,7 +23,7 @@ class BidConstraintValidator extends ConstraintValidator
 
   private function hasInvalidAmount(Node $bid): bool
   {
-    $amount = doubleval($bid->get('field_bid_amount')->value);
+    $amount = doubleval($bid->get('field_bid_amount')->getString());
     $type = $bid->get('field_bid_type')->value;
     return $amount == 0 and $type == 'bargain';
   }
