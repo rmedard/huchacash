@@ -79,7 +79,7 @@ class ExpiredNodesController extends ControllerBase
 
     switch ($type) {
       case GcNodeType::CALL:
-        $callStatus = $node->get('field_call_status')->value;
+        $callStatus = $node->get('field_call_status')->getString();
         if ($callStatus == 'live') {
           $this->logger->info($this->t('Call @id has expired', ['@id' => $node->id()]));
           try {
@@ -96,7 +96,7 @@ class ExpiredNodesController extends ControllerBase
         }
         break;
       case GcNodeType::ORDER:
-        $orderStatus = $node->get('field_order_status')->value;
+        $orderStatus = $node->get('field_order_status')->getString();
         if ($orderStatus == 'idle') {
           $this->logger->info($this->t('Order @id has expired', ['@id' => $node->id()]));
           try {
