@@ -1,10 +1,10 @@
 dinger_settings.global_settings:
   path: '/admin/config/dinger-global-settings'
   defaults:
-    _form: '\Drupal\dinger_settings\Form\DingerSettingsConfigForm'
     _title: 'Dinger settings configuration'
+    _form: '\Drupal\dinger_settings\Form\DingerSettingsConfigForm'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer dinger_settings'
 dinger_settings.create_order:
   path: '/%jsonapi%/order/add'
   methods: ['POST']

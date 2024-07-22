@@ -1,0 +1,10 @@
+dinger_settings.global_settings:
+  type: config_object
+  label: 'Hucha Global Configuration'
+  mapping:
+    hucha_system_customer:
+      type: entity_autocomplete
+      label: System Customer
+    hucha_base_service_fee_rate:
+      type: number
+      label: Base System Service Fee

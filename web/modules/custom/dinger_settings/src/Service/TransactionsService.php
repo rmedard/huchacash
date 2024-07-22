@@ -47,7 +47,7 @@ class TransactionsService {
     }
 
     $systemCustomer = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_system_customer');
-    if (!$systemCustomer or is_numeric($systemCustomer)) {
+    if (!$systemCustomer or !is_numeric($systemCustomer)) {
       throw new BadRequestHttpException('System customer has not been set.');
     }
 
