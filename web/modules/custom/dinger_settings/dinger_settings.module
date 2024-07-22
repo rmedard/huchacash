@@ -86,6 +86,12 @@ function dinger_settings_node_presave(NodeInterface $node): void
         $node->setTitle('ROUTE' . $reference);
         break;
     }
+  } else {
+    if ($node->bundle() == 'call') {
+      /** @var $callsService \Drupal\dinger_settings\Service\CallsService */
+      $callsService = Drupal::service('hucha_settings.calls_service');
+      $callsService->onCallPresave($node);
+    }
   }
 
   if ($node->bundle() == 'order') {
@@ -112,11 +118,6 @@ function dinger_settings_node_presave(NodeInterface $node): void
 function dinger_settings_node_update(NodeInterface $node): void
 {
   switch ($node->bundle()) {
-    case 'call':
-      /** @var $callsService \Drupal\dinger_settings\Service\CallsService */
-      $callsService = Drupal::service('hucha_settings.calls_service');
-      $callsService->onCallUpdated($node);
-      break;
     case 'bid':
       /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
       $biddingService = Drupal::service('hucha_settings.bidding_service');

@@ -60,51 +60,49 @@ class CallsService {
     }
   }
 
-  public function onCallUpdated(NodeInterface $call): void {
+  public function onCallPresave(NodeInterface $call): void {
+    $isCallUpdate = !$call->isNew();
+    if ($isCallUpdate) {
+      /** @var $originalCall NodeInterface */
+      $originalCall = $call->original;
+      $callStatus = $call->get('field_call_status')->getString();
+      $callStatusUpdated = $callStatus !== $originalCall->get('field_call_status')->getString();
 
-    if ($call->isNew()) {
-      throw new BadRequestHttpException('Call has invalid state. Should not be new.');
-    }
+      if ($callStatusUpdated) {
+        try {
+          /** @var $order NodeInterface */
+          $order = $call->get('field_call_order')->entity;
+          switch ($callStatus) {
+            case 'attributed':
+              $this->processAttributedCall($call);
+              break;
+            case 'cancelled':
+            case 'expired':
+              $callBidIds = $this->entityTypeManager
+                ->getStorage('node')
+                ->getQuery()->accessCheck(FALSE)
+                ->condition('type', 'bid')
+                ->condition('field_bid_call.target_id', $call->id())
+                ->execute();
+              $bids = Node::loadMultiple($callBidIds);
+              foreach ($bids as $bidId => $bid) {
+                $bid->set('field_bid_status', 'rejected');
+                $bid->save();
+              }
 
-    /** @var $originalCall NodeInterface */
-    $originalCall = $call->original;
-    $callStatus = $call->get('field_call_status')->getString();
-    $callStatusUpdated = $callStatus !== $originalCall->get('field_call_status')->getString();
-
-    if ($callStatusUpdated) {
-      try {
-        /** @var $order NodeInterface */
-        $order = $call->get('field_call_order')->entity;
-        switch ($callStatus) {
-          case 'attributed':
-            $this->processAttributedCall($call);
-            break;
-          case 'cancelled':
-          case 'expired':
-            $callBidIds = $this->entityTypeManager
-              ->getStorage('node')
-              ->getQuery()->accessCheck(FALSE)
-              ->condition('type', 'bid')
-              ->condition('field_bid_call.target_id', $call->id())
-              ->execute();
-            $bids = Node::loadMultiple($callBidIds);
-            foreach ($bids as $bidId => $bid) {
-              $bid->set('field_bid_status', 'rejected');
-              $bid->save();
-            }
-
-            if ($order->get('field_order_status')->getString() === 'bidding') {
-              $order->set('field_order_status', 'idle');
+              if ($order->get('field_order_status')->getString() === 'bidding') {
+                $order->set('field_order_status', 'idle');
+                $order->save();
+              }
+              break;
+            case 'completed':
+              $order->set('field_order_status', 'delivered');
               $order->save();
-            }
-            break;
-          case 'completed':
-            $order->set('field_order_status', 'delivered');
-            $order->save();
 
+          }
+        } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
+          $this->logger->error($e);
         }
-      } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
-        $this->logger->error($e);
       }
     }
   }
