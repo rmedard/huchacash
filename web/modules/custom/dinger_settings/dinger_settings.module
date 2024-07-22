@@ -286,7 +286,6 @@ function dinger_settings_cron(): void
  */
 function dinger_settings_node_access(EntityInterface $entity, $operation, AccountInterface $account): AccessResult
 {
-
   if ($account instanceof UserInterface && $account->hasRole('administrator')) {
     return AccessResult::allowed();
   }
@@ -314,6 +313,7 @@ function dinger_settings_node_access(EntityInterface $entity, $operation, Accoun
         break;
       case 'call':
         if ($operation === 'update') {
+          Drupal::logger('XXX')->info('Evaluating update access to call. Id: ' . $entity->id() . ' | Status: ' . $entity->get('field_call_status')->getString());
           $callCreator = $entity
             ->get('field_call_order')->entity
             ->get('field_order_creator')->entity
