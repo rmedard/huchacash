@@ -1,6 +1,6 @@
 hucha_custom_configs.menu:
   title: 'Hucha custom configurations'
   description: 'Hucha custom configuration settings.'
-  parent: system.admin_config_system
+  parent: system.admin_config_development
   route_name: dinger_settings.admin_settings
   weight: 100
