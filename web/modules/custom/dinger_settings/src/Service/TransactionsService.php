@@ -2,6 +2,8 @@
 
 namespace Drupal\dinger_settings\Service;
 
+use Brick\Math\BigDecimal;
+use Brick\Math\Exception\MathException;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
@@ -69,12 +71,13 @@ class TransactionsService {
         $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
 
-      $deliveryFee = doubleval(trim($order->get('field_order_delivery_cost')->getString()));
+      $totalDeliveryFee = doubleval(trim($order->get('field_order_delivery_cost')->getString()));
       $systemServiceFee = doubleval(trim($order->get('field_order_attributed_call')->entity->get('field_call_system_service_fee')->getString()));
+      $effectiveDeliveryFee = BigDecimal::of($totalDeliveryFee)->minus(BigDecimal::of($systemServiceFee))->toFloat();
 
       $deliveryFeeTxId = $storage->create([
         'type' => 'transaction',
-        'field_tx_amount' => $deliveryFee - $systemServiceFee,
+        'field_tx_amount' => $effectiveDeliveryFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_type' => 'delivery_fee',
@@ -94,6 +97,9 @@ class TransactionsService {
     }
     catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException $e) {
       $this->logger->error($e);
+    }
+    catch (MathException $e) {
+      $this->logger->error($e->getMessage());
     }
   }
 }
