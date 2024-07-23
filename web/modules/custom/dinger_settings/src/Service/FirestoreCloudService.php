@@ -53,9 +53,9 @@ final class FirestoreCloudService {
     $this->logger->info('<pre><code>' . print_r($result, TRUE) . '</code></pre>');
   }
 
-  public function deleteFireCall(Node $call): void {
-    $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $call->uuid()]);
-    $result = $this->firestoreClient->collection('live_calls')->document($call->id())->delete();
+  public function deleteFireCall(string $callUuid): void {
+    $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
+    $result = $this->firestoreClient->collection('live_calls')->document($callUuid)->delete();
     $this->logger->info('<pre><code>' . print_r($result, TRUE) . '</code></pre>');
   }
 
