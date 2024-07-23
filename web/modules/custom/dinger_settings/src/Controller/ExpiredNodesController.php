@@ -88,7 +88,7 @@ class ExpiredNodesController extends ControllerBase
 
             /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreCloudService **/
             $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
-            $firestoreCloudService->deleteFireCall($node);
+            $firestoreCloudService->deleteFireCall($node->uuid());
 
           } catch (EntityStorageException $e) {
             $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());

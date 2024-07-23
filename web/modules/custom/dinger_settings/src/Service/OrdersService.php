@@ -8,6 +8,7 @@ use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -45,9 +46,22 @@ class OrdersService
     $orderStatusUpdated = $orderStatus !== $originalOrder->get('field_order_status')->getString();
     if ($orderStatusUpdated) {
       if ($orderStatus === 'delivered') {
+
         /** @var \Drupal\dinger_settings\Service\TransactionsService $transactionsService **/
         $transactionsService = Drupal::service('hucha_settings.transactions_service');
         $transactionsService->processDeliveredOrderTransactions($order);
+
+        /** @var \Drupal\node\Entity\Node $attributedCall **/
+        $attributedCall = $order->get('field_order_attributed_call')->entity;
+
+        /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreCloudService **/
+        $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
+        $firestoreCloudService->deleteFireCall($attributedCall->uuid());
+
+        /** @var \Drupal\dinger_settings\Service\GoogleCloudService $googleCloudService **/
+        $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
+        $googleCloudService->deleteGcTask($attributedCall->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
+        $googleCloudService->deleteGcTask($order->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
       }
     }
   }

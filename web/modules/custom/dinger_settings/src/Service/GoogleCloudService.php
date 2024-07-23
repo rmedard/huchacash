@@ -66,9 +66,7 @@ final class GoogleCloudService {
     if ($this->isEligible($targetNode, $triggerTime)) {
       $taskName = trim($targetNode->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
       try {
-        if (!empty($taskName)) {
-          $this->deleteGcTask($taskName);
-        }
+        $this->deleteGcTask($taskName);
         return $this->createGcTask($targetNode, $triggerTime);
       } catch (ApiException $e) {
         $this->logger->error('Creating gc task failed: ' . $e);
@@ -108,8 +106,12 @@ final class GoogleCloudService {
     return $this->cloudTasksClient->createTask($taskRequest);
   }
 
-  private function deleteGcTask(string $taskName): void {
+  public function deleteGcTask(string $taskName): void {
     $this->logger->info('Deleting DC Task: ' . $taskName);
+    if (empty(trim($taskName))) {
+      return;
+    }
+
     try {
       $this
         ->cloudTasksClient
