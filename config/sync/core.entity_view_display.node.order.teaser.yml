@@ -10,7 +10,6 @@ dependencies:
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
     - field.field.node.order.field_order_delivery_address_str
-    - field.field.node.order.field_order_delivery_cost
     - field.field.node.order.field_order_delivery_time
     - field.field.node.order.field_order_executor
     - field.field.node.order.field_order_items
@@ -40,7 +39,6 @@ hidden:
   field_order_creator: true
   field_order_delivery_address: true
   field_order_delivery_address_str: true
-  field_order_delivery_cost: true
   field_order_delivery_time: true
   field_order_executor: true
   field_order_items: true

@@ -57,8 +57,8 @@ class TransactionsService {
       /** @var \Drupal\node\NodeStorage $storage **/
       $storage = $this->entityTypeManager->getStorage('node');
 
-      $purchaseCostValue = trim($order->get('field_order_shopping_total_cost')->getString());
-      $purchaseCost = empty($purchaseCostValue) ? 0 : doubleval($purchaseCostValue);
+      $shoppingCostRef = $order->get('field_order_shopping_total_cost');
+      $purchaseCost = $shoppingCostRef->isEmpty() ? 0 : doubleval($shoppingCostRef->getString());
       if ($purchaseCost > 0) {
         $purchaseCostTxId = $storage->create([
           'type' => 'transaction',
@@ -71,9 +71,10 @@ class TransactionsService {
         $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
 
-      $totalDeliveryFee = doubleval(trim($order->get('field_order_delivery_cost')->getString()));
-      $systemServiceFee = doubleval(trim($order->get('field_order_attributed_call')->entity->get('field_call_system_service_fee')->getString()));
-      $effectiveDeliveryFee = BigDecimal::of($totalDeliveryFee)->minus(BigDecimal::of($systemServiceFee))->toFloat();
+      $attributedCall = $order->get('field_order_attributed_call')->entity;
+      $totalDeliveryFee = doubleval(trim($attributedCall->get('field_call_proposed_service_fee')->getString()));
+      $systemServiceFee = doubleval(trim($attributedCall->get('field_call_system_service_fee')->getString()));
+      $effectiveDeliveryFee = $totalDeliveryFee - $systemServiceFee;
 
       $deliveryFeeTxId = $storage->create([
         'type' => 'transaction',

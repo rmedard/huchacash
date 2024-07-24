@@ -1,4 +1,4 @@
-uuid: 84419df1-c52f-4649-a911-a43844afcb0d
+uuid: d8f7c312-1285-488a-85b4-c6b9da0cedc7
 langcode: en
 status: true
 dependencies:
@@ -7,7 +7,7 @@ dependencies:
     - node
 third_party_settings:
   field_permissions:
-    permission_type: public
+    permission_type: custom
 id: node.field_order_attributed_call
 field_name: field_order_attributed_call
 entity_type: node
