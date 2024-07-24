@@ -131,18 +131,18 @@ class CallsService {
     $biddingService = Drupal::service('hucha_settings.bidding_service');
     $confirmedBid = $biddingService->findCallConfirmedBid($call);
     try {
+      $confirmedCostBeforeServiceFee = $confirmedBid->get('field_bid_amount')->getString();
+      $systemServiceFeeRate = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_base_service_fee_rate');
+      $call
+        ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber())
+        ->set('field_call_proposed_service_fee', $confirmedCostBeforeServiceFee)
+        ->set('field_call_system_service_fee', $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100);
+
       $order
         ->set('field_order_status', 'delivering')
         ->set('field_order_executor', $confirmedBid->get('field_bid_customer')->entity)
         ->set('field_order_attributed_call', $call)
         ->save();
-
-      $systemServiceFeeRate = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_base_service_fee_rate');
-      $confirmedCostBeforeServiceFee = $confirmedBid->get('field_bid_amount')->getString();
-      $call
-        ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber())
-        ->set('field_call_proposed_service_fee', $confirmedCostBeforeServiceFee)
-        ->set('field_call_system_service_fee', $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100);
     }
     catch (EntityStorageException $e) {
       $this->logger->error($e);

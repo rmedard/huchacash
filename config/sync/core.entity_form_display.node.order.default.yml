@@ -9,7 +9,6 @@ dependencies:
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
     - field.field.node.order.field_order_delivery_address_str
-    - field.field.node.order.field_order_delivery_cost
     - field.field.node.order.field_order_delivery_time
     - field.field.node.order.field_order_executor
     - field.field.node.order.field_order_items
@@ -78,13 +77,6 @@ content:
     region: content
     settings:
       size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_order_delivery_cost:
-    type: number
-    weight: 10
-    region: content
-    settings:
       placeholder: ''
     third_party_settings: {  }
   field_order_delivery_time:

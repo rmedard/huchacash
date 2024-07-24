@@ -68,5 +68,6 @@ class DingerSettingsConfigForm extends ConfigFormBase
     $config->set('hucha_system_customer', $form_state->getValue('hucha_system_customer'));
     $config->set('hucha_base_service_fee_rate', $form_state->getValue('hucha_base_service_fee_rate'));
     $config->save();
+    parent::submitForm($form, $form_state);
   }
 }

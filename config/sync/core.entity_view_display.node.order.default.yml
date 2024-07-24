@@ -9,7 +9,6 @@ dependencies:
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
     - field.field.node.order.field_order_delivery_address_str
-    - field.field.node.order.field_order_delivery_cost
     - field.field.node.order.field_order_delivery_time
     - field.field.node.order.field_order_executor
     - field.field.node.order.field_order_items
@@ -44,7 +43,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 14
+    weight: 17
     region: content
   field_order_calls:
     type: entity_reference_label
@@ -76,17 +75,6 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 8
-    region: content
-  field_order_delivery_cost:
-    type: number_decimal
-    label: above
-    settings:
-      thousand_separator: ''
-      decimal_separator: .
-      scale: 2
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 5
     region: content
   field_order_delivery_time:
     type: datetime_default
