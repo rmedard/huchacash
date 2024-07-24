@@ -2,7 +2,6 @@
 
 namespace Drupal\dinger_settings\Service;
 
-use Brick\Math\BigDecimal;
 use Brick\Math\Exception\MathException;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
@@ -95,12 +94,10 @@ class TransactionsService {
         'field_tx_status' => 'confirmed'
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
+      $order->save();
     }
-    catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException $e) {
+    catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
       $this->logger->error($e);
-    }
-    catch (MathException $e) {
-      $this->logger->error($e->getMessage());
     }
   }
 }
