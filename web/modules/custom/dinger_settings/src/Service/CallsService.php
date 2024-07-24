@@ -133,10 +133,11 @@ class CallsService {
     try {
       $confirmedCostBeforeServiceFee = $confirmedBid->get('field_bid_amount')->getString();
       $systemServiceFeeRate = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_base_service_fee_rate');
+      $systemServiceFee = $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100;
       $call
         ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber())
         ->set('field_call_proposed_service_fee', $confirmedCostBeforeServiceFee)
-        ->set('field_call_system_service_fee', $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100);
+        ->set('field_call_system_service_fee', $systemServiceFee);
 
       $order
         ->set('field_order_status', 'delivering')
