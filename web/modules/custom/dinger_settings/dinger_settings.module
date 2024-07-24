@@ -91,12 +91,6 @@ function dinger_settings_node_presave(NodeInterface $node): void
       /** @var $callsService \Drupal\dinger_settings\Service\CallsService */
       $callsService = Drupal::service('hucha_settings.calls_service');
       $callsService->onCallPresave($node);
-    } elseif ($node->bundle() == 'order') {
-      $call = $node->get('field_order_attributed_call')->entity;
-      $totalDeliveryFee = doubleval(trim($call->get('field_call_proposed_service_fee')->getString()));
-      $systemServiceFee = doubleval(trim($call->get('field_call_system_service_fee')->getString()));
-      $effectiveDeliveryFee = $totalDeliveryFee - $systemServiceFee;
-      Drupal::logger('XXXX')->info(t('@var1 minus @var2 = @diff', ['@var1' => $totalDeliveryFee, '@var2' => $systemServiceFee, '@diff' => $effectiveDeliveryFee]));
     }
   }
 
