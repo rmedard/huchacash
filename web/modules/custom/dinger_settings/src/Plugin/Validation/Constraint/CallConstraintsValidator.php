@@ -10,7 +10,7 @@ use Drupal\node\NodeInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class CallConstraintValidator extends ConstraintValidator
+class CallConstraintsValidator extends ConstraintValidator
 {
 
   public function validate($value, Constraint $constraint): void

@@ -27,6 +27,8 @@ function dinger_settings_entity_type_alter(array &$entity_types): void
     $nodeType->addConstraint('UniqueCallPerOrder');
     $nodeType->addConstraint('AmountPerCallType');
     $nodeType->addConstraint('BidAmountPerType');
+    $nodeType->addConstraint('TransactionAmountConstraint');
+    $nodeType->addConstraint('TransactionCancelledConstraint');
   }
 }
 

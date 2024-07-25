@@ -17,6 +17,6 @@ class UniqueCallPerOrder extends Constraint
 
   public function validatedBy(): string
   {
-    return CallConstraintValidator::class;
+    return CallConstraintsValidator::class;
   }
 }
