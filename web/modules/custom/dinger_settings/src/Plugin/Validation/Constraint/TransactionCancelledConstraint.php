@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 )]
 class TransactionCancelledConstraint extends SymfonyConstraint {
 
-  public string $message = 'Initial transaction status cannot be \'cancelled\'.';
+  public string $message = 'Initial or original transaction status cannot be \'cancelled\'.';
 
   /**
    * {@inheritdoc}
