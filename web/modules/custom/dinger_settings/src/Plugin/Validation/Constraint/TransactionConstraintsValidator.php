@@ -12,32 +12,37 @@ class TransactionConstraintsValidator extends ConstraintValidator {
 
   public function validate(mixed $value, Constraint $constraint): void {
     if ($value instanceof NodeInterface && $value->bundle() === 'transaction') {
-      if ($value->isNew()) {
-        if ($constraint instanceof TransactionAmountConstraint) {
-          $txType = $value->get('field_tx_type')->getString();
-          if ($txType !== 'top_up') {
-            /** @var \Drupal\node\Entity\Node $transactionInitiator **/
-            $transactionInitiator = $value->get('field_tx_from')->entity;
-            $systemCustomer = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_system_customer');
-            $isNotSystemInitiative = $systemCustomer !== $transactionInitiator->id();
-            if ($isNotSystemInitiative) {
-              $availableBalance = doubleval($transactionInitiator->get('field_customer_available_balance')->getString());
-              $transactionAmount = doubleval($value->get('field_tx_amount')->getString());
-              if ($transactionAmount > $availableBalance) {
-                $this->context->addViolation($constraint->message, ['%value' => $transactionAmount]);
+      $constraintClass = get_class($constraint);
+      switch ($constraintClass) {
+        case TransactionAmountConstraint::class:
+          /** @var TransactionAmountConstraint $constraint **/
+          if ($value->isNew()) {
+            $txType = $value->get('field_tx_type')->getString();
+            if ($txType !== 'top_up') {
+              /** @var \Drupal\node\Entity\Node $transactionInitiator **/
+              $transactionInitiator = $value->get('field_tx_from')->entity;
+              $systemCustomer = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_system_customer');
+              $isNotSystemInitiative = $systemCustomer !== $transactionInitiator->id();
+              if ($isNotSystemInitiative) {
+                $availableBalance = doubleval($transactionInitiator->get('field_customer_available_balance')->getString());
+                $transactionAmount = doubleval($value->get('field_tx_amount')->getString());
+                if ($transactionAmount > $availableBalance) {
+                  $this->context->addViolation($constraint->message, ['%value' => $transactionAmount]);
+                }
               }
             }
           }
-        }
-
-        if ($constraint instanceof TransactionCancelledConstraint) {
+          break;
+        case TransactionCancelledConstraint::class:
+          /** @var TransactionCancelledConstraint $constraint **/
           $txStatus = $value->get('field_tx_status')->getString();
-          if ($txStatus === 'cancelled') {
-            $this->context->addViolation($constraint->message);
+          if ($value->isNew()) {
+            if ($txStatus === 'cancelled') {
+              $this->context->addViolation($constraint->message);
+            }
           }
-        }
+          break;
       }
     }
   }
-
 }

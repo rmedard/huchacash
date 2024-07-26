@@ -126,10 +126,6 @@ class StripeController extends ControllerBase
                 'field_tx_status' => 'confirmed',
                 'uid' => $customer->get('field_customer_user')->target_id
               ])->save();
-              $balance = doubleval($customer->get('field_customer_available_balance')->getString());
-              $customer
-                ->set('field_customer_available_balance', $balance + $amount)
-                ->save();
               $this->logger->info('Top-up transaction created successfully');
             } catch (EntityStorageException $e) {
               $this->logger->error('Saving top-up transaction failed: ' . $e->getMessage());

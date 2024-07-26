@@ -65,7 +65,7 @@ class TransactionsService {
           'field_tx_from' => $order->get('field_order_creator')->entity,
           'field_tx_to' => $order->get('field_order_executor')->entity,
           'field_tx_type' => 'purchase_cost',
-          'field_tx_status' => 'confirmed'
+          'field_tx_status' => 'confirmed',
         ])->save();
         $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
@@ -81,7 +81,7 @@ class TransactionsService {
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_type' => 'delivery_fee',
-        'field_tx_status' => 'confirmed'
+        'field_tx_status' => 'confirmed',
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $deliveryFeeTxId]);
 
@@ -91,7 +91,7 @@ class TransactionsService {
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => Node::load($systemCustomer),
         'field_tx_type' => 'service_fee',
-        'field_tx_status' => 'confirmed'
+        'field_tx_status' => 'confirmed',
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
       $order->save();
@@ -99,5 +99,103 @@ class TransactionsService {
     catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
       $this->logger->error($e);
     }
+  }
+
+  public function updateAccountsOnTransactionPresave(Node $transaction): void {
+    $txStatus = $transaction->get('field_tx_status')->getString();
+    $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
+    try {
+      switch ($txStatus) {
+        case 'confirmed':
+          if ($transaction->isNew()) {
+            if ($transaction->get('field_tx_type') !== 'top_up') {
+              /** @var Node $txInitiator **/
+              $txInitiator = $transaction->get('field_tx_from')->entity;
+              $this->debit($txInitiator, $txAmount, TRUE);
+            }
+
+            /** @var Node $txBeneficiary **/
+            $txBeneficiary = $transaction->get('field_tx_to')->entity;
+            $this->credit($txBeneficiary, $txAmount);
+          } else {
+            /** @var Node $originalTransaction **/
+            $originalTransaction = $transaction->original;
+            $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
+            if ($txStatusChanged) {
+              /** @var Node $txInitiator **/
+              $txInitiator = $transaction->get('field_tx_from')->entity;
+              $this->debit($txInitiator, $txAmount, FALSE);
+
+              /** @var Node $txBeneficiary **/
+              $txBeneficiary = $transaction->get('field_tx_to')->entity;
+              $this->credit($txBeneficiary, $txAmount);
+            }
+          }
+          break;
+        case 'initiated':
+          /** @var Node $txInitiator **/
+          $txInitiator = $transaction->get('field_tx_from')->entity;
+          $this->freezeDebit($txInitiator, $txAmount);
+          break;
+        case 'cancelled':
+          /** @var Node $txInitiator **/
+          $txInitiator = $transaction->get('field_tx_from')->entity;
+          $this->unfreezeDebit($txInitiator, $txAmount);
+          break;
+      }
+    } catch (EntityStorageException $e) {
+      $this->logger->error($e);
+    }
+  }
+
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  private function debit(Node $customer, float $amount, bool $isDirectDebit): void {
+    $accountName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
+    $availableBalance = doubleval($customer->get($accountName)->getString());
+    $newBalance = $availableBalance - $amount;
+    $customer
+      ->set($accountName, $newBalance)
+      ->save();
+  }
+
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  private function credit(Node $customer, float $amount): void {
+    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
+    $newBalance = $availableBalance + $amount;
+    $customer
+      ->set('field_customer_available_balance', $newBalance)
+      ->save();
+  }
+
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  private function freezeDebit(Node $customer, float $amount): void {
+    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
+    $newBalance = $availableBalance - $amount;
+    $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
+    $newFrozenBalance = $frozenBalance + $amount;
+    $customer
+      ->set('field_customer_available_balance', $newBalance)
+      ->set('field_customer_pending_balance', $newFrozenBalance)
+      ->save();
+  }
+
+  /**
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  private function unfreezeDebit(Node $customer, float $amount): void {
+    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
+    $newBalance = $availableBalance + $amount;
+    $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
+    $newFrozenBalance = $frozenBalance - $amount;
+    $customer
+      ->set('field_customer_available_balance', $newBalance)
+      ->set('field_customer_pending_balance', $newFrozenBalance)
+      ->save();
   }
 }

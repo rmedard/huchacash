@@ -1,0 +1,59 @@
+uuid: bd263da8-6b07-4584-bb62-93249dfdb398
+langcode: en
+status: true
+dependencies:
+  config:
+    - eca.eca.process_kfh8ruo
+id: process_kfh8ruo
+label: onTransactionPresave
+tags:
+  - untagged
+documentation: ''
+filename: ''
+modeldata: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <bpmn2:process id="Process_kFH8ruO" name="onTransactionPresave" isExecutable="true" camunda:versionTag="1.0.0">
+      <bpmn2:startEvent id="Event_0sjc6z6" name="onTransactionPresave" camunda:modelerTemplate="org.drupal.event.content_entity:presave">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="content_entity:presave" />
+          </camunda:properties>
+          <camunda:field name="type">
+            <camunda:string>node transaction</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:outgoing>Flow_1xw2lc0</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:task id="Activity_0sdvvv2" name="Update Accounts" camunda:modelerTemplate="org.drupal.action.update_accounts_tx_presave_action">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="update_accounts_tx_presave_action" />
+          </camunda:properties>
+          <camunda:field name="object">
+            <camunda:string>node</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_1xw2lc0</bpmn2:incoming>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_1xw2lc0" sourceRef="Event_0sjc6z6" targetRef="Activity_0sdvvv2" />
+    </bpmn2:process>
+    <bpmndi:BPMNDiagram id="sid-19e6ba8d-ea93-46c2-9700-1d107b91a278">
+      <bpmndi:BPMNPlane id="sid-3878ef82-13ff-4e99-b70b-9ef0ea7d26fb" bpmnElement="Process_kFH8ruO">
+        <bpmndi:BPMNShape id="Event_0sjc6z6_di" bpmnElement="Event_0sjc6z6">
+          <dc:Bounds x="272" y="152" width="36" height="36" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="251" y="195" width="81" height="27" />
+          </bpmndi:BPMNLabel>
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_0sdvvv2_di" bpmnElement="Activity_0sdvvv2">
+          <dc:Bounds x="360" y="130" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNEdge id="Flow_1xw2lc0_di" bpmnElement="Flow_1xw2lc0">
+          <di:waypoint x="308" y="170" />
+          <di:waypoint x="360" y="170" />
+        </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+  </bpmn2:definitions>

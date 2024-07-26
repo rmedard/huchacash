@@ -1,0 +1,33 @@
+uuid: 34c0e794-6f80-451b-b346-8adb42c609d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.transaction
+  module:
+    - dinger_settings
+    - eca_content
+id: process_kfh8ruo
+modeller: bpmn_io
+label: onTransactionPresave
+version: 1.0.0
+weight: 0
+events:
+  Event_0sjc6z6:
+    plugin: 'content_entity:presave'
+    label: onTransactionPresave
+    configuration:
+      type: 'node transaction'
+    successors:
+      -
+        id: Activity_0sdvvv2
+        condition: ''
+conditions: {  }
+gateways: {  }
+actions:
+  Activity_0sdvvv2:
+    plugin: update_accounts_tx_presave_action
+    label: 'Update Accounts'
+    configuration:
+      object: node
+    successors: {  }
