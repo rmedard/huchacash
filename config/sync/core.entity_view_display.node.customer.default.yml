@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
+    - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
     - field.field.node.customer.field_customer_phone
@@ -12,7 +13,9 @@ dependencies:
     - field.field.node.customer.field_customer_user
     - node.type.customer
   module:
+    - bank_account
     - options
+    - telephone
     - user
 id: node.customer.default
 targetEntityType: node
@@ -37,6 +40,13 @@ content:
     third_party_settings: {  }
     weight: 106
     region: content
+  field_customer_bank_account:
+    type: bank_account_formatter_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 110
+    region: content
   field_customer_lastname:
     type: string
     label: above
@@ -57,9 +67,10 @@ content:
     weight: 105
     region: content
   field_customer_phone:
-    type: basic_string
+    type: telephone_link
     label: above
-    settings: {  }
+    settings:
+      title: ''
     third_party_settings: {  }
     weight: 107
     region: content
