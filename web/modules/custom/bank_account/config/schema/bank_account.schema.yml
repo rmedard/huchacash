@@ -1,0 +1,15 @@
+field.field_settings.country:
+  type: mapping
+  label: 'Country settings'
+  mapping:
+    country:
+      type: string
+      label: 'Country'
+
+field.field_settings.account_number:
+  type: mapping
+  label: 'Account number settings'
+  mapping:
+    country:
+      type: string
+      label: 'Account Number'
