@@ -1,0 +1,4 @@
+bank_account:
+  label: 'Bank Account'
+  description: 'Field to store SEPA bank account details'
+  weight: -40

@@ -1,0 +1,10 @@
+name: 'Bank Account'
+type: module
+description: 'Structures and stores bank accounts'
+package: Custom
+core_version_requirement: ^10 || ^11
+version: '10.x-1.0'
+
+# Dependencies
+dependencies:
+  - drupal:field
