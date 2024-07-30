@@ -1,0 +1,21 @@
+uuid: f3688ef1-a6b7-416b-9cea-9985eb1ed048
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_bank_account
+    - node.type.customer
+  module:
+    - bank_account
+id: node.customer.field_customer_bank_account
+field_name: field_customer_bank_account
+entity_type: node
+bundle: customer
+label: 'Bank account'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: bank_account_item

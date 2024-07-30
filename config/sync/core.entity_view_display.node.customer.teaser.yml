@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
+    - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
     - field.field.node.customer.field_customer_phone
@@ -27,6 +28,7 @@ content:
 hidden:
   field_customer_age_range: true
   field_customer_available_balance: true
+  field_customer_bank_account: true
   field_customer_lastname: true
   field_customer_pending_balance: true
   field_customer_phone: true

@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.customer.field_customer_age_range
     - field.field.node.customer.field_customer_available_balance
+    - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
     - field.field.node.customer.field_customer_phone
@@ -12,6 +13,7 @@ dependencies:
     - field.field.node.customer.field_customer_user
     - node.type.customer
   module:
+    - bank_account
     - telephone
 id: node.customer.default
 targetEntityType: node
@@ -20,16 +22,22 @@ mode: default
 content:
   field_customer_age_range:
     type: options_select
-    weight: 4
+    weight: 3
     region: content
     settings: {  }
     third_party_settings: {  }
   field_customer_available_balance:
     type: number
-    weight: 6
+    weight: 5
     region: content
     settings:
       placeholder: ''
+    third_party_settings: {  }
+  field_customer_bank_account:
+    type: bank_account_widget_default
+    weight: 8
+    region: content
+    settings: {  }
     third_party_settings: {  }
   field_customer_lastname:
     type: string_textfield
@@ -41,14 +49,14 @@ content:
     third_party_settings: {  }
   field_customer_pending_balance:
     type: number
-    weight: 5
+    weight: 4
     region: content
     settings:
       placeholder: ''
     third_party_settings: {  }
   field_customer_phone:
     type: telephone_default
-    weight: 8
+    weight: 7
     region: content
     settings:
       placeholder: ''
@@ -75,7 +83,7 @@ content:
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 7
+    weight: 6
     region: content
     settings:
       display_label: true
