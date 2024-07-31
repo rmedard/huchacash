@@ -1,0 +1,23 @@
+uuid: 18c45638-0036-479f-970c-cb05fb668d35
+langcode: en
+status: true
+dependencies:
+  module:
+    - bank_account
+    - field_permissions
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: custom
+id: node.field_tx_bank_account
+field_name: field_tx_bank_account
+entity_type: node
+type: bank_account_item
+settings: {  }
+module: bank_account
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

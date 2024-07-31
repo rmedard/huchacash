@@ -103,20 +103,23 @@ class TransactionsService {
 
   public function updateAccountsOnTransactionPresave(Node $transaction): void {
     $txStatus = $transaction->get('field_tx_status')->getString();
+    $transactionType = $transaction->get('field_tx_type')->getString();
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
       switch ($txStatus) {
         case 'confirmed':
           if ($transaction->isNew()) {
-            if ($transaction->get('field_tx_type') !== 'top_up') {
+            if ($transactionType !== 'top_up') {
               /** @var Node $txInitiator **/
               $txInitiator = $transaction->get('field_tx_from')->entity;
               $this->debit($txInitiator, $txAmount, TRUE);
             }
 
-            /** @var Node $txBeneficiary **/
-            $txBeneficiary = $transaction->get('field_tx_to')->entity;
-            $this->credit($txBeneficiary, $txAmount);
+            if ($transactionType !== 'withdrawal') {
+              /** @var Node $txBeneficiary **/
+              $txBeneficiary = $transaction->get('field_tx_to')->entity;
+              $this->credit($txBeneficiary, $txAmount);
+            }
           } else {
             /** @var Node $originalTransaction **/
             $originalTransaction = $transaction->original;
@@ -126,9 +129,11 @@ class TransactionsService {
               $txInitiator = $transaction->get('field_tx_from')->entity;
               $this->debit($txInitiator, $txAmount, FALSE);
 
-              /** @var Node $txBeneficiary **/
-              $txBeneficiary = $transaction->get('field_tx_to')->entity;
-              $this->credit($txBeneficiary, $txAmount);
+              if ($transactionType !== 'withdrawal') {
+                /** @var Node $txBeneficiary **/
+                $txBeneficiary = $transaction->get('field_tx_to')->entity;
+                $this->credit($txBeneficiary, $txAmount);
+              }
             }
           }
           break;
