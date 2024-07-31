@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.transaction.field_tx_amount
+    - field.field.node.transaction.field_tx_bank_account
     - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
     - field.field.node.transaction.field_tx_status
@@ -11,6 +12,7 @@ dependencies:
     - field.field.node.transaction.field_tx_type
     - node.type.transaction
   module:
+    - bank_account
     - options
     - user
 id: node.transaction.default
@@ -28,6 +30,13 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 101
+    region: content
+  field_tx_bank_account:
+    type: bank_account_formatter_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 108
     region: content
   field_tx_comment:
     type: basic_string

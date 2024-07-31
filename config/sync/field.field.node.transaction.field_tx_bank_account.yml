@@ -1,0 +1,21 @@
+uuid: aa69e9af-858b-4970-8516-818d6ee940d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tx_bank_account
+    - node.type.transaction
+  module:
+    - bank_account
+id: node.transaction.field_tx_bank_account
+field_name: field_tx_bank_account
+entity_type: node
+bundle: transaction
+label: 'Bank account'
+description: 'Destination bank account. This field is required in case of withdrawal transaction. It holds the bank account to which money needs to be transfered.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: bank_account_item

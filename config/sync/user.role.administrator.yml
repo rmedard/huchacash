@@ -11,8 +11,8 @@ label: Administrator
 weight: 3
 is_admin: true
 permissions:
-  - 'create field_customer_bank_account'
-  - 'edit field_customer_bank_account'
-  - 'edit own field_customer_bank_account'
-  - 'view field_customer_bank_account'
-  - 'view own field_customer_bank_account'
+  - 'create field_tx_bank_account'
+  - 'edit field_tx_bank_account'
+  - 'edit own field_tx_bank_account'
+  - 'view field_tx_bank_account'
+  - 'view own field_tx_bank_account'

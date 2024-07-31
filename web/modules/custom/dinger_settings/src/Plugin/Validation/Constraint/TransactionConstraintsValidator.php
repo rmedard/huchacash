@@ -42,6 +42,13 @@ class TransactionConstraintsValidator extends ConstraintValidator {
             }
           }
           break;
+        case TransactionBankAccountConstraint::class:
+          /** @var TransactionBankAccountConstraint $constraint **/
+          $txType = $value->get('field_tx_type')->getString();
+          if ($txType === 'withdrawal' and $value->get('field_tx_bank_account')->isEmpty()) {
+            $this->context->addViolation($constraint->message);
+          }
+          break;
       }
     }
   }

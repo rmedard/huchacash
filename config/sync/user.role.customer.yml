@@ -24,6 +24,7 @@ permissions:
   - 'create field_order_delivery_address_str'
   - 'create field_order_pickup_address_str'
   - 'create field_tx_amount'
+  - 'create field_tx_bank_account'
   - 'create field_tx_from'
   - 'create field_tx_status'
   - 'create field_tx_to'
@@ -45,3 +46,4 @@ permissions:
   - 'view own field_customer_bank_account'
   - 'view own field_order_delivery_address_str'
   - 'view own field_order_pickup_address_str'
+  - 'view own field_tx_bank_account'
