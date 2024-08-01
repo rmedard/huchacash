@@ -745,6 +745,155 @@ display:
         - 'config:field.storage.node.field_tx_amount'
         - 'config:field.storage.node.field_tx_status'
         - 'config:field.storage.node.field_tx_type'
+  attachment_withdrawal_transactions:
+    id: attachment_withdrawal_transactions
+    display_title: 'Withdrawal Transactions Attachment'
+    display_plugin: attachment
+    position: 2
+    display_options:
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: "<div class='panel__title'>No pending withdrawals available</div>"
+          tokenize: false
+      filters:
+        status:
+          id: status
+          table: node_field_data
+          field: status
+          entity_type: node
+          entity_field: status
+          plugin_id: boolean
+          value: '1'
+          group: 1
+          expose:
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          value:
+            transaction: transaction
+          expose:
+            operator_limit_selection: false
+            operator_list: {  }
+        field_tx_type_value:
+          id: field_tx_type_value
+          table: node__field_tx_type
+          field: field_tx_type_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: list_field
+          operator: or
+          value:
+            withdrawal: withdrawal
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          reduce_duplicates: false
+        field_tx_status_value:
+          id: field_tx_status_value
+          table: node__field_tx_status
+          field: field_tx_status_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: list_field
+          operator: or
+          value:
+            initiated: initiated
+          group: 1
+          exposed: false
+          expose:
+            operator_id: ''
+            label: ''
+            description: ''
+            use_operator: false
+            operator: ''
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: ''
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          reduce_duplicates: false
+      filter_groups:
+        operator: AND
+        groups:
+          1: AND
+      defaults:
+        empty: false
+        filters: false
+        filter_groups: false
+      display_description: ''
+      display_extenders: {  }
+      displays:
+        page_panel_transactions: page_panel_transactions
+    cache_metadata:
+      max-age: 0
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - 'user.node_grants:view'
+        - user.permissions
+      tags:
+        - 'config:field.storage.node.field_tx_amount'
+        - 'config:field.storage.node.field_tx_status'
+        - 'config:field.storage.node.field_tx_type'
   page_panel_transactions:
     id: page_panel_transactions
     display_title: Page
