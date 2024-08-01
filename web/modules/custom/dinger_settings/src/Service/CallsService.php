@@ -12,7 +12,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
-use Google\Cloud\Core\Exception\GoogleException;
+use Random\RandomException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CallsService {
@@ -107,10 +107,14 @@ class CallsService {
     }
   }
 
-  public function getNextOrderNumber (): int {
-    $orderNumber = Drupal::state()->get('next_order_number', 1);
-    Drupal::state()->set('next_order_number', $orderNumber + 1);
-    return $orderNumber;
+  public function getNextOrderNumber(): int {
+    try {
+      return random_int(1000, 9999);
+    }
+    catch (RandomException $e) {
+      $this->logger->error($e->getMessage());
+      return 1;
+    }
   }
 
   private function processAttributedCall(NodeInterface $call): void {
