@@ -83,7 +83,7 @@
         "drupal/simple_oauth": "^5.2",
         "drupal/symfony_mailer": "^1.4",
         "drupal/typed_data": "2.1.x-dev@dev",
-        "drupal/views_bulk_edit": "^2.9",
+        "drupal/views_bulk_edit": "^3.0",
         "drush/drush": "^12",
         "google/cloud-firestore": "^1.44",
         "google/cloud-tasks": "^1.14",
@@ -112,15 +112,16 @@
         "allow-plugins": {
             "composer/installers": true,
             "cweagans/composer-patches": true,
-            "drupal/core-composer-scaffold": true,
-            "plesk/composer-command-info": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "zaporylie/composer-drupal-optimizations": true,
+            "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "drupal/core-vendor-hardening": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
-            "wikimedia/composer-merge-plugin": true
+            "plesk/composer-command-info": true,
+            "tbachert/spi": true,
+            "wikimedia/composer-merge-plugin": true,
+            "zaporylie/composer-drupal-optimizations": true
         }
     },
     "extra": {
