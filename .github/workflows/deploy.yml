@@ -11,23 +11,30 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy HuchaCash Core
-      id: deploy-drupal
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{secrets.SSH_HOST}}
-        key: ${{secrets.SSH_KEY}}
-        username: ${{secrets.SSH_USERNAME}}
-        passphrase: ''
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
 
-        script: |
-          cd  /var/www/vhosts/hucha.cash/
-          git fetch --all
-          git reset --hard origin/main
-          composer install --no-interaction
-          vendor/drush/drush/drush updb
-          vendor/drush/drush/drush cr
-          vendor/drush/drush/drush cim
-          vendor/drush/drush/drush updb
-          vendor/drush/drush/drush cr
-          echo 'HuchaCash deployed successfully!!'
+      - name: Validate composer.json
+        run: composer validate
+
+      - name: Deploy HuchaCash Core
+        id: deploy-drupal
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USERNAME}}
+          passphrase: ''
+
+          script: |
+            cd  /var/www/vhosts/hucha.cash/
+            git fetch --all
+            git reset --hard origin/main
+            composer install --no-interaction
+            vendor/drush/drush/drush updb
+            vendor/drush/drush/drush cr
+            vendor/drush/drush/drush cim
+            vendor/drush/drush/drush updb
+            vendor/drush/drush/drush cr
+            echo 'HuchaCash deployed successfully!!'
