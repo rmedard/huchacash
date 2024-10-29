@@ -31,7 +31,6 @@ module:
   eca_ui: 0
   editor: 0
   email_registration: 0
-  entity_update: 0
   field: 0
   field_permissions: 0
   field_ui: 0
@@ -74,7 +73,6 @@ module:
   serialization: 0
   shortcut: 0
   simple_oauth: 0
-  symfony_mailer: 0
   system: 0
   taxonomy: 0
   telephone: 0
@@ -83,6 +81,7 @@ module:
   toolbar: 0
   typed_data: 0
   update: 0
+  upgrade_status: 0
   user: 0
   views_bulk_edit: 0
   views_ui: 0
