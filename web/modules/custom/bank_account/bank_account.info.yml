@@ -1,7 +1,7 @@
 name: 'Bank Account'
 type: module
 description: 'Structures and stores bank accounts'
-package: Custom
+package: Dinger Custom Modules
 core_version_requirement: ^10 || ^11
 version: '10.x-1.0'
 
