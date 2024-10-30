@@ -28,7 +28,7 @@ jobs:
           passphrase: ''
 
           script: |
-            cd  /var/www/vhosts/hucha.cash/
+            cd /var/www/vhosts/hucha.cash/
             git fetch --all
             git reset --hard origin/main
             /opt/plesk/php/8.3/bin/php /usr/local/bin/composer install --no-interaction
