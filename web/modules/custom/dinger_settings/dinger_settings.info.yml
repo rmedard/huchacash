@@ -1,5 +1,5 @@
 name: Dinger Settings
-description: 'This module handles global Hucha Cash settings.'
+description: 'Handles global Hucha Cash settings'
 package: Dinger Custom Modules
 configure: dinger_settings.global_settings
 
