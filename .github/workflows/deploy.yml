@@ -15,12 +15,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup PHP with
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-          extensions: imagick
-
       - name: Validate composer.json
         run: composer validate
 
@@ -34,6 +28,7 @@ jobs:
           passphrase: ''
 
           script: |
+            update-alternatives --set php /usr/bin/php8.3
             cd  /var/www/vhosts/hucha.cash/
             git fetch --all
             git reset --hard origin/main
