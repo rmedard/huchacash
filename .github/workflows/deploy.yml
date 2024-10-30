@@ -28,11 +28,10 @@ jobs:
           passphrase: ''
 
           script: |
-            sudo update-alternatives --set php /usr/bin/php8.3
             cd  /var/www/vhosts/hucha.cash/
             git fetch --all
             git reset --hard origin/main
-            composer install --no-interaction
+            /opt/plesk/php/8.3/bin/php /usr/local/bin/composer install --no-interaction
             vendor/drush/drush/drush updb
             vendor/drush/drush/drush cr
             vendor/drush/drush/drush cim
