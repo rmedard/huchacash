@@ -28,7 +28,7 @@ jobs:
           passphrase: ''
 
           script: |
-            update-alternatives --set php /usr/bin/php8.3
+            sudo update-alternatives --set php /usr/bin/php8.3
             cd  /var/www/vhosts/hucha.cash/
             git fetch --all
             git reset --hard origin/main
