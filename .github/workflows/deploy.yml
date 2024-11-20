@@ -16,7 +16,10 @@ jobs:
           fetch-depth: 0
 
       - name: Validate composer.json
-        run: composer validate
+        run: composer validate --no-check-all
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
 
       - name: Deploy HuchaCash Core
         id: deploy-drupal
@@ -27,14 +30,8 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           passphrase: ''
 
-          script: |
-            cd /var/www/vhosts/hucha.cash/
-            git fetch --all
-            git reset --hard origin/main
-            /opt/plesk/php/8.3/bin/php /usr/local/bin/composer install --no-interaction
-            vendor/drush/drush/drush updb
-            vendor/drush/drush/drush cr
-            vendor/drush/drush/drush cim
-            vendor/drush/drush/drush updb
-            vendor/drush/drush/drush cr
-            echo 'HuchaCash deployed successfully!!'
+      - name: Deploy to server
+        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ {{ secrets.SSH_HOST }}:/web/
+
+      - name: Rebuild drush cache
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_HOST }} "vendor/bin/drush cr"
