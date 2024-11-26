@@ -21,11 +21,19 @@ jobs:
           echo "Contents of GITHUB_WORKSPACE:"
           ls -la $GITHUB_WORKSPACE
 
+      - name: Debug rsync-exclude.txt
+        run: |
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "Contents of $GITHUB_WORKSPACE:"
+          ls -la $GITHUB_WORKSPACE
+          echo "Contents of rsync-exclude.txt:"
+          cat $GITHUB_WORKSPACE/rsync-exclude.txt
+
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: grpc, memcached
+          extensions: grpc, igbinary, memcached
 
       - name: Validate composer.json
         run: composer validate --no-check-all
