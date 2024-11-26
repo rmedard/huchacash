@@ -33,11 +33,14 @@ jobs:
         with:
           host: ${{ vars.SSH_HOST }}
           key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
+          key_path: ~/.ssh/id_ed25519
           username: ${{ vars.SSH_USERNAME }}
           passphrase: 'kabutindi'
+          script: |
+            pwd
 
       - name: Deploy to server
-        run: rsync -avzq --no-perms --no-owner --no-group --chown=hucha.cash_f48yn987zg5:psacln -e "ssh -o StrictHostKeyChecking=no -v -i /var/www/vhosts/hucha.cash/.ssh/id_ed25519" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
+        run: rsync -avzq --no-perms --no-owner --no-group --chown=hucha.cash_f48yn987zg5:psacln -e "ssh -o StrictHostKeyChecking=no -v" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
 
       - name: Rebuild drush cache
         run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_HOST }} "vendor/drush/drush/drush cr"
