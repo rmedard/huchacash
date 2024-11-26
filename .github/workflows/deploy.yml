@@ -27,7 +27,7 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Connect to HuchaCash
+      - name: Connect to HuchaCash and Deploy
         id: deploy-drupal
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -35,18 +35,11 @@ jobs:
           key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
           username: ${{ vars.SSH_USERNAME }}
           passphrase: 'kabutindi'
-
-      - name: Debug SSH Setup
-        run: |
-          ls -la ~/.ssh
-          cat ~/.ssh/id_ed25519
-          ssh-keygen -lf ~/.ssh/id_ed25519
-
-      - name: Check SSH connection manually
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "echo 'Connection successful'"
-
-      - name: Deploy to server
-        run: rsync -avzq --no-perms --no-owner --no-group --chown=hucha.cash_f48yn987zg5:psacln -e "ssh -o StrictHostKeyChecking=no -v" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
-
-      - name: Rebuild drush cache
-        run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_HOST }} "vendor/drush/drush/drush cr"
+          script: |
+            echo "Deploying code to server..."
+            rsync -avzq --no-perms --no-owner --no-group \
+            --chown=hucha.cash_f48yn987zg5:psacln \
+            --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" \
+            $GITHUB_WORKSPACE/ /var/www/vhosts/hucha.cash/web/
+            echo "Rebuilding Drush cache..."
+            vendor/drush/drush/drush cr
