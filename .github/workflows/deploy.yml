@@ -39,7 +39,6 @@ jobs:
             echo "Deploying code to server..."
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
-            --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" \
             $GITHUB_WORKSPACE/ /var/www/vhosts/hucha.cash/web/
             echo "Rebuilding Drush cache..."
             vendor/drush/drush/drush cr
