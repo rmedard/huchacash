@@ -28,13 +28,6 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Debug Container Workspace
-        run: |
-          echo "Contents of workspace inside Docker container:"
-          ls -la .
-          echo "Contents of rsync-exclude.txt:"
-          cat ./rsync-exclude.txt
-
       - name: Deploy to Server via Rsync
         uses: Burnett01/rsync-deployments@7.0.1
         with:
@@ -47,9 +40,15 @@ jobs:
           remote_key_pass: kabutindi
           rsh: -p 22
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_ED25519_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
       - name: Rebuild Drush Cache
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_ED25519_PRIVATE_KEY }} \
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 \
           ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} \
           "cd /var/www/vhosts/hucha.cash/web && vendor/drush/drush/drush cr"
-
