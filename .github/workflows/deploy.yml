@@ -36,10 +36,11 @@ jobs:
           username: ${{ vars.SSH_USERNAME }}
           passphrase: 'kabutindi'
 
-      - name: Show environment variables
+      - name: Debug SSH Setup
         run: |
-          echo "SSH_HOST=${{ vars.SSH_HOST }}"
-          echo "SSH_USERNAME=${{ vars.SSH_USERNAME }}"
+          ls -la ~/.ssh
+          cat ~/.ssh/id_ed25519
+          ssh-keygen -lf ~/.ssh/id_ed25519
 
       - name: Check SSH connection manually
         run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "echo 'Connection successful'"
