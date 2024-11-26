@@ -28,6 +28,13 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Debug rsync-exclude.txt
+        run: |
+          echo "Contents of GITHUB_WORKSPACE:"
+          ls -la ${{ github.workspace }}
+          echo "Contents of rsync-exclude.txt:"
+          cat ${{ github.workspace }}/rsync-exclude.txt
+
       - name: Deploy to Server via Rsync
         uses: Burnett01/rsync-deployments@7.0.1
         with:
