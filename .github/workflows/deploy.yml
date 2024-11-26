@@ -46,7 +46,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_ED25519_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-add - <<< "${{ secrets.SSH_PASSPHRASE }}" ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-add ~/.ssh/id_ed25519
         env:
           SSH_PASSPHRASE: kabutindi
 
