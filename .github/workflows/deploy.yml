@@ -27,7 +27,7 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Deploy HuchaCash Core
+      - name: Connect to HuchaCash
         id: deploy-drupal
         uses: appleboy/ssh-action@v1.2.0
         with:
