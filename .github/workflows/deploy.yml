@@ -15,20 +15,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug GITHUB_WORKSPACE
-        run: |
-          echo "Current working directory: $(pwd)"
-          echo "Contents of GITHUB_WORKSPACE:"
-          ls -la $GITHUB_WORKSPACE
-
-      - name: Debug rsync-exclude.txt
-        run: |
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "Contents of $GITHUB_WORKSPACE:"
-          ls -la $GITHUB_WORKSPACE
-          echo "Contents of rsync-exclude.txt:"
-          cat $GITHUB_WORKSPACE/rsync-exclude.txt
-
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
@@ -40,6 +26,12 @@ jobs:
 
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
+
+      - name: Copy rsync-exclude.txt to server
+        run: |
+          echo "Copying rsync-exclude.txt..."
+          scp -v -o StrictHostKeyChecking=no $GITHUB_WORKSPACE/rsync-exclude.txt ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/tmp/rsync-exclude.txt
+          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
 
       - name: Connect to HuchaCash and Deploy
         id: deploy-drupal
@@ -54,14 +46,9 @@ jobs:
           script: |
             echo "Deploying code to server..."
 
-            echo "Passed GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-              ls -la "$GITHUB_WORKSPACE/rsync-exclude.txt"
-
-            # Copy rsync-exclude.txt to the remote server
-            scp -v -o StrictHostKeyChecking=no "$GITHUB_WORKSPACE/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
-
-            # Verify file on remote server
-            ssh -o StrictHostKeyChecking=no hucha.cash_f48yn987zg5@hucha.cash "ls -la /tmp"
+            # Confirm Environment Variable Accessibility
+            echo "Environment Variables:"
+            env
 
             # Run rsync
             rsync -avzq --no-perms --no-owner --no-group \
