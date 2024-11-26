@@ -28,17 +28,17 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Debug rsync-exclude.txt
+      - name: Debug Container Workspace
         run: |
-          echo "Contents of GITHUB_WORKSPACE:"
-          ls -la ${{ github.workspace }}
+          echo "Contents of workspace inside Docker container:"
+          ls -la .
           echo "Contents of rsync-exclude.txt:"
-          cat ${{ github.workspace }}/rsync-exclude.txt
+          cat ./rsync-exclude.txt
 
       - name: Deploy to Server via Rsync
         uses: Burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --exclude-from=${{ github.workspace }}/rsync-exclude.txt
+          switches: -avzr --exclude-from=./rsync-exclude.txt
           path: ./
           remote_path: /var/www/vhosts/hucha.cash/web/
           remote_host: ${{ vars.SSH_HOST }}
