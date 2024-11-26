@@ -52,10 +52,17 @@ jobs:
           script: |
             echo "Deploying code to server..."
 
+            # Debug: Confirm local path of rsync-exclude.txt
+            echo "Resolved path to rsync-exclude.txt: ${GITHUB_WORKSPACE}/rsync-exclude.txt"
+            ls -la "${GITHUB_WORKSPACE}/rsync-exclude.txt"
+
+            # Copy rsync-exclude.txt to the remote server with verbose scp
             scp -v -o StrictHostKeyChecking=no "${GITHUB_WORKSPACE}/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
 
-            ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
+            # Debug: Confirm the file exists on the remote server
+            ssh -o StrictHostKeyChecking=no hucha.cash_f48yn987zg5@hucha.cash "ls -la /tmp"
 
+            # Run rsync
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
             --exclude-from="/tmp/rsync-exclude.txt" \
