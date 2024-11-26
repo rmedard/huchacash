@@ -32,12 +32,12 @@ jobs:
         uses: Burnett01/rsync-deployments@7.0.1
         with:
           switches: -avzr --delete
-          path: ${{ github.workspace }}/
+          path: ./
           remote_path: /var/www/vhosts/hucha.cash/web/
           remote_host: ${{ vars.SSH_HOST }}
           remote_user: ${{ vars.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
-          remote_key_pass: 'kabutindi'
+          remote_key_pass: kabutindi
           rsh: -p 22
 
       - name: Rebuild Drush Cache
