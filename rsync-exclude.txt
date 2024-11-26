@@ -6,6 +6,9 @@ tmp/
 log/
 
 /proc/
+/sys/
+/dev/
 /run/
 /var/lib/
+/tmp/
 /snap/
