@@ -37,7 +37,7 @@ jobs:
           passphrase: ''
 
       - name: Deploy to server
-        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:web/
+        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" -i /var/www/vhosts/hucha.cash/.ssh/id_rsa --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:web/
 
       - name: Rebuild drush cache
         run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_HOST }} "vendor/drush/drush/drush cr"
