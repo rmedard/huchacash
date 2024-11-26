@@ -47,6 +47,12 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Debug SSH Key and Host
+        run: |
+          echo "Checking SSH key and known_hosts:"
+          ls -la ~/.ssh
+          cat ~/.ssh/known_hosts
+
       - name: Rebuild Drush Cache
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 \
