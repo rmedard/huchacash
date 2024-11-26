@@ -11,7 +11,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
@@ -27,39 +28,21 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_ED25519_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Test SSH connection
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "echo 'Connection successful'"
-
-      - name: Copy rsync-exclude.txt to server
-        run: |
-          echo "Copying rsync-exclude.txt..."
-          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no $GITHUB_WORKSPACE/rsync-exclude.txt ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/tmp/rsync-exclude.txt
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
-
-      - name: Connect to HuchaCash and Deploy
-        id: deploy-drupal
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
+      - name: Deploy to Server via Rsync
+        uses: Burnett01/rsync-deployments@7.0.1
         with:
-          host: ${{ vars.SSH_HOST }}
-          key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
-          username: ${{ vars.SSH_USERNAME }}
-          passphrase: 'kabutindi'
-          script: |
-            echo "Deploying code to server..."
-            rsync -avzq --no-perms --no-owner --no-group \
-            --chown=hucha.cash_f48yn987zg5:psacln \
-            --exclude-from="/tmp/rsync-exclude.txt" \
-            "$GITHUB_WORKSPACE/" "/var/www/vhosts/hucha.cash/web/"
+          switches: -avzr --delete
+          path: ${{ github.workspace }}/
+          remote_path: /var/www/vhosts/hucha.cash/web/
+          remote_host: ${{ vars.SSH_HOST }}
+          remote_user: ${{ vars.SSH_USERNAME }}
+          remote_key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
+          remote_key_pass: 'kabutindi'
+          rsh: -p 22
 
-            echo "Rebuilding Drush cache..."
-            vendor/drush/drush/drush cr
+      - name: Rebuild Drush Cache
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_ED25519_PRIVATE_KEY }} \
+          ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} \
+          "cd /var/www/vhosts/hucha.cash/web && vendor/drush/drush/drush cr"
+
