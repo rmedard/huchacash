@@ -15,6 +15,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug GITHUB_WORKSPACE
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Contents of GITHUB_WORKSPACE:"
+          ls -la $GITHUB_WORKSPACE
+
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
@@ -39,6 +45,7 @@ jobs:
             echo "Deploying code to server..."
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
-            $GITHUB_WORKSPACE/ /var/www/vhosts/hucha.cash/web/
+            --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" \
+            "${GITHUB_WORKSPACE}/" "/var/www/vhosts/hucha.cash/web/"
             echo "Rebuilding Drush cache..."
             vendor/drush/drush/drush cr
