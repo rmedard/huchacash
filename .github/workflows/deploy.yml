@@ -52,7 +52,9 @@ jobs:
           script: |
             echo "Deploying code to server..."
 
-            scp -o StrictHostKeyChecking=no "${GITHUB_WORKSPACE}/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
+            scp -v -o StrictHostKeyChecking=no "${GITHUB_WORKSPACE}/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
+
+            ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
 
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
