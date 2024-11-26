@@ -27,11 +27,22 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_ED25519_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "echo 'Connection successful'"
+
       - name: Copy rsync-exclude.txt to server
         run: |
           echo "Copying rsync-exclude.txt..."
-          scp -v -o StrictHostKeyChecking=no $GITHUB_WORKSPACE/rsync-exclude.txt ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/tmp/rsync-exclude.txt
-          ssh -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no $GITHUB_WORKSPACE/rsync-exclude.txt ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/tmp/rsync-exclude.txt
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} "ls -la /tmp"
 
       - name: Connect to HuchaCash and Deploy
         id: deploy-drupal
@@ -45,12 +56,6 @@ jobs:
           passphrase: 'kabutindi'
           script: |
             echo "Deploying code to server..."
-
-            # Confirm Environment Variable Accessibility
-            echo "Environment Variables:"
-            env
-
-            # Run rsync
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
             --exclude-from="/tmp/rsync-exclude.txt" \
