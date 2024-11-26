@@ -29,15 +29,15 @@ jobs:
 
       - name: Deploy HuchaCash Core
         id: deploy-drupal
-        uses: appleboy/ssh-action@v1.1.0
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{vars.SSH_HOST}}
-          key: ${{secrets.SSH_KEY}}
-          username: ${{secrets.SSH_USERNAME}}
+          host: ${{ vars.SSH_HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ vars.SSH_USERNAME }}
           passphrase: ''
 
       - name: Deploy to server
-        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ {{ vars.SSH_HOST }}:/web/
+        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/web/
 
       - name: Rebuild drush cache
         run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_HOST }} "vendor/drush/drush/drush cr"
