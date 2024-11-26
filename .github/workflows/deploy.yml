@@ -31,7 +31,7 @@ jobs:
       - name: Deploy to Server via Rsync
         uses: Burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --dry-run
+          switches: -avzr --exclude-from=${{ github.workspace }}/rsync-exclude.txt
           path: ./
           remote_path: /var/www/vhosts/hucha.cash/web/
           remote_host: ${{ vars.SSH_HOST }}
