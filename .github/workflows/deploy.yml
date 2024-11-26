@@ -32,12 +32,12 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ vars.SSH_HOST }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
           username: ${{ vars.SSH_USERNAME }}
           passphrase: ''
 
       - name: Deploy to server
-        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" -i /var/www/vhosts/hucha.cash/.ssh/id_rsa --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
+        run: rsync -avzq --no-perms --no-owner --no-group --chown=www-data:www-data -e "ssh -o StrictHostKeyChecking=no" -i /var/www/vhosts/hucha.cash/.ssh/id_ed25519 --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
 
       - name: Rebuild drush cache
         run: ssh -o StrictHostKeyChecking=no ${{ vars.SSH_HOST }} "vendor/drush/drush/drush cr"
