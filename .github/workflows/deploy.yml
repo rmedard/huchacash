@@ -44,6 +44,8 @@ jobs:
       - name: Connect to HuchaCash and Deploy
         id: deploy-drupal
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
         with:
           host: ${{ vars.SSH_HOST }}
           key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
@@ -52,12 +54,8 @@ jobs:
           script: |
             echo "Deploying code to server..."
 
-            echo "Debugging environment variables:"
-            env
-
-            # Debug: Print resolved path
-            echo "Resolved path to rsync-exclude.txt: $GITHUB_WORKSPACE/rsync-exclude.txt"
-            ls -la "$GITHUB_WORKSPACE/rsync-exclude.txt"
+            echo "Passed GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+              ls -la "$GITHUB_WORKSPACE/rsync-exclude.txt"
 
             # Copy rsync-exclude.txt to the remote server
             scp -v -o StrictHostKeyChecking=no "$GITHUB_WORKSPACE/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
