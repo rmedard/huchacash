@@ -4,3 +4,8 @@ node_modules/
 .env
 tmp/
 log/
+
+/proc/
+/run/
+/var/lib/
+/snap/
