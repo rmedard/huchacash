@@ -38,6 +38,7 @@ jobs:
           passphrase: 'kabutindi'
           script: |
             pwd
+            ls -la
 
       - name: Deploy to server
         run: rsync -avzq --no-perms --no-owner --no-group --chown=hucha.cash_f48yn987zg5:psacln -e "ssh -o StrictHostKeyChecking=no -v" --exclude-from="${GITHUB_WORKSPACE}/rsync-exclude.txt" $GITHUB_WORKSPACE/ ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/var/www/vhosts/hucha.cash/web/
