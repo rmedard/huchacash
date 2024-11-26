@@ -51,10 +51,13 @@ jobs:
           passphrase: 'kabutindi'
           script: |
             echo "Deploying code to server..."
-            scp "${GITHUB_WORKSPACE}/rsync-exclude.txt" ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }}:/tmp/rsync-exclude.txt
+
+            scp -o StrictHostKeyChecking=no "${GITHUB_WORKSPACE}/rsync-exclude.txt" hucha.cash_f48yn987zg5@hucha.cash:/tmp/rsync-exclude.txt
+
             rsync -avzq --no-perms --no-owner --no-group \
             --chown=hucha.cash_f48yn987zg5:psacln \
             --exclude-from="/tmp/rsync-exclude.txt" \
             "${GITHUB_WORKSPACE}/" "/var/www/vhosts/hucha.cash/web/"
+
             echo "Rebuilding Drush cache..."
             vendor/drush/drush/drush cr
