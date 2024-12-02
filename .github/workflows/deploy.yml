@@ -37,16 +37,19 @@ jobs:
           remote_host: ${{ vars.SSH_HOST }}
           remote_user: ${{ vars.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
-          remote_key_pass: kabutindi
+          remote_key_pass: ${{ secrets.SSH_ED25519_KEY_PASSPHRASE }}
           rsh: -p 22 #Appends port number on rsync command
 
-      - name: Test SSH
+      - name: Rebuild cache
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ vars.SSH_HOST }}
           username: ${{ vars.SSH_USERNAME }}
           key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
-          passphrase: kabutindi
+          passphrase: ${{ secrets.SSH_ED25519_KEY_PASSPHRASE }}
           port: 22
           script: |
-            ls -al web/
+            vendor/drush/drush/drush updb
+            vendor/drush/drush/drush cim
+            vendor/drush/drush/drush updb
+            vendor/drush/drush/drush cr
