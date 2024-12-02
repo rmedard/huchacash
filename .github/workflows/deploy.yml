@@ -38,16 +38,15 @@ jobs:
           remote_user: ${{ vars.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
           remote_key_pass: kabutindi
-          rsh: -p 22
+          rsh: -p 22 #Appends port number on rsync command
 
-      - name: Set Up SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_ED25519_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Rebuild Drush Cache
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ vars.SSH_USERNAME }}@${{ vars.SSH_HOST }} \
-          "cd /var/www/vhosts/hucha.cash/web && vendor/drush/drush/drush cr"
+      - name: Test SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USERNAME }}
+          key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
+          passphrase: kabutindi
+          port: 22
+          script: |
+            ls -al web/
