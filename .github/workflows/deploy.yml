@@ -33,7 +33,7 @@ jobs:
         with:
           switches: -avzr --exclude-from=./rsync-exclude.txt
           path: ./
-          remote_path: /var/www/vhosts/hucha.cash/web/
+          remote_path: /var/www/vhosts/hucha.cash/
           remote_host: ${{ vars.SSH_HOST }}
           remote_user: ${{ vars.SSH_USERNAME }}
           remote_key: ${{ secrets.SSH_ED25519_PRIVATE_KEY }}
