@@ -5,6 +5,7 @@ namespace Drupal\dinger_settings\Model;
 use Drupal;
 use Drupal\dinger_settings\Model\SubModel\Order;
 use Drupal\dinger_settings\Model\SubModel\UserDetails;
+use Drupal\dinger_settings\Service\GeoHashService;
 use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\node\Entity\Node;
 use Google\Cloud\Core\GeoPoint;
@@ -27,7 +28,7 @@ class FireCall {
     $this->status = $call->get('field_call_status')->getString();
     $this->expirationTime = UtilsService::dateTimeToGcTimestamp($call->get('field_call_expiry_time')->date);
 
-    /** @var \Drupal\node\Entity\Node $orderEntity **/
+    /** @var Node $orderEntity **/
     $orderEntity = $call->get('field_call_order')->entity;
     $this->order = new Order($orderEntity);
     $this->caller = new UserDetails($orderEntity->get('field_order_creator')->entity);
@@ -41,7 +42,7 @@ class FireCall {
 
   public function toFirestoreBody(): array {
 
-    /** @var \Drupal\dinger_settings\Service\GeoHashService $geoHashService **/
+    /** @var GeoHashService $geoHashService **/
     $geoHashService = Drupal::service('dinger_settings.geohash_service');
     return [
       'order_delivery_time' => $this->order->deliveryTime,

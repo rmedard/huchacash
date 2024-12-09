@@ -24,12 +24,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UpdateAccountsOnTransactionPresaveAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var LoggerChannelInterface
    */
   protected LoggerChannelInterface $logger;
 
   /**
-   * @var \Drupal\dinger_settings\Service\TransactionsService
+   * @var TransactionsService
    */
   protected TransactionsService $transactionsService;
 

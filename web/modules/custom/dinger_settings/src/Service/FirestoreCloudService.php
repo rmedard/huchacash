@@ -2,12 +2,14 @@
 
 namespace Drupal\dinger_settings\Service;
 
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\dinger_settings\Model\FireCall;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Google\Cloud\Core\Exception\GoogleException;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Firestore\Transaction;
 
@@ -21,14 +23,14 @@ final class FirestoreCloudService {
   protected LoggerChannelInterface $logger;
 
   /**
-   * @var \Google\Cloud\Firestore\FirestoreClient
+   * @var FirestoreClient
    */
   protected FirestoreClient $firestoreClient;
 
   /**
    * @param LoggerChannelFactory $logger
    *
-   * @throws \Google\Cloud\Core\Exception\GoogleException
+   * @throws GoogleException
    */
   public function __construct(LoggerChannelFactory $logger)
   {
@@ -70,8 +72,8 @@ final class FirestoreCloudService {
 
       /**
        * Check if expiration time updated
-       * @var \Drupal\Core\Datetime\DrupalDateTime $initialExpirationTime *
-       * @var \Drupal\Core\Datetime\DrupalDateTime $currentExpirationTime *
+       * @var DrupalDateTime $initialExpirationTime *
+       * @var DrupalDateTime $currentExpirationTime *
        */
       $initialExpirationTime = $originalCall->get('field_call_expiry_time')->date;
       $currentExpirationTime = $call->get('field_call_expiry_time')->date;

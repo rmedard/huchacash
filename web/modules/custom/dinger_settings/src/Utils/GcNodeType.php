@@ -4,6 +4,6 @@ namespace Drupal\dinger_settings\Utils;
 
 interface GcNodeType {
 
-  const ORDER = 'order';
-  const CALL = 'call';
+  const string ORDER = 'order';
+  const string CALL = 'call';
 }

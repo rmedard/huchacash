@@ -1,6 +1,12 @@
 services:
-  oauth_custom_grant.repositories.user:
-    class: Drupal\oauth_custom_grant\Repositories\UserRepository
+  oauth_custom_grant.repositories.gmail_user:
+    class: Drupal\oauth_custom_grant\Repositories\GmailUserRepository
+    arguments:
+      - '@user.auth'
+      - '@logger.factory'
+
+  oauth_custom_grant.repositories.password_user:
+    class: Drupal\oauth_custom_grant\Repositories\PasswordUserRepository
     arguments:
       - '@user.auth'
       - '@logger.factory'

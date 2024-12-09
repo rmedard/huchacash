@@ -25,12 +25,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 final class CreateFireCallAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var LoggerChannelInterface
    */
   protected LoggerChannelInterface $logger;
 
   /**
-   * @var \Drupal\dinger_settings\Service\FirestoreCloudService
+   * @var FirestoreCloudService
    */
   protected FirestoreCloudService $firestoreCloudService;
 

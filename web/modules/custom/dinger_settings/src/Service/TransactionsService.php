@@ -12,12 +12,13 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeStorage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TransactionsService {
 
   /**
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var EntityTypeManagerInterface
    */
   protected EntityTypeManagerInterface $entityTypeManager;
 
@@ -53,7 +54,7 @@ class TransactionsService {
     }
 
     try {
-      /** @var \Drupal\node\NodeStorage $storage **/
+      /** @var NodeStorage $storage **/
       $storage = $this->entityTypeManager->getStorage('node');
 
       $shoppingCostRef = $order->get('field_order_shopping_total_cost');
@@ -154,7 +155,7 @@ class TransactionsService {
   }
 
   /**
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws EntityStorageException
    */
   private function debit(Node $customer, float $amount, bool $isDirectDebit): void {
     $accountName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
@@ -166,7 +167,7 @@ class TransactionsService {
   }
 
   /**
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws EntityStorageException
    */
   private function credit(Node $customer, float $amount): void {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
@@ -177,7 +178,7 @@ class TransactionsService {
   }
 
   /**
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws EntityStorageException
    */
   private function freezeDebit(Node $customer, float $amount): void {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
@@ -191,7 +192,7 @@ class TransactionsService {
   }
 
   /**
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws EntityStorageException
    */
   private function unfreezeDebit(Node $customer, float $amount): void {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());

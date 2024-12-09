@@ -11,12 +11,13 @@ use Drupal\node\Entity\Node;
 use Drupal\simple_oauth\Entities\UserEntity;
 use Drupal\user\Entity\User;
 use Drupal\user\UserAuthInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserRepository implements UserRepositoryInterface
+class GmailUserRepository implements UserRepositoryInterface
 {
 
   /**
@@ -38,7 +39,7 @@ class UserRepository implements UserRepositoryInterface
   public function __construct(UserAuthInterface $userAuth, LoggerChannelFactory $logger)
   {
     $this->userAuth = $userAuth;
-    $this->logger = $logger->get('google_sign_in');
+    $this->logger = $logger->get('GmailUserRepository');
   }
 
   /**
@@ -47,10 +48,11 @@ class UserRepository implements UserRepositoryInterface
    * @param $grantType
    * @param ClientEntityInterface $clientEntity
    * @return UserEntity|null
+   * @throws GuzzleException
    */
   public function getUserEntityByUserCredentials($token, $email, $grantType, ClientEntityInterface $clientEntity): ?UserEntity
   {
-    $UserEntity = new UserEntity();
+    $userEntity = new UserEntity();
 
     try {
       $url = Drupal::service('config.factory')->get('dinger_settings')->get('google_token_verification_url');
@@ -67,13 +69,13 @@ class UserRepository implements UserRepositoryInterface
         $user = user_load_by_mail($email);
         if ($user) {
           $this->logger->info('Loaded user from DB');
-          $UserEntity->setIdentifier($user->id());
+          $userEntity->setIdentifier($user->id());
         } else {
           $this->logger->info('Creating new user');
           $newUserId = $this->createNewCustomer(userData: $data);
-          $UserEntity->setIdentifier($newUserId);
+          $userEntity->setIdentifier($newUserId);
         }
-        return $UserEntity;
+        return $userEntity;
       }
       $this->logger->error('Token verification failed');
     } catch (RequestException $e) {

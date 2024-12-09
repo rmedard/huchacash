@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UpdateHuchaGcAction extends HuchaGcAction {
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var LoggerChannelInterface
    */
   protected LoggerChannelInterface $logger;
 

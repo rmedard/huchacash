@@ -16,6 +16,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\dinger_settings\Service\GoogleCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -47,15 +48,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class CreateGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
-  const GC_TASK_FIELD_NAME = 'field_gc_task_name';
+  const string GC_TASK_FIELD_NAME = 'field_gc_task_name';
 
   /**
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   * @var ConfigFactoryInterface
    */
   protected ConfigFactoryInterface $configFactory;
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var LoggerChannelInterface
    */
   protected LoggerChannelInterface $loggerFactory;
 
@@ -96,7 +97,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
 
       /**
        * Update entity with created Task name
-       * @var \Drupal\dinger_settings\Service\GoogleCloudService $gcService
+       * @var GoogleCloudService $gcService
        */
       $gcService = Drupal::service('dinger_settings.google_cloud_service');
       $expirationTask = $gcService->upsertNodeExpirationTask($entity, $triggerTime);

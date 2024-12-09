@@ -19,10 +19,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class HuchaGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
-  const GC_TASK_FIELD_NAME = 'field_gc_task_name';
+  const string GC_TASK_FIELD_NAME = 'field_gc_task_name';
 
   /**
-   * @var \Drupal\dinger_settings\Service\GoogleCloudService
+   * @var GoogleCloudService
    */
   public GoogleCloudService $googleCloudService;
 

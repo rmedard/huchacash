@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -86,7 +87,7 @@ class ExpiredNodesController extends ControllerBase
             $node->set('field_call_status', 'expired');
             $node->save();
 
-            /** @var \Drupal\dinger_settings\Service\FirestoreCloudService $firestoreCloudService **/
+            /** @var FirestoreCloudService $firestoreCloudService **/
             $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
             $firestoreCloudService->deleteFireCall($node->uuid());
 
