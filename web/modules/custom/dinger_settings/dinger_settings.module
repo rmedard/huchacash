@@ -9,9 +9,15 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
 use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
+use Drupal\dinger_settings\Service\BiddingService;
+use Drupal\dinger_settings\Service\CallsService;
+use Drupal\dinger_settings\Service\DataAccessor;
+use Drupal\dinger_settings\Service\OrdersService;
+use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -62,7 +68,7 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
 function dinger_settings_node_presave(NodeInterface $node): void
 {
   if ($node->isNew()) {
-    /** @var \Drupal\dinger_settings\Service\UtilsService $utilsService **/
+    /** @var UtilsService $utilsService **/
     $utilsService = Drupal::service('hucha_settings.utils_service');
     $reference = '_' . $utilsService->generateRandomId();
     switch ($node->bundle()) {
@@ -90,7 +96,7 @@ function dinger_settings_node_presave(NodeInterface $node): void
     }
   } else {
     if ($node->bundle() == 'call') {
-      /** @var $callsService \Drupal\dinger_settings\Service\CallsService */
+      /** @var $callsService CallsService */
       $callsService = Drupal::service('hucha_settings.calls_service');
       $callsService->onCallPresave($node);
     }
@@ -101,7 +107,7 @@ function dinger_settings_node_presave(NodeInterface $node): void
      * Update order total price (Everytime the order is updated because order items may have changed)
      */
     $currentTotalPrice = doubleval($node->get('field_order_shopping_total_cost')->getString());
-    /** @var \Drupal\Core\Field\EntityReferenceFieldItemList $orderItems **/
+    /** @var EntityReferenceFieldItemList $orderItems **/
     $orderItems = $node->get('field_order_items');
     $totalPrice = 0;
     foreach ($orderItems->referencedEntities() as $delta => $orderItem) {
@@ -121,12 +127,12 @@ function dinger_settings_node_update(NodeInterface $node): void
 {
   switch ($node->bundle()) {
     case 'bid':
-      /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
+      /** @var $biddingService BiddingService */
       $biddingService = Drupal::service('hucha_settings.bidding_service');
       $biddingService->onBidUpdated($node);
       break;
     case 'order':
-      /** @var \Drupal\dinger_settings\Service\OrdersService $ordersService **/
+      /** @var OrdersService $ordersService **/
       $ordersService = Drupal::service('hucha_settings.orders_service');
       $ordersService->onOrderUpdated($node);
   }
@@ -137,14 +143,14 @@ function dinger_settings_node_update(NodeInterface $node): void
  */
 function dinger_settings_node_insert(NodeInterface $entity): void {
   if ($entity->bundle() === 'bid') {
-    /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
+    /** @var $biddingService BiddingService */
     $biddingService = Drupal::service('hucha_settings.bidding_service');
     $entity->enforceIsNew();
     $biddingService->onBidCreated($entity);
   }
 
   if ($entity->bundle() === 'call') {
-    /** @var \Drupal\dinger_settings\Service\CallsService $callsService **/
+    /** @var CallsService $callsService **/
     $callsService = Drupal::service('hucha_settings.calls_service');
     $callsService->onCallInserted($entity);
   }
@@ -157,7 +163,7 @@ function dinger_settings_file_presave(FileInterface $file): void
 {
   if ($file->isNew()) {
     /**
-     * @var \Drupal\dinger_settings\Service\UtilsService $utilsService
+     * @var UtilsService $utilsService
      */
     $utilsService = Drupal::service('hucha_settings.utils_service');
     $reference = '_' . $utilsService->generateRandomId();
@@ -227,8 +233,8 @@ function dinger_settings_cron(): void
   $logger = Drupal::logger('dinger_settings');
 
   /**
-   * @var \Drupal\dinger_settings\Service\DataAccessor $dataAccessor
-   * @var \Drupal\dinger_settings\Service\UtilsService $utils
+   * @var DataAccessor $dataAccessor
+   * @var UtilsService $utils
    */
   $dataAccessor = Drupal::service('hucha_settings.data_accessor');
   $utils = Drupal::service('hucha_settings.utils_service');

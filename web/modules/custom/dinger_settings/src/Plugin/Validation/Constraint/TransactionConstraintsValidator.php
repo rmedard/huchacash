@@ -4,6 +4,7 @@ namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 
 use Drupal;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -19,7 +20,7 @@ class TransactionConstraintsValidator extends ConstraintValidator {
           if ($value->isNew()) {
             $txType = $value->get('field_tx_type')->getString();
             if ($txType !== 'top_up') {
-              /** @var \Drupal\node\Entity\Node $transactionInitiator **/
+              /** @var Node $transactionInitiator **/
               $transactionInitiator = $value->get('field_tx_from')->entity;
               $systemCustomer = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_system_customer');
               $isNotSystemInitiative = $systemCustomer !== $transactionInitiator->id();

@@ -31,22 +31,22 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 final class GoogleCloudService {
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var LoggerChannelInterface
    */
   protected LoggerChannelInterface $logger;
 
   /**
-   * @var \Google\Cloud\Tasks\V2\Client\CloudTasksClient
+   * @var CloudTasksClient
    */
   protected CloudTasksClient $cloudTasksClient;
 
   /**
    * Constructs a GoogleCloudService object.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactoryInterface
+   * @param ConfigFactoryInterface $configFactory
+   * @param LoggerChannelFactoryInterface $loggerFactoryInterface
    *
-   * @throws \Google\ApiCore\ValidationException
+   * @throws ValidationException
    */
   public function __construct(
     private readonly ConfigFactoryInterface $configFactory,
@@ -57,10 +57,10 @@ final class GoogleCloudService {
   }
 
   /**
-   * @param \Drupal\node\NodeInterface $targetNode
-   * @param \Drupal\Core\Datetime\DrupalDateTime $triggerTime
+   * @param NodeInterface $targetNode
+   * @param DrupalDateTime $triggerTime
    *
-   * @return \Google\Cloud\Tasks\V2\Task|null
+   * @return Task|null
    */
   public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
@@ -76,7 +76,7 @@ final class GoogleCloudService {
   }
 
   /**
-   * @throws \Google\ApiCore\ApiException
+   * @throws ApiException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     $this->logger->info('Creating GC Task for node type: @type | id: @id ', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
@@ -123,7 +123,7 @@ final class GoogleCloudService {
   }
 
   /**
-   * @throws \Google\ApiCore\ValidationException
+   * @throws ValidationException
    */
   private function instantiateGoogleCloudTasksClient(): CloudTasksClient {
     try {

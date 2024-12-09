@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class CallsService {
 
   /**
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var EntityTypeManagerInterface
    */
   protected EntityTypeManagerInterface $entityTypeManager;
 
@@ -131,7 +131,7 @@ class CallsService {
      */
     /** @var $order NodeInterface */
     $order = $call->get('field_call_order')->entity;
-    /** @var $biddingService \Drupal\dinger_settings\Service\BiddingService */
+    /** @var $biddingService BiddingService */
     $biddingService = Drupal::service('hucha_settings.bidding_service');
     $confirmedBid = $biddingService->findCallConfirmedBid($call);
     try {

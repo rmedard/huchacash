@@ -4,8 +4,6 @@ namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Validation\Attribute\Constraint;
-use http\Message;
-use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 
 #[Constraint(
   id: 'TransactionBankAccountConstraint',

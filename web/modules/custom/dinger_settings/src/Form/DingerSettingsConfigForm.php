@@ -12,7 +12,7 @@ use Drupal\node\Entity\Node;
 class DingerSettingsConfigForm extends ConfigFormBase
 {
 
-  const SETTINGS = 'dinger_settings.global_settings';
+  const string SETTINGS = 'dinger_settings.global_settings';
 
   protected function getEditableConfigNames(): array
   {

@@ -14,14 +14,16 @@ use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class CustomGrant extends AbstractGrant
+class GoogleGmailGrant extends AbstractGrant
 {
 
   /**
    * @param UserRepositoryInterface $userRepository
    * @param RefreshTokenRepositoryInterface $refreshTokenRepository
    */
-  public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+  public function __construct(
+    UserRepositoryInterface $userRepository,
+    RefreshTokenRepositoryInterface $refreshTokenRepository)
   {
     $this->setUserRepository($userRepository);
     $this->setRefreshTokenRepository($refreshTokenRepository);
@@ -42,25 +44,30 @@ class CustomGrant extends AbstractGrant
    */
   public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL): ResponseTypeInterface
   {
+    $logger = Drupal::logger('CustomGrant');
     try {
       // Validate request
+      $logger->info("Validating request");
       $client = $this->validateClient($request);
       $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
       $user = $this->validateUser($request, $client);
 
       // Finalize the requested scopes
+      $logger->info("Finalising request scopes");
       $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getIdentifier());
 
       // Issue and persist new tokens
+      $logger->info("Issue and persist new tokens");
       $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getIdentifier(), $finalizedScopes);
       $refreshToken = $this->issueRefreshToken($accessToken);
 
       // Inject tokens into response
+      $logger->info("Inject tokens into response");
       $responseType->setAccessToken($accessToken);
       $responseType->setRefreshToken($refreshToken);
 
     } catch (OAuthServerException $e) {
-      Drupal::logger('CustomGrant')->error('Custom grant exception: ' . $e->getMessage());
+      $logger->error($e);
     }
     return $responseType;
   }
