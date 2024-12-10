@@ -81,7 +81,7 @@
         "drupal/restui": "^1.22",
         "drupal/simple_oauth": "^6.0@beta",
         "drupal/symfony_mailer": "^1.5",
-        "drupal/typed_data": "2.1.x-dev@dev",
+        "drupal/typed_data": "^2.1",
         "drupal/upgrade_status": "^4.3",
         "drupal/views_bulk_edit": "^3.0",
         "drush/drush": "^13",

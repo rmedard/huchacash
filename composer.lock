@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1db34d41b3285f5f6985f938a5ebd418",
+    "content-hash": "48bc4ac91a14bf88fea227413abc1b51",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3817,26 +3817,29 @@
         },
         {
             "name": "drupal/typed_data",
-            "version": "dev-2.1.x",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/typed_data.git",
-                "reference": "9dcba4ca267b87903a5876e05c511963fa3d1774"
+                "reference": "2.1.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/typed_data-2.1.1.zip",
+                "reference": "2.1.1",
+                "shasum": "600cb9527dd93b200355f57ad4da71172ee5f6dc"
             },
             "require": {
-                "drupal/core": "^10.3 || ^11"
+                "drupal/core": "^10.3 | ^11"
             },
             "type": "drupal-module",
             "extra": {
-                "branch-alias": {
-                    "dev-2.1.x": "2.1.x-dev"
-                },
                 "drupal": {
-                    "version": "2.1.1+4-dev",
-                    "datestamp": "1729837617",
+                    "version": "2.1.1",
+                    "datestamp": "1728332112",
                     "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Dev releases are not covered by Drupal security advisories."
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
                     }
                 }
             },
@@ -16575,8 +16578,7 @@
         "drupal/geolocation": 15,
         "drupal/gin": 5,
         "drupal/openapi_ui_redoc": 5,
-        "drupal/simple_oauth": 10,
-        "drupal/typed_data": 20
+        "drupal/simple_oauth": 10
     },
     "prefer-stable": true,
     "prefer-lowest": false,
