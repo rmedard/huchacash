@@ -8,6 +8,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\simple_oauth\Annotation\Oauth2Grant;
 use Drupal\simple_oauth\Plugin\Oauth2GrantBase;
+use League\OAuth2\Server\Grant\GrantTypeInterface;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
@@ -78,7 +79,7 @@ class Password extends Oauth2GrantBase implements ContainerFactoryPluginInterfac
    * @return PasswordGrant
    * @throws \DateMalformedIntervalStringException
    */
-  public function getGrantType(Consumer $client): PasswordGrant
+  public function getGrantType(Consumer $client): GrantTypeInterface
   {
     $grant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
     $settings = $this->configFactory->get('simple_oauth.settings');
