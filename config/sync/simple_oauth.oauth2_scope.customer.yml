@@ -1,0 +1,28 @@
+uuid: 8c85c41d-9756-4286-aa8c-6a958b31d29b
+langcode: en
+status: true
+dependencies: {  }
+id: customer
+name: customer
+description: 'Default Customer Scope'
+grant_types:
+  password:
+    status: 1
+    description: ''
+  gmail_credentials:
+    status: 1
+    description: ''
+  client_credentials:
+    status: false
+    description: ''
+  refresh_token:
+    status: false
+    description: ''
+  authorization_code:
+    status: false
+    description: ''
+umbrella: false
+parent: _none
+granularity: role
+permission: ''
+role: customer
