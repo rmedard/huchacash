@@ -36,7 +36,7 @@ class GoogleGmailGrant extends AbstractGrant
    */
   public function getIdentifier(): string
   {
-    return 'custom';
+    return 'gmail_credentials';
   }
 
   /**
@@ -44,7 +44,7 @@ class GoogleGmailGrant extends AbstractGrant
    */
   public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL): ResponseTypeInterface
   {
-    $logger = Drupal::logger('CustomGrant');
+    $logger = Drupal::logger('GoogleGmailGrant');
     try {
       // Validate request
       $logger->info("Validating request");
