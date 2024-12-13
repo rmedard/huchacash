@@ -25,6 +25,7 @@ jobs:
           passphrase: ${{ secrets.SSH_ED25519_KEY_PASSPHRASE }}
           port: 22
           script: |
+            git remote set-url origin git@github.com:rmedard/huchacash.git
             git fetch origin main
             git reset --hard origin/main
             composer update --no-interaction
