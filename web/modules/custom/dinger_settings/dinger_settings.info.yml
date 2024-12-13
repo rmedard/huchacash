@@ -6,3 +6,5 @@ configure: dinger_settings.global_settings
 type: module
 core_version_requirement: ^10 || ^11
 version: '10.x-1.0'
+dependencies:
+  - rest:rest

@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExpiredNodesController extends ControllerBase
+final class ExpiredNodesController extends ControllerBase
 {
   /**
    * Drupal\Core\Logger\LoggerChannelFactory definition.
@@ -38,7 +38,7 @@ class ExpiredNodesController extends ControllerBase
 
   public function __construct(LoggerChannelFactory $logger)
   {
-    $this->logger = $logger->get('dinger_settings');
+    $this->logger = $logger->get('ExpiredNodesController');
     $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
   }
 
