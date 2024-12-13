@@ -57,6 +57,8 @@ final class CustomerLogout extends ControllerBase {
   /**
    * Builds the response.
    * This route can only be accessed by authenticated users. (See route definition).
+   *
+   * Note: This does not invalidate oauth token, it only removes browser session.
    */
   public function __invoke(): ResourceResponse
   {
