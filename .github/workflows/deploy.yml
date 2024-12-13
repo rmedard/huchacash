@@ -25,9 +25,8 @@ jobs:
           passphrase: ${{ secrets.SSH_ED25519_KEY_PASSPHRASE }}
           port: 22
           script: |
-            git fetch
-            git reset --hard HEAD
-            git merge origin/main
+            git fetch origin main
+            git reset --hard origin/main
             composer update --no-interaction
             vendor/drush/drush/drush updb
             vendor/drush/drush/drush cim
