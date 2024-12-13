@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use UnexpectedValueException;
 
-class StripeController extends ControllerBase
+final class StripeController extends ControllerBase
 {
   /**
    * Drupal\Core\Logger\LoggerChannelFactory definition.

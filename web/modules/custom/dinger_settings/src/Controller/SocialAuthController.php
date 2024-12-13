@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SocialAuthController extends ControllerBase
+final class SocialAuthController extends ControllerBase
 {
   /**
    * Drupal\Core\Logger\LoggerChannelFactory definition.
