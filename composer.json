@@ -66,7 +66,7 @@
         "drupal/core-composer-scaffold": "^11",
         "drupal/core-project-message": "^11",
         "drupal/core-recommended": "^11",
-        "drupal/eca": "^2.1@beta",
+        "drupal/eca": "^2.1@RC",
         "drupal/email_registration": "^2.0@RC",
         "drupal/field_permissions": "^1.4",
         "drupal/geolocation": "^4.0@alpha",
