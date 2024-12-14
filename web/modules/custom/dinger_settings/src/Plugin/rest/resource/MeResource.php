@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\dinger_settings\Plugin\rest\resource;
 
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\Entity\Node;
@@ -49,9 +50,9 @@ final class MeResource extends ResourceBase
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): ResourceBase|ContainerFactoryPluginInterface|MeResource|static
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self
   {
-    return new static(
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
