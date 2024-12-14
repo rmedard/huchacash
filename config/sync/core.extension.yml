@@ -42,6 +42,7 @@ module:
   gin_toolbar: 0
   help: 0
   history: 0
+  honeypot: 0
   image: 0
   jquery_ui: 0
   jquery_ui_autocomplete: 0
@@ -51,6 +52,7 @@ module:
   jsonapi_extras: 0
   jsonapi_resources: 0
   link: 0
+  media: 0
   menu_link_content: 0
   menu_ui: 0
   module_filter: 0
@@ -86,6 +88,8 @@ module:
   user: 0
   views_bulk_edit: 0
   views_ui: 0
+  webform: 0
+  webform_ui: 0
   pathauto: 1
   views: 10
   minimal: 1000

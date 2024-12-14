@@ -9,6 +9,7 @@ dependencies:
     - comment
     - contact
     - filter
+    - media
     - openapi
     - rest
     - search
@@ -27,3 +28,4 @@ permissions:
   - 'restful post user_registration'
   - 'search content'
   - 'use text format restricted_html'
+  - 'view media'

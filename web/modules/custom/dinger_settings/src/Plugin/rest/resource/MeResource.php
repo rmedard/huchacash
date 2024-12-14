@@ -10,6 +10,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\node\Entity\Node;
 use Drupal\rest\Annotation\RestResource;
+use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Psr\Log\LoggerInterface;
@@ -64,10 +65,14 @@ class MeResource extends ResourceBase
     );
   }
 
-  public function get(): ResourceResponse
+  /**
+   * Return type is ResourceResponse but uncached
+   * @return ModifiedResourceResponse
+   */
+  public function get(): ModifiedResourceResponse
   {
     $this->logger->info('Me resource triggered. User logged-in: ' . $this->loggedUser->isAuthenticated());
-    $response = new ResourceResponse();
+    $response = new ModifiedResourceResponse();
     if ($this->loggedUser->isAuthenticated()) {
       $roles = $this->loggedUser->getRoles(true);
       $this->logger->info('/me => roles: <pre><code>' . print_r($roles, true) . '<code></pre>');
@@ -87,7 +92,7 @@ class MeResource extends ResourceBase
             $customerId = reset($customerIds);
             $this->logger->info('Loading customer nid: ' . $customerId);
             $customer = Node::load($customerId);
-            $response = new ResourceResponse(['customer_id' => $customer->uuid()]);
+            $response = new ModifiedResourceResponse(['customer_id' => $customer->uuid()]);
           } else {
             $this->logger->info('Customer not found for user: ' . $this->loggedUser->id());
             $response->setStatusCode(Response::HTTP_NOT_FOUND);
@@ -97,8 +102,6 @@ class MeResource extends ResourceBase
           $this->logger->error('Fetching customer failed: ' . $e->getMessage());
           $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
           $response->setContent($e->getMessage());
-        } finally {
-          $response->addCacheableDependency(['#cache' => ['max-age' => 0]]);
         }
       }
     }
