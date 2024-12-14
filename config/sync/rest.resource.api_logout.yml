@@ -1,0 +1,18 @@
+uuid: 27c8895b-520e-4711-8c11-43b2d6070a23
+langcode: en
+status: true
+dependencies:
+  module:
+    - dinger_settings
+    - serialization
+    - simple_oauth
+id: api_logout
+plugin_id: api_logout
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth2
