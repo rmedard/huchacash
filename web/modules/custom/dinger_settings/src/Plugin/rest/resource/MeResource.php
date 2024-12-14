@@ -5,29 +5,25 @@ namespace Drupal\dinger_settings\Plugin\rest\resource;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\Entity\Node;
-use Drupal\rest\Annotation\RestResource;
+use Drupal\rest\Attribute\RestResource;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
-use Drupal\rest\ResourceResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Provides details of currently logged-in user
- * @RestResource(
- *   id = "me_resource",
- *   label = @Translation("Me Resource"),
- *   uri_paths = {
- *      "canonical" = "/me"
- *   }
- * )
- */
-class MeResource extends ResourceBase
+#[RestResource(
+  id: 'me_resource',
+  label: new TranslatableMarkup('Me Resource'),
+  uri_paths: [
+    'canonical' => '/me'
+  ],
+)]
+final class MeResource extends ResourceBase
 {
 
   protected AccountProxyInterface $loggedUser;
