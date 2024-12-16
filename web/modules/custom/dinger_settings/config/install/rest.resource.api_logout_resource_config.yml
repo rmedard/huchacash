@@ -1,0 +1,9 @@
+id: api_logout_resource_config
+plugin_id: api_logout_resource
+granularity: method
+configuration:
+  GET:
+    supported_formats:
+      - json
+    supported_auth:
+      - oauth2

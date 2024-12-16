@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   category: new TranslatableMarkup('Custom'),
   type: 'node'
 )]
-class UpdateHuchaGcAction extends HuchaGcAction {
+final class UpdateHuchaGcAction extends HuchaGcAction {
 
   /**
    * @var LoggerChannelInterface

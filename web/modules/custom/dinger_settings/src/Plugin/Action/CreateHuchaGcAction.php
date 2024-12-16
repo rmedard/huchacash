@@ -9,6 +9,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\GoogleCloudService;
 use Drupal\node\NodeInterface;
+use Google\ApiCore\ValidationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -17,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   category: new TranslatableMarkup('Custom'),
   type: 'node'
 )]
-class CreateHuchaGcAction extends HuchaGcAction {
+final class CreateHuchaGcAction extends HuchaGcAction {
 
   /**
    * @var LoggerChannelInterface
@@ -47,7 +48,7 @@ class CreateHuchaGcAction extends HuchaGcAction {
       $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
       $entity->save();
     }
-    catch (EntityStorageException $e) {
+    catch (EntityStorageException|ValidationException $e) {
       $this->logger->error($e);
     }
   }

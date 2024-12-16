@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   category: new TranslatableMarkup('Custom'),
   type: 'node'
 )]
-class UpdateAccountsOnTransactionPresaveAction extends ActionBase implements ContainerFactoryPluginInterface {
+final class UpdateAccountsOnTransactionPresaveAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
    * @var LoggerChannelInterface
