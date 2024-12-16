@@ -95,15 +95,36 @@ final class GoogleCloudService {
       default => throw new BadRequestHttpException('Unsupported Node Type'),
     };
 
-    $taskRequest = (new CreateTaskRequest())
-      ->setParent($formattedParent)
-      ->setTask((new Task())
-        ->setScheduleTime($scheduleTime)
-        ->setHttpRequest((new HttpRequest())
-          ->setHttpMethod(HttpMethod::POST)
-          ->setUrl($expireNodeCallbackUrl)
-          ->setBody(json_encode(['json' => ['uuid' => $targetNode->uuid(), 'type' => $targetNode->bundle()]]))));
-    return $this->cloudTasksClient->createTask($taskRequest);
+    // Prepare the request body
+    $requestBody = json_encode([
+      'json' => [
+        'uuid' => $targetNode->uuid(),
+        'type' => $targetNode->bundle()
+      ]
+    ]);
+
+    // Create HTTP request object
+    $httpRequest = new HttpRequest();
+    $httpRequest->setHttpMethod(HttpMethod::POST);
+    $httpRequest->setUrl($expireNodeCallbackUrl);
+    $httpRequest->setHeaders(['Content-Type' => 'application/json']);
+    $httpRequest->setBody($requestBody);
+
+    // Create task object
+    $task = new Task();
+    $task->setScheduleTime($scheduleTime);
+    $task->setHttpRequest($httpRequest);
+
+    // Create task request
+    $taskRequest = new CreateTaskRequest();
+    $taskRequest->setParent($formattedParent);
+    $taskRequest->setTask($task);
+    try {
+      return $this->cloudTasksClient->createTask($taskRequest);
+    } catch (ApiException $e) {
+      $this->logger->error('Failed to create GC task: @error', ['@error' => $e->getMessage()]);
+      throw $e;
+    }
   }
 
   public function deleteGcTask(string $taskName): void {
