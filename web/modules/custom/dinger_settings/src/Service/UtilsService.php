@@ -9,7 +9,7 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Exception;
 use Google\Cloud\Core\Timestamp;
 
-class UtilsService
+final class UtilsService
 {
   public function generateRandomId($length = 10): string
   {

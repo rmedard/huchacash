@@ -5,7 +5,7 @@ namespace Drupal\dinger_settings\Service;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 
-class GeoHashService {
+final class GeoHashService {
 
   /**
    * Drupal\Core\Logger\LoggerChannelFactory definition.
@@ -23,35 +23,35 @@ class GeoHashService {
   }
 
   // Default geohash length
-  const GEOHASH_PRECISION = 10;
+  const int GEOHASH_PRECISION = 10;
 
   // Characters used in location geohashes
-  const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+  const string BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 
   // The meridional circumference of the earth in meters
-  const EARTH_MERI_CIRCUMFERENCE = 40007860;
+  const int EARTH_MERI_CIRCUMFERENCE = 40007860;
 
   // Length of a degree latitude at the equator
-  const METERS_PER_DEGREE_LATITUDE = 110574;
+  const int METERS_PER_DEGREE_LATITUDE = 110574;
 
   // Number of bits per geohash character
-  const BITS_PER_CHAR = 5;
+  const int BITS_PER_CHAR = 5;
 
   // Maximum length of a geohash in bits
-  const MAXIMUM_BITS_PRECISION = 22 * self::BITS_PER_CHAR;
+  const int|float MAXIMUM_BITS_PRECISION = 22 * self::BITS_PER_CHAR;
 
   // Equatorial radius of the earth in meters
-  const EARTH_EQ_RADIUS = 6378137.0;
+  const float EARTH_EQ_RADIUS = 6378137.0;
 
   // The following value assumes a polar radius of
   // const EARTH_POL_RADIUS = 6356752.3;
   // The formula to calculate E2 is
   // E2 == (EARTH_EQ_RADIUS^2-EARTH_POL_RADIUS^2)/(EARTH_EQ_RADIUS^2)
   // The exact value is used here to avoid rounding errors
-  const E2 = 0.00669447819799;
+  const float E2 = 0.00669447819799;
 
   // Cutoff for rounding errors on double calculations
-  const EPSILON = 1e-12;
+  const float EPSILON = 1e-12;
 
 
   function log2($x): float|int {

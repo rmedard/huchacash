@@ -16,14 +16,18 @@ elements: |-
   reporter:
     '#type': entity_autocomplete
     '#title': Reporter
+    '#access_create_roles':
+      - administrator
     '#target_type': node
     '#selection_handler': eca
-    '#selection_settings':
-      target_bundles:
-        customer: customer
   bug_description:
     '#type': textarea
     '#title': 'Bug Description'
+  screenshots:
+    '#type': webform_image_file
+    '#title': Screenshots
+    '#multiple': true
+    '#sanitize': true
 css: ''
 javascript: ''
 settings:

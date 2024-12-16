@@ -12,7 +12,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class BiddingService {
+final class BiddingService {
 
   /**
    * @var EntityTypeManagerInterface

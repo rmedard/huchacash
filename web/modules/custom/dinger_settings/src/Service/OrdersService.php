@@ -12,7 +12,7 @@ use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class OrdersService
+final class OrdersService
 {
   protected LoggerChannelInterface $logger;
 
