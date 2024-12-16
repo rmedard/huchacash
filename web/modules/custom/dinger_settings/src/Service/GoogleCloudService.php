@@ -13,6 +13,7 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
+use Exception;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\ValidationException;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
@@ -36,9 +37,9 @@ final class GoogleCloudService {
   protected LoggerChannelInterface $logger;
 
   /**
-   * @var CloudTasksClient
+   * @var ?CloudTasksClient
    */
-  protected CloudTasksClient $cloudTasksClient;
+  protected ?CloudTasksClient $cloudTasksClient = null;
 
   /**
    * Constructs a GoogleCloudService object.
@@ -46,14 +47,22 @@ final class GoogleCloudService {
    * @param ConfigFactoryInterface $configFactory
    * @param LoggerChannelFactoryInterface $loggerFactoryInterface
    *
-   * @throws ValidationException
    */
   public function __construct(
     private readonly ConfigFactoryInterface $configFactory,
     private readonly LoggerChannelFactoryInterface $loggerFactoryInterface,
   ) {
     $this->logger = $this->loggerFactoryInterface->get('GoogleCloudService');
-    $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
+  }
+
+  /**
+   * @throws ValidationException
+   */
+  private function getCloudTasksClient(): CloudTasksClient {
+    if (is_null($this->cloudTasksClient)) {
+      $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
+    }
+    return $this->cloudTasksClient;
   }
 
   /**
@@ -61,6 +70,7 @@ final class GoogleCloudService {
    * @param DrupalDateTime $triggerTime
    *
    * @return Task|null
+   * @throws ValidationException
    */
   public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
@@ -77,14 +87,17 @@ final class GoogleCloudService {
 
   /**
    * @throws ApiException
+   * @throws ValidationException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     $this->logger->info('Creating GC Task for node type: @type | id: @id ', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
+
     $config = $this->configFactory->get('dinger_settings');
     $projectId = $config->get('gc_tasks_project_id');
     $location = $config->get('gc_tasks_location');
     $queue = $config->get('gc_tasks_queue');
     $callBackToken = $config->get('callback_token');
+
     $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
 
     $scheduleTime = new Timestamp();
@@ -95,36 +108,26 @@ final class GoogleCloudService {
       default => throw new BadRequestHttpException('Unsupported Node Type'),
     };
 
-    // Prepare the request body
-    $requestBody = json_encode([
-      'json' => [
+    $httpRequest = (new HttpRequest())
+      ->setHttpMethod(HttpMethod::POST)
+      ->setUrl($expireNodeCallbackUrl)
+      ->setHeaders([
+        'Content-Type' => 'application/json',
+      ])
+      ->setBody(json_encode([
         'uuid' => $targetNode->uuid(),
         'type' => $targetNode->bundle()
-      ]
-    ]);
+      ]));
 
-    // Create HTTP request object
-    $httpRequest = new HttpRequest();
-    $httpRequest->setHttpMethod(HttpMethod::POST);
-    $httpRequest->setUrl($expireNodeCallbackUrl);
-    $httpRequest->setHeaders(['Content-Type' => 'application/json']);
-    $httpRequest->setBody($requestBody);
+    $task = (new Task())
+      ->setScheduleTime($scheduleTime)
+      ->setHttpRequest($httpRequest);
 
-    // Create task object
-    $task = new Task();
-    $task->setScheduleTime($scheduleTime);
-    $task->setHttpRequest($httpRequest);
+    $request = (new CreateTaskRequest())
+      ->setParent($formattedParent)
+      ->setTask($task);
 
-    // Create task request
-    $taskRequest = new CreateTaskRequest();
-    $taskRequest->setParent($formattedParent);
-    $taskRequest->setTask($task);
-    try {
-      return $this->cloudTasksClient->createTask($taskRequest);
-    } catch (ApiException $e) {
-      $this->logger->error('Failed to create GC task: @error', ['@error' => $e->getMessage()]);
-      throw $e;
-    }
+    return $this->getCloudTasksClient()->createTask($request);
   }
 
   public function deleteGcTask(string $taskName): void {
@@ -149,12 +152,25 @@ final class GoogleCloudService {
   private function instantiateGoogleCloudTasksClient(): CloudTasksClient {
     try {
       $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
+
+      if (empty($gcSettingsFileLocation) || !file_exists($gcSettingsFileLocation)) {
+        throw new ValidationException('Google Cloud Tasks credentials file not found');
+      }
+
       $credentialsData = file_get_contents($gcSettingsFileLocation);
       $credentialsArray = json_decode($credentialsData, true);
-      return new CloudTasksClient(['credentials' => $credentialsArray]);
+
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new ValidationException('Invalid credentials JSON format');
+      }
+
+      return new CloudTasksClient([
+        'credentials' => $credentialsArray,
+        'transport' => 'grpc'
+      ]);
     }
-    catch (ValidationException $e) {
-      $this->logger->error('Creating GC Tasks Client failed. ' . $e->getMessage());
+    catch (Exception $e) {
+      $this->logger->error('Creating GC Tasks Client failed: @error', ['@error' => $e->getMessage()]);
       throw $e;
     }
   }
