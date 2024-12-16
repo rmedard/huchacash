@@ -12,7 +12,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\node\Entity\Node;
 
-class DataAccessor
+final class DataAccessor
 {
 
   protected EntityTypeManagerInterface $entityTypeManager;

@@ -15,7 +15,7 @@ use Drupal\node\NodeInterface;
 use Random\RandomException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class CallsService {
+final class CallsService {
 
   /**
    * @var EntityTypeManagerInterface

@@ -15,7 +15,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeStorage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class TransactionsService {
+final class TransactionsService {
 
   /**
    * @var EntityTypeManagerInterface
