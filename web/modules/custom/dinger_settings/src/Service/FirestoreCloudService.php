@@ -35,6 +35,7 @@ final class FirestoreCloudService {
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('firestoreService');
+    $this->firestoreClient = null;
   }
 
   /**
@@ -57,7 +58,7 @@ final class FirestoreCloudService {
           'suppressKeyFileNotice' => true,
           'transport' => 'grpc'
         ]);
-      } catch (\Exception $e) {
+      } catch (Exception $e) {
         $this->logger->error('Failed to initialize Firestore client: @error', ['@error' => $e->getMessage()]);
         throw $e;
       }
