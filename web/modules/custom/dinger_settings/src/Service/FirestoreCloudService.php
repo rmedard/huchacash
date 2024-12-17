@@ -28,6 +28,8 @@ final class FirestoreCloudService {
    */
   protected ?FirestoreClient $firestoreClient;
 
+  protected bool $clientInitializing = false;
+
   /**
    * @param LoggerChannelFactory $logger
    *
@@ -45,7 +47,8 @@ final class FirestoreCloudService {
    * @throws GoogleException
    */
   private function getFirestoreClient(): FirestoreClient {
-    if ($this->firestoreClient === null) {
+    if ($this->firestoreClient === null && !$this->clientInitializing) {
+      $this->clientInitializing = true;
       $settingsFileLocation = Settings::get('gc_tasks_settings_file');
 
       if (empty($settingsFileLocation) || !file_exists($settingsFileLocation)) {
@@ -61,6 +64,8 @@ final class FirestoreCloudService {
       } catch (Exception $e) {
         $this->logger->error('Failed to initialize Firestore client: @error', ['@error' => $e->getMessage()]);
         throw $e;
+      } finally {
+        $this->clientInitializing = false;
       }
     }
     return $this->firestoreClient;
