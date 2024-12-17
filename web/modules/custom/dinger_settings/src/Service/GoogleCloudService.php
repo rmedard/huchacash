@@ -150,6 +150,9 @@ final class GoogleCloudService {
    * @throws ValidationException
    */
   private function instantiateGoogleCloudTasksClient(): CloudTasksClient {
+    $gcSettingsFileLocation = null;
+    $credentials = null;
+
     try {
       $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
 
@@ -161,9 +164,19 @@ final class GoogleCloudService {
         throw new ValidationException('Google Cloud Tasks credentials file not found');
       }
 
-      // Pass the file path directly instead of loading the contents
+      // Debug file contents (temporarily)
+      $credentials = json_decode(file_get_contents($gcSettingsFileLocation), true);
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        $this->logger->error('JSON parsing error: ' . json_last_error_msg());
+        throw new ValidationException('Invalid JSON format in credentials file');
+      }
+
+      // Log required fields existence (without values)
+      $this->logger->debug('Credential fields present: ' . implode(', ', array_keys($credentials)));
+
+      // Try explicit credentials array
       return new CloudTasksClient([
-        'keyFile' => $gcSettingsFileLocation,
+        'credentials' => $credentials,  // Pass decoded array
         'transport' => 'grpc'
       ]);
 
@@ -171,13 +184,13 @@ final class GoogleCloudService {
       $context = [
         'file_exists' => !empty($gcSettingsFileLocation) && file_exists($gcSettingsFileLocation),
         'file_readable' => !empty($gcSettingsFileLocation) && is_readable($gcSettingsFileLocation),
-        'error_type' => get_class($e)
+        'error_type' => get_class($e),
+        'json_valid' => isset($credentials) && is_array($credentials),
+        'file_path' => $gcSettingsFileLocation ?? 'not set'
       ];
       $this->logger->error('Google Cloud Tasks client initialization failed. Context: @context', [
         '@context' => print_r($context, true)
       ]);
-
-      // Throw a new exception without the sensitive data
       throw new ValidationException('Failed to initialize Google Cloud Tasks client');
     }
   }
