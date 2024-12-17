@@ -68,8 +68,11 @@ final class GoogleCloudService {
       $this->clientInitializing = true;
 
       try {
-        $this->cloudTasksClient = new CloudTasksClient();
-      } catch (\Exception $e) {
+        $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
+        $credentialsData = file_get_contents($gcSettingsFileLocation);
+        $credentialsArray = json_decode($credentialsData, true);
+        $this->cloudTasksClient = new CloudTasksClient(['credentials' => $credentialsArray]);
+      } catch (Exception $e) {
         $this->logger->error('Failed to initialize CloudTasksClient: @error', ['@error' => $e->getMessage()]);
         throw $e;
       } finally {
@@ -85,17 +88,12 @@ final class GoogleCloudService {
    * @param DrupalDateTime $triggerTime
    *
    * @return Task|null
-   * @throws ValidationException
    */
   public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
       $taskName = trim($targetNode->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
-      try {
-        $this->deleteGcTask($taskName);
-        return $this->createGcTask($targetNode, $triggerTime);
-      } catch (ApiException $e) {
-        $this->logger->error('Creating gc task failed: ' . $e);
-      }
+      $this->deleteGcTask($taskName);
+      return $this->createGcTask($targetNode, $triggerTime);
     }
     return null;
   }
