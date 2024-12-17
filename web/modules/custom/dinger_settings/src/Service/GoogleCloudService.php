@@ -63,7 +63,16 @@ final class GoogleCloudService {
    * @throws ValidationException
    */
   public function getCloudTasksClient(): CloudTasksClient {
+    static $callDepth = 0; // Static variable to track recursion depth
+    $maxCallDepth = 3; // Prevent excessive recursion
+
     if ($this->cloudTasksClient === null && !$this->clientInitializing) {
+      if ($callDepth >= $maxCallDepth) {
+        $this->logger->error('Maximum call depth reached while initializing CloudTasksClient.');
+        throw new \RuntimeException('Recursive call to getCloudTasksClient detected.');
+      }
+
+      $callDepth++;
       $this->logger->debug('Initializing CloudTasksClient...');
       $this->clientInitializing = true;
 
@@ -93,11 +102,14 @@ final class GoogleCloudService {
         throw $e;
       } finally {
         $this->clientInitializing = false;
+        $callDepth--; // Decrement call depth after execution
       }
     }
 
     return $this->cloudTasksClient;
   }
+
+
 
 
   /**
