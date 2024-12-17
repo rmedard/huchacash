@@ -69,10 +69,26 @@ final class GoogleCloudService {
 
       try {
         $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
+
+        // Validate the file path
+        if (!file_exists($gcSettingsFileLocation) || !is_readable($gcSettingsFileLocation)) {
+          throw new \RuntimeException("The Google Cloud credentials file is missing or unreadable at: {$gcSettingsFileLocation}");
+        }
+
+        $this->logger->info('Loading Google Cloud credentials from: @path', ['@path' => $gcSettingsFileLocation]);
+
+        // Read and decode credentials
         $credentialsData = file_get_contents($gcSettingsFileLocation);
         $credentialsArray = json_decode($credentialsData, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+          throw new \RuntimeException('Failed to decode credentials JSON: ' . json_last_error_msg());
+        }
+
+        // Initialize CloudTasksClient with credentials
         $this->cloudTasksClient = new CloudTasksClient(['credentials' => $credentialsArray]);
-      } catch (Exception $e) {
+        $this->logger->info('CloudTasksClient initialized successfully.');
+      } catch (\Exception $e) {
         $this->logger->error('Failed to initialize CloudTasksClient: @error', ['@error' => $e->getMessage()]);
         throw $e;
       } finally {
@@ -82,6 +98,7 @@ final class GoogleCloudService {
 
     return $this->cloudTasksClient;
   }
+
 
   /**
    * @param NodeInterface $targetNode
