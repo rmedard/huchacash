@@ -157,15 +157,12 @@ final class GoogleCloudService {
         throw new ValidationException('Google Cloud Tasks credentials file not found');
       }
 
+      // Load credentials as a string
       $credentialsData = file_get_contents($gcSettingsFileLocation);
-      $credentialsArray = json_decode($credentialsData, true);
 
-      if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new ValidationException('Invalid credentials JSON format');
-      }
-
+      // Instead of decoding to array, pass the JSON string directly
       return new CloudTasksClient([
-        'credentials' => $credentialsArray,
+        'credentials' => $credentialsData, // Pass the JSON string instead of decoded array
         'transport' => 'grpc'
       ]);
     }
