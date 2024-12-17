@@ -153,16 +153,29 @@ final class GoogleCloudService {
     try {
       $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
 
-      if (empty($gcSettingsFileLocation) || !file_exists($gcSettingsFileLocation)) {
+      if (empty($gcSettingsFileLocation)) {
+        throw new ValidationException('Google Cloud Tasks settings file location not configured');
+      }
+
+      if (!file_exists($gcSettingsFileLocation)) {
         throw new ValidationException('Google Cloud Tasks credentials file not found');
       }
 
-      // Load credentials as a string
+      // Load credentials and validate JSON
       $credentialsData = file_get_contents($gcSettingsFileLocation);
+      $decodedCredentials = json_decode($credentialsData, true);
 
-      // Instead of decoding to array, pass the JSON string directly
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        $this->logger->error('Invalid JSON in credentials file: ' . json_last_error_msg());
+        throw new ValidationException('Invalid credentials file format');
+      }
+
+      if (!isset($decodedCredentials['type']) || $decodedCredentials['type'] !== 'service_account') {
+        throw new ValidationException('Invalid service account configuration');
+      }
+
       return new CloudTasksClient([
-        'credentials' => $credentialsData, // Pass the JSON string instead of decoded array
+        'credentials' => $credentialsData,
         'transport' => 'grpc'
       ]);
     }
@@ -170,8 +183,13 @@ final class GoogleCloudService {
       $context = [
         'file_exists' => !empty($gcSettingsFileLocation) && file_exists($gcSettingsFileLocation),
         'file_readable' => !empty($gcSettingsFileLocation) && is_readable($gcSettingsFileLocation),
+        'error_type' => get_class($e),
+        'message' => $e instanceof ValidationException ? $e->getMessage() : 'Unexpected error'
       ];
-      $this->logger->error('Creating GC Tasks Client failed: Unable to load credentials. Context: @context', ['@context' => print_r($context, true)]);
+      $this->logger->error('Creating GC Tasks Client failed: @message. Context: @context', [
+        '@message' => $e instanceof ValidationException ? $e->getMessage() : 'Unexpected error',
+        '@context' => print_r($context, true)
+      ]);
       throw new ValidationException('Google Cloud Tasks credentials configuration error', 0, $e);
     }
   }
