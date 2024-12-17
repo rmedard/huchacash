@@ -19,6 +19,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\dinger_settings\Service\GoogleCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
+use Google\ApiCore\ValidationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -63,7 +64,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $configFactory, LoggerChannelFactoryInterface $loggerFactory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->configFactory = $configFactory;
-    $this->loggerFactory = $loggerFactory->get('create_gc_action');
+    $this->loggerFactory = $loggerFactory->get('CreateGcAction');
   }
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): CreateGcAction {
@@ -82,6 +83,7 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
 
   /**
    * {@inheritdoc}
+   * @throws ValidationException
    */
   public function execute(ContentEntityInterface $entity = NULL): void {
     if ($entity instanceof NodeInterface) {
