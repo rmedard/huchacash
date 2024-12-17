@@ -118,42 +118,60 @@ final class FirestoreCloudService {
    * @throws GoogleException
    */
   public function updateFireCall(Node $call): void {
-    $this->logger->info('Update FireCall action triggered. CallId: @callId', ['@callId' => $call->id()]);
+    static $isRunning = false;
 
-    $originalCall = $call->original;
-    if (!$originalCall instanceof NodeInterface) {
+    // Prevent recursion with a static flag
+    if ($isRunning) {
+      $this->logger->warning('updateFireCall is already running. Aborting to prevent recursion. CallId: @callId', [
+        '@callId' => $call->id(),
+      ]);
       return;
     }
 
-    $updates = $this->prepareUpdates($call, $originalCall);
-
-    if (empty($updates)) {
-      return;
-    }
+    $isRunning = true;
 
     try {
+      $this->logger->info('Update FireCall action triggered. CallId: @callId', ['@callId' => $call->id()]);
+
+      $originalCall = $call->original;
+      if (!$originalCall instanceof NodeInterface) {
+        $this->logger->warning('Original call is invalid or not an instance of NodeInterface.');
+        return;
+      }
+
+      $updates = $this->prepareUpdates($call, $originalCall);
+
+      if (empty($updates)) {
+        $this->logger->info('No updates to process for FireCall ID: @callId', ['@callId' => $call->id()]);
+        return;
+      }
+
       $callReference = $this->getFirestoreClient()
         ->collection('live_calls')
         ->document($call->uuid());
 
-      $this->logger->info('Updating fireCall (@uuid) with data: @updates', [
+      $this->logger->info('Updating FireCall (@uuid) with data: @updates', [
         '@uuid' => $call->uuid(),
-        '@updates' => print_r($updates, true)
+        '@updates' => json_encode($updates),
       ]);
 
-      $this->getFirestoreClient()->runTransaction(function(Transaction $transaction) use ($callReference, $updates) {
-        try {
+      // Firestore transaction with retries
+      $this->getFirestoreClient()->runTransaction(
+        function (Transaction $transaction) use ($callReference, $updates) {
           $transaction->update($callReference, $updates);
-        } catch (Exception $e) {
-          $this->logger->error('Transaction failed: @error', ['@error' => $e->getMessage()]);
-          throw $e;
-        }
-      }, ['maxRetries' => 3]);
+        },
+        ['maxRetries' => 3]
+      );
+
+      $this->logger->info('Successfully updated FireCall: @uuid', ['@uuid' => $call->uuid()]);
     } catch (Exception $e) {
       $this->logger->error('Failed to update FireCall: @error', ['@error' => $e->getMessage()]);
       throw $e;
+    } finally {
+      $isRunning = false; // Reset flag after execution
     }
   }
+
 
 
   /**
