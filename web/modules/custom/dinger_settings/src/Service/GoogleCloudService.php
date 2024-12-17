@@ -167,8 +167,12 @@ final class GoogleCloudService {
       ]);
     }
     catch (Exception $e) {
-      $this->logger->error('Creating GC Tasks Client failed: @error', ['@error' => $e->getMessage()]);
-      throw $e;
+      $context = [
+        'file_exists' => !empty($gcSettingsFileLocation) && file_exists($gcSettingsFileLocation),
+        'file_readable' => !empty($gcSettingsFileLocation) && is_readable($gcSettingsFileLocation),
+      ];
+      $this->logger->error('Creating GC Tasks Client failed: Unable to load credentials. Context: @context', ['@context' => print_r($context, true)]);
+      throw new ValidationException('Google Cloud Tasks credentials configuration error', 0, $e);
     }
   }
 
