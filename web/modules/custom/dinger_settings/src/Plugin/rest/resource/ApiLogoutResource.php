@@ -89,7 +89,6 @@ final class ApiLogoutResource extends ResourceBase {
    */
   public function get(): ModifiedResourceResponse {
     $this->logger->info('Logout resource triggered. User logged-in: ' . $this->loggedUser->isAuthenticated());
-    $response = new ModifiedResourceResponse();
     if ($this->loggedUser->isAuthenticated()) {
       try {
         $tokenEntityStorage = Drupal::entityTypeManager()->getStorage('oauth2_token');
@@ -103,21 +102,17 @@ final class ApiLogoutResource extends ResourceBase {
             $token->delete();
           }
           $this->logger->info('Logout successful');
-          $response->setStatusCode(Response::HTTP_OK);
-          $response->setContent('Logout successful');
+          return new ModifiedResourceResponse(['message' => 'Logout successful'], Response::HTTP_OK);
         } else {
-          $response->setStatusCode(Response::HTTP_NOT_FOUND);
+          return new ModifiedResourceResponse(['message' => 'User not logged in'], Response::HTTP_NO_CONTENT);
         }
       } catch (InvalidPluginDefinitionException|PluginNotFoundException|EntityStorageException $e) {
         $this->logger->error('Logout failed: ' . $e->getMessage());
-        $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
-        $response->setContent($e->getMessage());
+        return new ModifiedResourceResponse(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
       }
     } else {
-      $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
-      $response->setContent('User not logged in');
+      return new ModifiedResourceResponse(['message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
     }
-    return $response;
   }
 
 }
