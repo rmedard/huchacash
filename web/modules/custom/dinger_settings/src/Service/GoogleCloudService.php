@@ -43,6 +43,8 @@ final class GoogleCloudService {
 
   protected bool $clientInitializing = false;
 
+  private static bool $isRunning = false;
+
   /**
    * Constructs a GoogleCloudService object.
    *
@@ -60,19 +62,21 @@ final class GoogleCloudService {
   /**
    * @throws ValidationException
    */
-  private function getCloudTasksClient(): CloudTasksClient {
-    if (is_null($this->cloudTasksClient) && !$this->clientInitializing) {
+  public function getCloudTasksClient(): CloudTasksClient {
+    if ($this->cloudTasksClient === null && !$this->clientInitializing) {
       $this->logger->debug('Initializing CloudTasksClient...');
       $this->clientInitializing = true;
+
       try {
-        $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
+        $this->cloudTasksClient = new CloudTasksClient();
+      } catch (\Exception $e) {
+        $this->logger->error('Failed to initialize CloudTasksClient: @error', ['@error' => $e->getMessage()]);
+        throw $e;
       } finally {
         $this->clientInitializing = false;
-        $this->logger->debug('CloudTasksClient initialized successfully.');
       }
-    } elseif ($this->clientInitializing) {
-      $this->logger->debug('CloudTasksClient is already being initialized. Skipping...');
     }
+
     return $this->cloudTasksClient;
   }
 
@@ -97,44 +101,45 @@ final class GoogleCloudService {
   }
 
   /**
-   * @throws ApiException
-   * @throws ValidationException
+   * Create a Google Cloud Task.
+   *
+   * @param NodeInterface $targetNode
+   * @param DrupalDateTime $triggerTime
+   * @return Task
+   * @throws \RuntimeException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     static $isRunning = false;
 
+    // Prevent recursion
     if ($isRunning) {
-      $this->logger->warning('createGcTask is already running. Aborting to prevent recursion.');
-      throw new \RuntimeException('createGcTask detected recursive execution.');
+      $this->logger->warning('createGcTask is already running. Aborting to prevent recursion. Node ID: @id', [
+        '@id' => $targetNode->id(),
+      ]);
+      throw new \RuntimeException('Recursive call to createGcTask detected.');
     }
 
     $isRunning = true;
 
     try {
-      $this->logger->info('Creating GC Task for node type: @type | id: @id ', [
-        '@type' => $targetNode->bundle(),
-        '@id' => $targetNode->id()
-      ]);
+      $this->logger->info('Creating GC Task for Node ID: @id', ['@id' => $targetNode->id()]);
 
       $config = $this->configFactory->get('dinger_settings');
       $projectId = $config->get('gc_tasks_project_id');
       $location = $config->get('gc_tasks_location');
       $queue = $config->get('gc_tasks_queue');
-      $callBackToken = $config->get('callback_token');
+      $callbackToken = $config->get('callback_token');
 
       $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
 
       $scheduleTime = new Timestamp();
       $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
-      $expireNodeCallbackUrl = match ($targetNode->bundle()) {
-        GcNodeType::CALL, GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
-        default => throw new BadRequestHttpException('Unsupported Node Type'),
-      };
+      $callbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callbackToken;
 
       $httpRequest = (new HttpRequest())
         ->setHttpMethod(HttpMethod::POST)
-        ->setUrl($expireNodeCallbackUrl)
+        ->setUrl($callbackUrl)
         ->setHeaders([
           'Content-Type' => 'application/json',
         ])
@@ -151,18 +156,24 @@ final class GoogleCloudService {
         ->setParent($formattedParent)
         ->setTask($task);
 
-      $this->logger->info('Sending request to CloudTasksClient...');
-      $result = $this->getCloudTasksClient()->createTask($request);
-      $this->logger->info('Task created successfully for node ID: @id', ['@id' => $targetNode->id()]);
+      // Use the safe client initialization
+      $client = $this->getCloudTasksClient();
+      $result = $client->createTask($request);
+
+      $this->logger->info('Task successfully created for Node ID: @id', ['@id' => $targetNode->id()]);
 
       return $result;
     } catch (\Exception $e) {
-      $this->logger->error('Failed to create GC task: @message', ['@message' => $e->getMessage()]);
-      throw $e; // Rethrow the exception for higher-level handling
+      $this->logger->error('Error creating GC Task for Node ID @id: @message', [
+        '@id' => $targetNode->id(),
+        '@message' => $e->getMessage(),
+      ]);
+      throw $e;
     } finally {
-      $isRunning = false; // Reset the static flag
+      $isRunning = false;
     }
   }
+
 
 
   public function deleteGcTask(string $taskName): void {
