@@ -62,12 +62,16 @@ final class GoogleCloudService {
    */
   private function getCloudTasksClient(): CloudTasksClient {
     if (is_null($this->cloudTasksClient) && !$this->clientInitializing) {
+      $this->logger->debug('Initializing CloudTasksClient...');
       $this->clientInitializing = true;
       try {
         $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
       } finally {
         $this->clientInitializing = false;
+        $this->logger->debug('CloudTasksClient initialized successfully.');
       }
+    } elseif ($this->clientInitializing) {
+      $this->logger->debug('CloudTasksClient is already being initialized. Skipping...');
     }
     return $this->cloudTasksClient;
   }
