@@ -145,10 +145,10 @@ final class GoogleCloudService {
 
     try {
       $this
-        ->cloudTasksClient
+        ->getCloudTasksClient()
         ->deleteTask((new DeleteTaskRequest())->setName($taskName));
     }
-    catch (ApiException $e) {
+    catch (ApiException|ValidationException $e) {
       $this->logger->warning('Deleting GC Task failed. ' . $e->getMessage());
     }
   }
