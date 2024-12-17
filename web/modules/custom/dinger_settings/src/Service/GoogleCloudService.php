@@ -161,36 +161,24 @@ final class GoogleCloudService {
         throw new ValidationException('Google Cloud Tasks credentials file not found');
       }
 
-      // Load credentials and validate JSON
-      $credentialsData = file_get_contents($gcSettingsFileLocation);
-      $decodedCredentials = json_decode($credentialsData, true);
-
-      if (json_last_error() !== JSON_ERROR_NONE) {
-        $this->logger->error('Invalid JSON in credentials file: ' . json_last_error_msg());
-        throw new ValidationException('Invalid credentials file format');
-      }
-
-      if (!isset($decodedCredentials['type']) || $decodedCredentials['type'] !== 'service_account') {
-        throw new ValidationException('Invalid service account configuration');
-      }
-
+      // Pass the file path directly instead of loading the contents
       return new CloudTasksClient([
-        'credentials' => $credentialsData,
+        'keyFile' => $gcSettingsFileLocation,
         'transport' => 'grpc'
       ]);
-    }
-    catch (Exception $e) {
+
+    } catch (Exception $e) {
       $context = [
         'file_exists' => !empty($gcSettingsFileLocation) && file_exists($gcSettingsFileLocation),
         'file_readable' => !empty($gcSettingsFileLocation) && is_readable($gcSettingsFileLocation),
-        'error_type' => get_class($e),
-        'message' => $e instanceof ValidationException ? $e->getMessage() : 'Unexpected error'
+        'error_type' => get_class($e)
       ];
-      $this->logger->error('Creating GC Tasks Client failed: @message. Context: @context', [
-        '@message' => $e instanceof ValidationException ? $e->getMessage() : 'Unexpected error',
+      $this->logger->error('Google Cloud Tasks client initialization failed. Context: @context', [
         '@context' => print_r($context, true)
       ]);
-      throw new ValidationException('Google Cloud Tasks credentials configuration error', 0, $e);
+
+      // Throw a new exception without the sensitive data
+      throw new ValidationException('Failed to initialize Google Cloud Tasks client');
     }
   }
 
