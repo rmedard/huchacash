@@ -101,45 +101,69 @@ final class GoogleCloudService {
    * @throws ValidationException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
-    $this->logger->info('Creating GC Task for node type: @type | id: @id ', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
+    static $isRunning = false;
 
-    $config = $this->configFactory->get('dinger_settings');
-    $projectId = $config->get('gc_tasks_project_id');
-    $location = $config->get('gc_tasks_location');
-    $queue = $config->get('gc_tasks_queue');
-    $callBackToken = $config->get('callback_token');
+    if ($isRunning) {
+      $this->logger->warning('createGcTask is already running. Aborting to prevent recursion.');
+      throw new \RuntimeException('createGcTask detected recursive execution.');
+    }
 
-    $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
+    $isRunning = true;
 
-    $scheduleTime = new Timestamp();
-    $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
+    try {
+      $this->logger->info('Creating GC Task for node type: @type | id: @id ', [
+        '@type' => $targetNode->bundle(),
+        '@id' => $targetNode->id()
+      ]);
 
-    $expireNodeCallbackUrl = match ($targetNode->bundle()) {
-      GcNodeType::CALL, GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
-      default => throw new BadRequestHttpException('Unsupported Node Type'),
-    };
+      $config = $this->configFactory->get('dinger_settings');
+      $projectId = $config->get('gc_tasks_project_id');
+      $location = $config->get('gc_tasks_location');
+      $queue = $config->get('gc_tasks_queue');
+      $callBackToken = $config->get('callback_token');
 
-    $httpRequest = (new HttpRequest())
-      ->setHttpMethod(HttpMethod::POST)
-      ->setUrl($expireNodeCallbackUrl)
-      ->setHeaders([
-        'Content-Type' => 'application/json',
-      ])
-      ->setBody(json_encode([
-        'uuid' => $targetNode->uuid(),
-        'type' => $targetNode->bundle()
-      ]));
+      $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
 
-    $task = (new Task())
-      ->setScheduleTime($scheduleTime)
-      ->setHttpRequest($httpRequest);
+      $scheduleTime = new Timestamp();
+      $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
-    $request = (new CreateTaskRequest())
-      ->setParent($formattedParent)
-      ->setTask($task);
+      $expireNodeCallbackUrl = match ($targetNode->bundle()) {
+        GcNodeType::CALL, GcNodeType::ORDER => Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callBackToken,
+        default => throw new BadRequestHttpException('Unsupported Node Type'),
+      };
 
-    return $this->getCloudTasksClient()->createTask($request);
+      $httpRequest = (new HttpRequest())
+        ->setHttpMethod(HttpMethod::POST)
+        ->setUrl($expireNodeCallbackUrl)
+        ->setHeaders([
+          'Content-Type' => 'application/json',
+        ])
+        ->setBody(json_encode([
+          'uuid' => $targetNode->uuid(),
+          'type' => $targetNode->bundle(),
+        ]));
+
+      $task = (new Task())
+        ->setScheduleTime($scheduleTime)
+        ->setHttpRequest($httpRequest);
+
+      $request = (new CreateTaskRequest())
+        ->setParent($formattedParent)
+        ->setTask($task);
+
+      $this->logger->info('Sending request to CloudTasksClient...');
+      $result = $this->getCloudTasksClient()->createTask($request);
+      $this->logger->info('Task created successfully for node ID: @id', ['@id' => $targetNode->id()]);
+
+      return $result;
+    } catch (\Exception $e) {
+      $this->logger->error('Failed to create GC task: @message', ['@message' => $e->getMessage()]);
+      throw $e; // Rethrow the exception for higher-level handling
+    } finally {
+      $isRunning = false; // Reset the static flag
+    }
   }
+
 
   public function deleteGcTask(string $taskName): void {
     $this->logger->info('Deleting DC Task: ' . $taskName);
