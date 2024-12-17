@@ -41,6 +41,8 @@ final class GoogleCloudService {
    */
   protected ?CloudTasksClient $cloudTasksClient = null;
 
+  protected bool $clientInitializing = false;
+
   /**
    * Constructs a GoogleCloudService object.
    *
@@ -59,8 +61,13 @@ final class GoogleCloudService {
    * @throws ValidationException
    */
   private function getCloudTasksClient(): CloudTasksClient {
-    if (is_null($this->cloudTasksClient)) {
-      $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
+    if (is_null($this->cloudTasksClient) && !$this->clientInitializing) {
+      $this->clientInitializing = true;
+      try {
+        $this->cloudTasksClient = $this->instantiateGoogleCloudTasksClient();
+      } finally {
+        $this->clientInitializing = false;
+      }
     }
     return $this->cloudTasksClient;
   }
