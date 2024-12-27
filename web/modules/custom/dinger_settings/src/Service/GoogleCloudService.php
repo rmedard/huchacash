@@ -11,7 +11,6 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
-use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Exception;
 use Google\ApiCore\ApiException;
@@ -23,7 +22,6 @@ use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Google Cloud Services
