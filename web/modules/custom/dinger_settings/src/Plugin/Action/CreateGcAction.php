@@ -83,7 +83,6 @@ final class CreateGcAction extends ActionBase implements ContainerFactoryPluginI
 
   /**
    * {@inheritdoc}
-   * @throws ValidationException
    */
   public function execute(ContentEntityInterface $entity = NULL): void {
     if ($entity instanceof NodeInterface) {
