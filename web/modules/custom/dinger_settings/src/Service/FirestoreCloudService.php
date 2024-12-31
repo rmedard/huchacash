@@ -37,7 +37,7 @@ final class FirestoreCloudService {
    */
   public function __construct(LoggerChannelFactory $logger)
   {
-    $this->logger = $logger->get('firestoreService');
+    $this->logger = $logger->get('FirestoreCloudService');
     $this->firestoreClient = null;
   }
 
