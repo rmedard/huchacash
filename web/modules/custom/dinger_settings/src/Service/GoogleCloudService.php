@@ -14,7 +14,9 @@ use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
 use Drupal\node\NodeInterface;
 use Exception;
 use Google\ApiCore\ApiException;
+use Google\ApiCore\CredentialsWrapper;
 use Google\ApiCore\ValidationException;
+use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
 use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\DeleteTaskRequest;
@@ -72,15 +74,22 @@ final class GoogleCloudService {
           throw new \RuntimeException("The Google Cloud credentials file is missing or unreadable at: {$gcSettingsFileLocation}");
         }
 
-        $this->logger->info('Loading Google Cloud credentials from: @path', ['@path' => $gcSettingsFileLocation]);
-
         // Initialize CloudTasksClient with credentials
+        $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
+        $credWrap = new CredentialsWrapper($serviceAccCred);
         $this->cloudTasksClient = new CloudTasksClient(
           [
-            'credentials' => $gcSettingsFileLocation,
+            'credentials' => $credWrap,
             'disableRetries' => TRUE,
             'logger' => $this->logger,
-          ]);
+          ]
+        );
+//        $this->cloudTasksClient = new CloudTasksClient(
+//          [
+//            'credentials' => $gcSettingsFileLocation,
+//            'disableRetries' => TRUE,
+//            'logger' => $this->logger,
+//          ]);
         $this->logger->info('CloudTasksClient initialized successfully.');
       } catch (\Exception $e) {
         $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
@@ -157,8 +166,6 @@ final class GoogleCloudService {
       $request = (new CreateTaskRequest())
         ->setParent($formattedParent)
         ->setTask($task);
-
-      $this->logger->warning('Request size: ' . $request->byteSize() . ' bytes. Or ' . $request->jsonByteSize() . ' jsonBytes.');
 
       // Use the safe client initialization
       $client = $this->getCloudTasksClient();
