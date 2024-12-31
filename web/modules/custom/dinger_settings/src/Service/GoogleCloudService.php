@@ -25,6 +25,9 @@ use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Google Cloud Services
@@ -76,7 +79,7 @@ final class GoogleCloudService {
 
         // Initialize CloudTasksClient with credentials
         $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
-        $credWrap = new CredentialsWrapper($serviceAccCred);
+        $credWrap = new CredentialsWrapper($serviceAccCred, 'myAuthCallable');
         $this->cloudTasksClient = new CloudTasksClient(
           [
             'credentials' => $credWrap,
@@ -116,6 +119,13 @@ final class GoogleCloudService {
     }
     return null;
   }
+
+
+  private function myAuthCallable(RequestInterface $request, array $options) : ResponseInterface {
+    $this->logger->debug('Callable triggered: ' . $request->getBody());
+    return new Response();
+  }
+
 
   /**
    * Create a Google Cloud Task.
