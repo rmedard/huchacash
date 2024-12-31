@@ -78,6 +78,7 @@ final class GoogleCloudService {
         }
 
         // Initialize CloudTasksClient with credentials
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $gcSettingsFileLocation);
         $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
         $credWrap = CredentialsWrapper::build([
           'keyFile' => $gcSettingsFileLocation,
