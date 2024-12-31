@@ -79,7 +79,10 @@ final class GoogleCloudService {
 
         // Initialize CloudTasksClient with credentials
         $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
-        $credWrap = new CredentialsWrapper($serviceAccCred, 'myAuthCallable');
+        $credWrap = CredentialsWrapper::build([
+          'keyFile' => $gcSettingsFileLocation,
+          'authHttpHandler' => 'myAuthCallable'
+        ]);
         $this->cloudTasksClient = new CloudTasksClient(
           [
             'credentials' => $credWrap,
@@ -121,8 +124,8 @@ final class GoogleCloudService {
   }
 
 
-  private function myAuthCallable(RequestInterface $request, array $options) : ResponseInterface {
-    $this->logger->debug('Callable triggered: ' . $request->getBody());
+  function myAuthCallable(RequestInterface $request, array $options) : ResponseInterface {
+    Drupal::logger('Callable')->debug('Callable triggered: ' . $request->getBody());
     return new Response();
   }
 
@@ -193,8 +196,6 @@ final class GoogleCloudService {
     }
   }
 
-
-
   public function deleteGcTask(string $taskName): void {
     if (empty(trim($taskName))) {
       return;
@@ -208,55 +209,6 @@ final class GoogleCloudService {
     }
     catch (ApiException|ValidationException $e) {
       $this->logger->warning('Deleting GC Task failed. ' . $e->getMessage());
-    }
-  }
-
-  /**
-   * @throws ValidationException
-   */
-  private function instantiateGoogleCloudTasksClient(): CloudTasksClient {
-    $gcSettingsFileLocation = null;
-    $credentials = null;
-
-    try {
-      $gcSettingsFileLocation = Settings::get('gc_tasks_settings_file');
-
-      if (empty($gcSettingsFileLocation)) {
-        throw new ValidationException('Google Cloud Tasks settings file location not configured');
-      }
-
-      if (!file_exists($gcSettingsFileLocation)) {
-        throw new ValidationException('Google Cloud Tasks credentials file not found');
-      }
-
-      // Debug file contents (temporarily)
-      $credentials = json_decode(file_get_contents($gcSettingsFileLocation), true);
-      if (json_last_error() !== JSON_ERROR_NONE) {
-        $this->logger->error('JSON parsing error: ' . json_last_error_msg());
-        throw new ValidationException('Invalid JSON format in credentials file');
-      }
-
-      // Log required fields existence (without values)
-      $this->logger->debug('Credential fields present: ' . implode(', ', array_keys($credentials)));
-
-      // Try explicit credentials array
-      return new CloudTasksClient([
-        'credentials' => $credentials,  // Pass decoded array
-        'transport' => 'grpc'
-      ]);
-
-    } catch (Exception $e) {
-      $context = [
-        'file_exists' => !empty($gcSettingsFileLocation) && file_exists($gcSettingsFileLocation),
-        'file_readable' => !empty($gcSettingsFileLocation) && is_readable($gcSettingsFileLocation),
-        'error_type' => get_class($e),
-        'json_valid' => isset($credentials) && is_array($credentials),
-        'file_path' => $gcSettingsFileLocation ?? 'not set'
-      ];
-      $this->logger->error('Google Cloud Tasks client initialization failed. Context: @context', [
-        '@context' => print_r($context, true)
-      ]);
-      throw new ValidationException('Failed to initialize Google Cloud Tasks client');
     }
   }
 
