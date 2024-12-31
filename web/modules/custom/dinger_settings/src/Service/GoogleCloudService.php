@@ -81,7 +81,7 @@ final class GoogleCloudService {
         $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
         $credWrap = CredentialsWrapper::build([
           'keyFile' => $gcSettingsFileLocation,
-          'authHttpHandler' => 'myAuthCallable'
+          'authHttpHandler' => [$this, 'myAuthCallable']
         ]);
         $this->cloudTasksClient = new CloudTasksClient(
           [
