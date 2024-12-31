@@ -59,6 +59,7 @@ final class FirestoreCloudService {
       try {
         $this->firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
       } catch (Exception $e) {
+        $this->logger->warning('Failed to init firestore client. Class: ' . get_class($e));
         $this->logger->error('Failed to initialize Firestore client: @error', ['@error' => $e->getMessage()]);
         throw $e;
       } finally {
