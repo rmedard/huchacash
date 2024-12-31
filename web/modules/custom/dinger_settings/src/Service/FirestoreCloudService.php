@@ -148,6 +148,7 @@ final class FirestoreCloudService {
 
       $this->logger->info('Successfully updated FireCall: @uuid', ['@uuid' => $call->uuid()]);
     } catch (Exception $e) {
+      $this->logger->warning('ExceptionClass: ' . get_class($e));
       $this->logger->error('Failed to update FireCall: @error', ['@error' => $e->getMessage()]);
       throw $e;
     }
