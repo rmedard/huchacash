@@ -75,7 +75,12 @@ final class GoogleCloudService {
         $this->logger->info('Loading Google Cloud credentials from: @path', ['@path' => $gcSettingsFileLocation]);
 
         // Initialize CloudTasksClient with credentials
-        $this->cloudTasksClient = new CloudTasksClient(['credentials' => $gcSettingsFileLocation, 'disableRetries' => TRUE]);
+        $this->cloudTasksClient = new CloudTasksClient(
+          [
+            'credentials' => $gcSettingsFileLocation,
+            'disableRetries' => TRUE,
+            'logger' => $this->logger,
+          ]);
         $this->logger->info('CloudTasksClient initialized successfully.');
       } catch (\Exception $e) {
         $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
@@ -174,11 +179,11 @@ final class GoogleCloudService {
 
 
   public function deleteGcTask(string $taskName): void {
-    $this->logger->info('Deleting DC Task: ' . $taskName);
     if (empty(trim($taskName))) {
       return;
     }
 
+    $this->logger->info('Deleting DC Task: ' . $taskName);
     try {
       $this
         ->getCloudTasksClient()
