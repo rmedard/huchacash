@@ -56,11 +56,7 @@ final class FirestoreCloudService {
       }
 
       try {
-        $this->firestoreClient = new FirestoreClient([
-          'keyFilePath' => $settingsFileLocation,
-          'suppressKeyFileNotice' => true,
-          'transport' => 'grpc'
-        ]);
+        $this->firestoreClient = new FirestoreClient(['keyFilePath' => $settingsFileLocation]);
       } catch (Exception $e) {
         $this->logger->error('Failed to initialize Firestore client: @error', ['@error' => $e->getMessage()]);
         throw $e;
@@ -118,21 +114,8 @@ final class FirestoreCloudService {
    * @throws GoogleException
    */
   public function updateFireCall(Node $call): void {
-    static $isRunning = false;
-
-    // Prevent recursion with a static flag
-    if ($isRunning) {
-      $this->logger->warning('updateFireCall is already running. Aborting to prevent recursion. CallId: @callId', [
-        '@callId' => $call->id(),
-      ]);
-      return;
-    }
-
-    $isRunning = true;
-
     try {
       $this->logger->info('Update FireCall action triggered. CallId: @callId', ['@callId' => $call->id()]);
-
       $originalCall = $call->original;
       if (!$originalCall instanceof NodeInterface) {
         $this->logger->warning('Original call is invalid or not an instance of NodeInterface.');
@@ -146,14 +129,14 @@ final class FirestoreCloudService {
         return;
       }
 
-      $callReference = $this->getFirestoreClient()
-        ->collection('live_calls')
-        ->document($call->uuid());
-
       $this->logger->info('Updating FireCall (@uuid) with data: @updates', [
         '@uuid' => $call->uuid(),
         '@updates' => json_encode($updates),
       ]);
+
+      $callReference = $this->getFirestoreClient()
+        ->collection('live_calls')
+        ->document($call->uuid());
 
       // Firestore transaction with retries
       $this->getFirestoreClient()->runTransaction(
@@ -167,8 +150,6 @@ final class FirestoreCloudService {
     } catch (Exception $e) {
       $this->logger->error('Failed to update FireCall: @error', ['@error' => $e->getMessage()]);
       throw $e;
-    } finally {
-      $isRunning = false; // Reset flag after execution
     }
   }
 
