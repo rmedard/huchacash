@@ -20,6 +20,7 @@ use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\DeleteTaskRequest;
 use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
+use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
 
@@ -74,7 +75,8 @@ final class GoogleCloudService {
         $this->logger->info('Loading Google Cloud credentials from: @path', ['@path' => $gcSettingsFileLocation]);
 
         // Initialize CloudTasksClient with credentials
-        $this->cloudTasksClient = new CloudTasksClient(['credentials' => $gcSettingsFileLocation, 'disableRetries' => TRUE]);
+        //$this->cloudTasksClient = new CloudTasksClient(['credentials' => $gcSettingsFileLocation, 'disableRetries' => TRUE]);
+        $this->cloudTasksClient = new CloudTasksClient();
         $this->logger->info('CloudTasksClient initialized successfully.');
       } catch (\Exception $e) {
         $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
@@ -128,7 +130,12 @@ final class GoogleCloudService {
 
       $callbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callbackToken;
 
+
+      $oidcToken = new OidcToken();
+      $oidcToken->setServiceAccountEmail('dinger-cash-344019@appspot.gserviceaccount.com');
+
       $httpRequest = (new HttpRequest())
+        ->setOidcToken($oidcToken)
         ->setHttpMethod(HttpMethod::POST)
         ->setUrl($callbackUrl)
         ->setHeaders([
