@@ -89,8 +89,6 @@ final class GoogleCloudService {
         ]);
         $this->cloudTasksClient = new CloudTasksClient(
           [
-            'credentials' => $credWrap,
-            'disableRetries' => TRUE,
             'logger' => $this->logger,
           ]
         );
