@@ -11,6 +11,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use Google\Cloud\Core\Exception\GoogleException;
+use Google\Cloud\Core\Exception\NotFoundException;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Firestore\Transaction;
 
@@ -100,6 +101,8 @@ final class FirestoreCloudService {
         ->delete();
 
       $this->logger->info('FireCall deleted successfully: @result', ['@result' => print_r($result, true)]);
+    } catch (NotFoundException $e) {
+      $this->logger->warning('Failed to delete FireCall: @uuid. Firecall not found in firestore. Message: @message', ['@uuid' => $callUuid, '@message' => $e->getMessage()]);
     } catch (Exception $e) {
       $this->logger->error('Failed to delete FireCall: @error', ['@error' => $e->getMessage()]);
       throw $e;
@@ -147,6 +150,8 @@ final class FirestoreCloudService {
       );
 
       $this->logger->info('Successfully updated FireCall: @uuid', ['@uuid' => $call->uuid()]);
+    } catch (NotFoundException $e) {
+      $this->logger->warning('Failed to update FireCall: @uuid. Firecall not found in firestore. Message: @message', ['@uuid' => $call->uuid(), '@message' => $e->getMessage()]);
     } catch (Exception $e) {
       $this->logger->warning('ExceptionClass: ' . get_class($e));
       $this->logger->error('Failed to update FireCall: @error', ['@error' => $e->getMessage()]);
