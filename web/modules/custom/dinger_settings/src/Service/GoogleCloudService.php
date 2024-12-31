@@ -153,6 +153,8 @@ final class GoogleCloudService {
         ->setParent($formattedParent)
         ->setTask($task);
 
+      $this->logger->warning('Request size: ' . $request->byteSize() . ' bytes. Or ' . $request->jsonByteSize() . ' jsonBytes.');
+
       // Use the safe client initialization
       $client = $this->getCloudTasksClient();
       $result = $client->createTask($request);
