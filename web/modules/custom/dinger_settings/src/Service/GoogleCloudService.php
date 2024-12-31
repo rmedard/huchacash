@@ -41,8 +41,6 @@ final class GoogleCloudService {
 
   protected bool $clientInitializing = false;
 
-  private static bool $isRunning = false;
-
   /**
    * Constructs a GoogleCloudService object.
    *
@@ -61,16 +59,7 @@ final class GoogleCloudService {
    * @throws ValidationException
    */
   public function getCloudTasksClient(): CloudTasksClient {
-    static $callDepth = 0; // Static variable to track recursion depth
-    $maxCallDepth = 3; // Prevent excessive recursion
-
     if ($this->cloudTasksClient === null && !$this->clientInitializing) {
-      if ($callDepth >= $maxCallDepth) {
-        $this->logger->error('Maximum call depth reached while initializing CloudTasksClient.');
-        throw new \RuntimeException('Recursive call to getCloudTasksClient detected.');
-      }
-
-      $callDepth++;
       $this->logger->debug('Initializing CloudTasksClient...');
       $this->clientInitializing = true;
 
@@ -84,31 +73,19 @@ final class GoogleCloudService {
 
         $this->logger->info('Loading Google Cloud credentials from: @path', ['@path' => $gcSettingsFileLocation]);
 
-        // Read and decode credentials
-        $credentialsData = file_get_contents($gcSettingsFileLocation);
-        $credentialsArray = json_decode($credentialsData, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-          throw new \RuntimeException('Failed to decode credentials JSON: ' . json_last_error_msg());
-        }
-
         // Initialize CloudTasksClient with credentials
-        $this->cloudTasksClient = new CloudTasksClient(['credentials' => $credentialsArray]);
+        $this->cloudTasksClient = new CloudTasksClient(['credentials' => $gcSettingsFileLocation, 'disableRetries' => TRUE]);
         $this->logger->info('CloudTasksClient initialized successfully.');
       } catch (\Exception $e) {
+        $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
         $this->logger->error('Failed to initialize CloudTasksClient: @error', ['@error' => $e->getMessage()]);
         throw $e;
       } finally {
         $this->clientInitializing = false;
-        $callDepth--; // Decrement call depth after execution
       }
     }
-
     return $this->cloudTasksClient;
   }
-
-
-
 
   /**
    * @param NodeInterface $targetNode
@@ -131,21 +108,10 @@ final class GoogleCloudService {
    * @param NodeInterface $targetNode
    * @param DrupalDateTime $triggerTime
    * @return Task
-   * @throws \RuntimeException
+   * @throws ApiException
+   * @throws ValidationException
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
-    static $isRunning = false;
-
-    // Prevent recursion
-    if ($isRunning) {
-      $this->logger->warning('createGcTask is already running. Aborting to prevent recursion. Node ID: @id', [
-        '@id' => $targetNode->id(),
-      ]);
-      throw new \RuntimeException('Recursive call to createGcTask detected.');
-    }
-
-    $isRunning = true;
-
     try {
       $this->logger->info('Creating GC Task for Node ID: @id', ['@id' => $targetNode->id()]);
 
@@ -194,8 +160,6 @@ final class GoogleCloudService {
         '@message' => $e->getMessage(),
       ]);
       throw $e;
-    } finally {
-      $isRunning = false;
     }
   }
 
