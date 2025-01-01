@@ -48,7 +48,7 @@ final class CreateHuchaGcAction extends HuchaGcAction {
       $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
       $entity->save();
     }
-    catch (EntityStorageException|ValidationException $e) {
+    catch (EntityStorageException $e) {
       $this->logger->error($e);
     }
   }
