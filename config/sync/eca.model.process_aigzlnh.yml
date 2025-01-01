@@ -25,9 +25,10 @@ modeldata: |
         </bpmn2:extensionElements>
         <bpmn2:outgoing>Flow_1vlr97g</bpmn2:outgoing>
       </bpmn2:startEvent>
-      <bpmn2:exclusiveGateway id="Gateway_0jjfwof">
+      <bpmn2:exclusiveGateway id="Gateway_0jjfwof" name="checkCallIsNew">
         <bpmn2:incoming>Flow_1vlr97g</bpmn2:incoming>
         <bpmn2:outgoing>Flow_1pqqlnj</bpmn2:outgoing>
+        <bpmn2:outgoing>Flow_0kcere7</bpmn2:outgoing>
       </bpmn2:exclusiveGateway>
       <bpmn2:sequenceFlow id="Flow_1vlr97g" sourceRef="Event_0fmnvb3" targetRef="Gateway_0jjfwof" />
       <bpmn2:sequenceFlow id="Flow_02te2vv" name="expiryTimeUpdated" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value_changed" sourceRef="Gateway_00b4ycb" targetRef="Activity_15bm887">
@@ -50,7 +51,7 @@ modeldata: |
         <bpmn2:incoming>Flow_0torf28</bpmn2:incoming>
         <bpmn2:outgoing>Flow_02te2vv</bpmn2:outgoing>
       </bpmn2:exclusiveGateway>
-      <bpmn2:sequenceFlow id="Flow_1pqqlnj" name="isNotNew" camunda:modelerTemplate="org.drupal.condition.eca_entity_is_new" sourceRef="Gateway_0jjfwof" targetRef="Activity_1vnjhdq">
+      <bpmn2:sequenceFlow id="Flow_1pqqlnj" name="callIsNotNew" camunda:modelerTemplate="org.drupal.condition.eca_entity_is_new" sourceRef="Gateway_0jjfwof" targetRef="Activity_1vnjhdq">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="eca_entity_is_new" />
@@ -87,6 +88,43 @@ modeldata: |
         <bpmn2:outgoing>Flow_0torf28</bpmn2:outgoing>
       </bpmn2:task>
       <bpmn2:sequenceFlow id="Flow_0torf28" sourceRef="Activity_1vnjhdq" targetRef="Gateway_00b4ycb" />
+      <bpmn2:task id="Activity_1dnrx6t" name="createGcTask" camunda:modelerTemplate="org.drupal.action.create_gc_task_action">
+        <bpmn2:extensionElements>
+          <camunda:field name="object">
+            <camunda:string></camunda:string>
+          </camunda:field>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="create_gc_task_action" />
+          </camunda:properties>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_0kcere7</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_0p05oyn</bpmn2:outgoing>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_0kcere7" name="callIsNew" camunda:modelerTemplate="org.drupal.condition.eca_entity_is_new" sourceRef="Gateway_0jjfwof" targetRef="Activity_1dnrx6t">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_entity_is_new" />
+          </camunda:properties>
+          <camunda:field name="negate">
+            <camunda:string>no</camunda:string>
+          </camunda:field>
+          <camunda:field name="entity">
+            <camunda:string>node</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+      </bpmn2:sequenceFlow>
+      <bpmn2:task id="Activity_081lunz" name="createFireCall" camunda:modelerTemplate="org.drupal.action.dinger_settings_create_firecall_action">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="dinger_settings_create_firecall_action" />
+          </camunda:properties>
+          <camunda:field name="object">
+            <camunda:string>node</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_0p05oyn</bpmn2:incoming>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_0p05oyn" sourceRef="Activity_1dnrx6t" targetRef="Activity_081lunz" />
     </bpmn2:process>
     <bpmndi:BPMNDiagram id="sid-d4d8d274-ec9a-4ded-9a0d-16d6afd66021">
       <bpmndi:BPMNPlane id="sid-6da1faa1-8874-4e52-bb5f-7a9a3758caa5" bpmnElement="Process_aIgzLNh">
@@ -98,17 +136,28 @@ modeldata: |
         </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Gateway_0jjfwof_di" bpmnElement="Gateway_0jjfwof" isMarkerVisible="true">
           <dc:Bounds x="365" y="75" width="50" height="50" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="350" y="51" width="79" height="14" />
+          </bpmndi:BPMNLabel>
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Activity_1vnjhdq_di" bpmnElement="Activity_1vnjhdq">
-          <dc:Bounds x="620" y="60" width="100" height="80" />
-          <bpmndi:BPMNLabel />
+        <bpmndi:BPMNShape id="Gateway_00b4ycb_di" bpmnElement="Gateway_00b4ycb" isMarkerVisible="true">
+          <dc:Bounds x="885" y="165" width="50" height="50" />
         </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Activity_0o5f0pk_di" bpmnElement="Activity_15bm887">
           <dc:Bounds x="860" y="320" width="100" height="80" />
           <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Gateway_00b4ycb_di" bpmnElement="Gateway_00b4ycb" isMarkerVisible="true">
-          <dc:Bounds x="885" y="165" width="50" height="50" />
+        <bpmndi:BPMNShape id="Activity_1vnjhdq_di" bpmnElement="Activity_1vnjhdq">
+          <dc:Bounds x="620" y="60" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_1dnrx6t_di" bpmnElement="Activity_1dnrx6t">
+          <dc:Bounds x="620" y="170" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_081lunz_di" bpmnElement="Activity_081lunz">
+          <dc:Bounds x="620" y="360" width="100" height="80" />
+          <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
         <bpmndi:BPMNEdge id="Flow_1vlr97g_di" bpmnElement="Flow_1vlr97g">
           <di:waypoint x="258" y="100" />
@@ -125,13 +174,25 @@ modeldata: |
           <di:waypoint x="415" y="100" />
           <di:waypoint x="620" y="100" />
           <bpmndi:BPMNLabel>
-            <dc:Bounds x="480" y="108" width="48" height="14" />
+            <dc:Bounds x="472" y="108" width="65" height="14" />
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNEdge>
         <bpmndi:BPMNEdge id="Flow_0torf28_di" bpmnElement="Flow_0torf28">
           <di:waypoint x="720" y="100" />
           <di:waypoint x="910" y="100" />
           <di:waypoint x="910" y="165" />
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_0kcere7_di" bpmnElement="Flow_0kcere7">
+          <di:waypoint x="390" y="125" />
+          <di:waypoint x="390" y="210" />
+          <di:waypoint x="620" y="210" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="382" y="165" width="48" height="14" />
+          </bpmndi:BPMNLabel>
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_0p05oyn_di" bpmnElement="Flow_0p05oyn">
+          <di:waypoint x="670" y="250" />
+          <di:waypoint x="670" y="360" />
         </bpmndi:BPMNEdge>
       </bpmndi:BPMNPlane>
     </bpmndi:BPMNDiagram>

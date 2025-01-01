@@ -34,6 +34,11 @@ conditions:
     configuration:
       negate: true
       entity: node
+  Flow_0kcere7:
+    plugin: eca_entity_is_new
+    configuration:
+      negate: false
+      entity: node
 gateways:
   Gateway_0jjfwof:
     type: 0
@@ -41,6 +46,9 @@ gateways:
       -
         id: Activity_1vnjhdq
         condition: Flow_1pqqlnj
+      -
+        id: Activity_1dnrx6t
+        condition: Flow_0kcere7
   Gateway_00b4ycb:
     type: 0
     successors:
@@ -63,3 +71,18 @@ actions:
       -
         id: Gateway_00b4ycb
         condition: ''
+  Activity_1dnrx6t:
+    plugin: create_gc_task_action
+    label: createGcTask
+    configuration:
+      object: ''
+    successors:
+      -
+        id: Activity_081lunz
+        condition: ''
+  Activity_081lunz:
+    plugin: dinger_settings_create_firecall_action
+    label: createFireCall
+    configuration:
+      object: node
+    successors: {  }

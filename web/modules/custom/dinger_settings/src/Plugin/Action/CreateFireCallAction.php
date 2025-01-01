@@ -14,6 +14,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\node\NodeInterface;
+use Google\Cloud\Core\Exception\GoogleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -55,6 +56,9 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
 
+  /**
+   * @throws GoogleException
+   */
   public function execute(NodeInterface $call = NULL): void {
 
     /** Create fireCall **/
