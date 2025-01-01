@@ -34,6 +34,11 @@ conditions:
       negate: false
       field_name: field_order_delivery_time
       entity: node
+  Flow_085tiz9:
+    plugin: eca_entity_is_new
+    configuration:
+      negate: true
+      entity: node
 gateways:
   Gateway_1nqduuz:
     type: 0
@@ -41,6 +46,9 @@ gateways:
       -
         id: Gateway_1p18cn5
         condition: Flow_0pkomif
+      -
+        id: Activity_15bm887
+        condition: Flow_085tiz9
   Gateway_1p18cn5:
     type: 0
     successors:
@@ -49,7 +57,7 @@ gateways:
         condition: Flow_026tn95
 actions:
   Activity_15bm887:
-    plugin: dinger_settings_create_gc_action
+    plugin: update_gc_task_action
     label: createGCTask
     configuration:
       object: node
