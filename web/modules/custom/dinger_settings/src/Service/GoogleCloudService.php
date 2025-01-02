@@ -10,9 +10,8 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
-use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
+use Drupal\dinger_settings\Plugin\Action\HuchaGcAction;
 use Drupal\node\NodeInterface;
-use Exception;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\CredentialsWrapper;
 use Google\ApiCore\ValidationException;
@@ -74,12 +73,10 @@ final class GoogleCloudService {
 
         // Validate the file path
         if (!file_exists($gcSettingsFileLocation) || !is_readable($gcSettingsFileLocation)) {
-          throw new \RuntimeException("The Google Cloud credentials file is missing or unreadable at: {$gcSettingsFileLocation}");
+          throw new \RuntimeException("The Google Cloud credentials file is missing or unreadable at: $gcSettingsFileLocation");
         }
 
         // Initialize CloudTasksClient with credentials
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $gcSettingsFileLocation);
-        $serviceAccCred = new ServiceAccountCredentials('cloud-platform', $gcSettingsFileLocation);
         $credWrap = CredentialsWrapper::build([
           'keyFile' => $gcSettingsFileLocation,
           'authHttpHandler' => function ($request, $options) {
@@ -115,10 +112,12 @@ final class GoogleCloudService {
    * @param DrupalDateTime $triggerTime
    *
    * @return Task|null
+   * @throws ApiException
+   * @throws ValidationException
    */
   public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
     if ($this->isEligible($targetNode, $triggerTime)) {
-      $taskName = trim($targetNode->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
+      $taskName = trim($targetNode->get(HuchaGcAction::GC_TASK_FIELD_NAME)->getString());
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
@@ -215,7 +214,7 @@ final class GoogleCloudService {
   }
 
   private function isEligible(NodeInterface $targetNode, DrupalDateTime $triggerTime): bool {
-    if (!$targetNode->hasField(CreateGcAction::GC_TASK_FIELD_NAME)) {
+    if (!$targetNode->hasField(HuchaGcAction::GC_TASK_FIELD_NAME)) {
       return FALSE;
     }
 
