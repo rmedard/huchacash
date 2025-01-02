@@ -90,12 +90,12 @@ modeldata: |
       <bpmn2:sequenceFlow id="Flow_0torf28" sourceRef="Activity_1vnjhdq" targetRef="Gateway_00b4ycb" />
       <bpmn2:task id="Activity_1dnrx6t" name="createGcTask" camunda:modelerTemplate="org.drupal.action.create_gc_task_action">
         <bpmn2:extensionElements>
-          <camunda:field name="object">
-            <camunda:string></camunda:string>
-          </camunda:field>
           <camunda:properties>
             <camunda:property name="pluginid" value="create_gc_task_action" />
           </camunda:properties>
+          <camunda:field name="object">
+            <camunda:string>node</camunda:string>
+          </camunda:field>
         </bpmn2:extensionElements>
         <bpmn2:incoming>Flow_0kcere7</bpmn2:incoming>
         <bpmn2:outgoing>Flow_0p05oyn</bpmn2:outgoing>
