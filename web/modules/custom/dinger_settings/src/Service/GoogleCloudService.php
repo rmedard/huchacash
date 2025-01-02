@@ -84,17 +84,16 @@ final class GoogleCloudService {
             return new \GuzzleHttp\Psr7\Response(200, [], 'OK');
           }
         ]);
-        $this->cloudTasksClient = new CloudTasksClient(
-          [
-            'logger' => $this->logger,
-          ]
-        );
 //        $this->cloudTasksClient = new CloudTasksClient(
 //          [
-//            'credentials' => $gcSettingsFileLocation,
-//            'disableRetries' => TRUE,
 //            'logger' => $this->logger,
-//          ]);
+//          ]
+//        );
+        $this->cloudTasksClient = new CloudTasksClient(
+          [
+            'credentials' => $gcSettingsFileLocation,
+            'logger' => $this->logger,
+          ]);
         $this->logger->info('CloudTasksClient initialized successfully.');
       } catch (\Exception $e) {
         $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
