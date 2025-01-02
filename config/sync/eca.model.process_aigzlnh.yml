@@ -47,7 +47,7 @@ modeldata: |
           </camunda:field>
         </bpmn2:extensionElements>
       </bpmn2:sequenceFlow>
-      <bpmn2:exclusiveGateway id="Gateway_00b4ycb">
+      <bpmn2:exclusiveGateway id="Gateway_00b4ycb" name="checkExpiryTimeUpdated">
         <bpmn2:incoming>Flow_0torf28</bpmn2:incoming>
         <bpmn2:outgoing>Flow_02te2vv</bpmn2:outgoing>
       </bpmn2:exclusiveGateway>
@@ -142,6 +142,9 @@ modeldata: |
         </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Gateway_00b4ycb_di" bpmnElement="Gateway_00b4ycb" isMarkerVisible="true">
           <dc:Bounds x="885" y="165" width="50" height="50" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="790" y="180" width="84" height="27" />
+          </bpmndi:BPMNLabel>
         </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Activity_0o5f0pk_di" bpmnElement="Activity_15bm887">
           <dc:Bounds x="860" y="320" width="100" height="80" />
