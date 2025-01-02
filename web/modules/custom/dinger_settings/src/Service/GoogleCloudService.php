@@ -91,7 +91,7 @@ final class GoogleCloudService {
 //        );
         $this->cloudTasksClient = new CloudTasksClient(
           [
-            'credentials' => $gcSettingsFileLocation,
+            'credentials' => $credWrap,
             'logger' => $this->logger,
           ]);
         $this->logger->info('CloudTasksClient initialized successfully.');
@@ -141,7 +141,7 @@ final class GoogleCloudService {
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     try {
-      $this->logger->info('Creating GC Task for Node ID: @id', ['@id' => $targetNode->id()]);
+      $this->logger->info('Creating GC Task for Node ID: @id', ['@id' => $targetNode->uuid()]);
 
       $config = $this->configFactory->get('dinger_settings');
       $projectId = $config->get('gc_tasks_project_id');
