@@ -75,7 +75,7 @@ actions:
     plugin: create_gc_task_action
     label: createGcTask
     configuration:
-      object: ''
+      object: node
     successors:
       -
         id: Activity_081lunz
