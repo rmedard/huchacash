@@ -37,7 +37,7 @@ conditions:
   Flow_085tiz9:
     plugin: eca_entity_is_new
     configuration:
-      negate: true
+      negate: false
       entity: node
 gateways:
   Gateway_1nqduuz:
