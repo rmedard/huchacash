@@ -45,7 +45,7 @@ final class CreateHuchaGcAction extends HuchaGcAction {
      * Update entity with created Task name
      */
     try {
-      $expirationTask = $this->googleCloudService->upsertNodeExpirationTask($entity, $this->getTriggerTime($entity));
+      $expirationTask = $this->googleCloudService->createNodeExpirationTask($entity, $this->getTriggerTime($entity));
       $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
       $entity->save();
     }

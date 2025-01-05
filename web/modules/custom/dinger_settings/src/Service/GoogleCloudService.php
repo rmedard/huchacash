@@ -102,14 +102,23 @@ final class GoogleCloudService {
   }
 
   /**
-   * @param NodeInterface $targetNode
-   * @param DrupalDateTime $triggerTime
-   *
-   * @return Task|null
-   * @throws ApiException
    * @throws ValidationException
+   * @throws ApiException
    */
-  public function upsertNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task {
+  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
+  {
+    if ($this->isEligible($targetNode, $triggerTime)) {
+      return $this->createGcTask($targetNode, $triggerTime);
+    }
+    return null;
+  }
+
+  /**
+   * @throws ValidationException
+   * @throws ApiException
+   */
+  public function updateNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
+  {
     if ($this->isEligible($targetNode, $triggerTime)) {
       $taskName = trim($targetNode->get(HuchaGcAction::GC_TASK_FIELD_NAME)->getString());
       $this->deleteGcTask($taskName);
@@ -117,7 +126,6 @@ final class GoogleCloudService {
     }
     return null;
   }
-
 
   function myAuthCallable(RequestInterface $request, array $options) : ResponseInterface {
     Drupal::logger('Callable')->debug('Callable triggered: ' . $request->getBody());
