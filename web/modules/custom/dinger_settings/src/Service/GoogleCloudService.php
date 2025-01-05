@@ -84,11 +84,6 @@ final class GoogleCloudService {
             return new \GuzzleHttp\Psr7\Response(200, [], 'OK');
           }
         ]);
-//        $this->cloudTasksClient = new CloudTasksClient(
-//          [
-//            'logger' => $this->logger,
-//          ]
-//        );
         $this->cloudTasksClient = new CloudTasksClient(
           [
             'credentials' => $credWrap,
@@ -141,7 +136,7 @@ final class GoogleCloudService {
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
     try {
-      $this->logger->info('Creating GC Task for Node ID: @id', ['@id' => $targetNode->uuid()]);
+      $this->logger->info('Creating GC Task for Node (@type) ID: @id', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
 
       $config = $this->configFactory->get('dinger_settings');
       $projectId = $config->get('gc_tasks_project_id');
