@@ -8,6 +8,8 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\GoogleCloudService;
 use Drupal\node\NodeInterface;
+use Google\ApiCore\ApiException;
+use Google\ApiCore\ValidationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -38,13 +40,21 @@ final class UpdateHuchaGcAction extends HuchaGcAction {
     );
   }
 
+  /**
+   * @throws ValidationException
+   * @throws ApiException
+   */
   public function execute(NodeInterface $entity = NULL): void {
 
     /**
      * Update entity with created Task name
      */
     $expirationTask = $this->googleCloudService->upsertNodeExpirationTask($entity, $this->getTriggerTime($entity));
-    $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+    if ($expirationTask) {
+      $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+    } else {
+      $this->logger->error('The update huchaGcTask operation has failed.');
+    }
   }
 
 }
