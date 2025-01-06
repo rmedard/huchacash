@@ -146,8 +146,7 @@ final class FirestoreCloudService {
       $this->getFirestoreClient()->runTransaction(
         function (Transaction $transaction) use ($callReference, $updates) {
           $transaction->update($callReference, $updates);
-        },
-        ['maxRetries' => 3]
+        }
       );
 
       $this->logger->info('Successfully updated FireCall: @uuid', ['@uuid' => $call->uuid()]);
@@ -175,6 +174,7 @@ final class FirestoreCloudService {
      */
     $initialExpirationTime = $originalCall->get('field_call_expiry_time')->date;
     $currentExpirationTime = $call->get('field_call_expiry_time')->date;
+    $this->logger->info('InitialExpiry: @initial | CurrentExpiry: @currentExpiry', ['@initial' => $initialExpirationTime->format('Y-m-d H:i:s'), '@currentExpiry' => $currentExpirationTime->format('Y-m-d H:i:s')]);
     if ($initialExpirationTime->diff($currentExpirationTime, true)->f > 0) {
       $updates[] = [
         'path' => 'expiration_time',
