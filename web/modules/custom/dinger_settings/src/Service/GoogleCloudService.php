@@ -20,7 +20,6 @@ use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\DeleteTaskRequest;
 use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
-use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
 use RuntimeException;
@@ -138,17 +137,9 @@ final class GoogleCloudService {
 
       $formattedParent = CloudTasksClient::queueName($projectId, $location, $queue);
 
-      $scheduleTime = new Timestamp();
-      $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
-
       $callbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callbackToken;
 
-
-      $oidcToken = new OidcToken();
-      $oidcToken->setServiceAccountEmail('dinger-cash-344019@appspot.gserviceaccount.com');
-
       $httpRequest = (new HttpRequest())
-        ->setOidcToken($oidcToken)
         ->setHttpMethod(HttpMethod::POST)
         ->setUrl($callbackUrl)
         ->setHeaders([
@@ -158,6 +149,9 @@ final class GoogleCloudService {
           'uuid' => $targetNode->uuid(),
           'type' => $targetNode->bundle(),
         ]));
+
+      $scheduleTime = new Timestamp();
+      $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
       $task = (new Task())
         ->setScheduleTime($scheduleTime)
