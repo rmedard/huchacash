@@ -113,6 +113,7 @@ final class GoogleCloudService {
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
+    $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
     return null;
   }
 
