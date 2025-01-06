@@ -9,7 +9,6 @@ use Drupal\Core\Action\ActionBase;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\dinger_settings\Service\GoogleCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -17,16 +16,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 abstract class HuchaGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   const string GC_TASK_FIELD_NAME = 'field_gc_task_name';
-
-  /**
-   * @var GoogleCloudService
-   */
-  public GoogleCloudService $googleCloudService;
-
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, GoogleCloudService $googleCloudService) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->googleCloudService = $googleCloudService;
-  }
 
   /**
    * @inheritDoc
