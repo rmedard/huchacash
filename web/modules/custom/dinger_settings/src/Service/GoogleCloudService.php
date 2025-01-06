@@ -10,10 +10,10 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
-use Drupal\dinger_settings\Plugin\Action\UpdateHuchaGcAction;
+use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
 use Drupal\node\NodeInterface;
+use Exception;
 use Google\ApiCore\ApiException;
-use Google\ApiCore\CredentialsWrapper;
 use Google\ApiCore\ValidationException;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
 use Google\Cloud\Tasks\V2\CreateTaskRequest;
@@ -23,9 +23,7 @@ use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
-use GuzzleHttp\Psr7\Response;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 /**
  * Google Cloud Services
@@ -72,24 +70,16 @@ final class GoogleCloudService {
 
         // Validate the file path
         if (!file_exists($gcSettingsFileLocation) || !is_readable($gcSettingsFileLocation)) {
-          throw new \RuntimeException("The Google Cloud credentials file is missing or unreadable at: $gcSettingsFileLocation");
+          throw new RuntimeException("The Google Cloud credentials file is missing or unreadable at: $gcSettingsFileLocation");
         }
 
-        // Initialize CloudTasksClient with credentials
-        $credWrap = CredentialsWrapper::build([
-          'keyFile' => $gcSettingsFileLocation,
-          'authHttpHandler' => function ($request, $options) {
-            $this->logger->debug('Callable triggered...');
-            return new \GuzzleHttp\Psr7\Response(200, [], 'OK');
-          }
-        ]);
         $this->cloudTasksClient = new CloudTasksClient(
           [
-            'credentials' => $credWrap,
+            'credentials' => $gcSettingsFileLocation,
             'logger' => $this->logger,
           ]);
         $this->logger->info('CloudTasksClient initialized successfully.');
-      } catch (\Exception $e) {
+      } catch (Exception $e) {
         $this->logger->warning('Failed to create GC client => Class: ' . get_class($e));
         $this->logger->error('Failed to initialize CloudTasksClient: @error', ['@error' => $e->getMessage()]);
         throw $e;
@@ -119,18 +109,12 @@ final class GoogleCloudService {
   public function updateNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
   {
     if ($this->isEligible($targetNode, $triggerTime)) {
-      $taskName = trim($targetNode->get(UpdateHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+      $taskName = trim($targetNode->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
     return null;
   }
-
-  function myAuthCallable(RequestInterface $request, array $options) : ResponseInterface {
-    Drupal::logger('Callable')->debug('Callable triggered: ' . $request->getBody());
-    return new Response();
-  }
-
 
   /**
    * Create a Google Cloud Task.
@@ -189,7 +173,7 @@ final class GoogleCloudService {
       $this->logger->info('Task successfully created for Node ID: @id', ['@id' => $targetNode->uuid()]);
 
       return $result;
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       $this->logger->error('Error creating GC Task for Node ID @id: @message', [
         '@id' => $targetNode->id(),
         '@message' => $e->getMessage(),
@@ -215,7 +199,7 @@ final class GoogleCloudService {
   }
 
   private function isEligible(NodeInterface $targetNode, DrupalDateTime $triggerTime): bool {
-    if (!$targetNode->hasField(UpdateHuchaGcAction::GC_TASK_FIELD_NAME)) {
+    if (!$targetNode->hasField(BaseHuchaGcAction::GC_TASK_FIELD_NAME)) {
       return FALSE;
     }
 
