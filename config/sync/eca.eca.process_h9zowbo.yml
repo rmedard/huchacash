@@ -47,7 +47,7 @@ gateways:
         id: Gateway_1p18cn5
         condition: Flow_0pkomif
       -
-        id: Activity_15bm887
+        id: Activity_1qmpu63
         condition: Flow_085tiz9
   Gateway_1p18cn5:
     type: 0
@@ -58,7 +58,13 @@ gateways:
 actions:
   Activity_15bm887:
     plugin: update_gc_task_action
-    label: createGCTask
+    label: updateGCTask
+    configuration:
+      object: node
+    successors: {  }
+  Activity_1qmpu63:
+    plugin: create_gc_task_action
+    label: createGcTask
     configuration:
       object: node
     successors: {  }
