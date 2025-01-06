@@ -10,12 +10,11 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
-use Drupal\dinger_settings\Plugin\Action\HuchaGcAction;
+use Drupal\dinger_settings\Plugin\Action\UpdateHuchaGcAction;
 use Drupal\node\NodeInterface;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\CredentialsWrapper;
 use Google\ApiCore\ValidationException;
-use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
 use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\DeleteTaskRequest;
@@ -120,7 +119,7 @@ final class GoogleCloudService {
   public function updateNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
   {
     if ($this->isEligible($targetNode, $triggerTime)) {
-      $taskName = trim($targetNode->get(HuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+      $taskName = trim($targetNode->get(UpdateHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
