@@ -175,7 +175,7 @@ final class FirestoreCloudService {
     $initialExpirationTime = $originalCall->get('field_call_expiry_time')->date;
     $currentExpirationTime = $call->get('field_call_expiry_time')->date;
     $this->logger->info('InitialExpiry: @initial | CurrentExpiry: @currentExpiry', ['@initial' => $initialExpirationTime->format('Y-m-d H:i:s'), '@currentExpiry' => $currentExpirationTime->format('Y-m-d H:i:s')]);
-    if ($initialExpirationTime < $currentExpirationTime) {
+    if ($initialExpirationTime->getTimestamp() !== $currentExpirationTime->getTimestamp() && $currentExpirationTime > new DrupalDateTime()) {
       $updates[] = [
         'path' => 'expiration_time',
         'value' => UtilsService::dateTimeToGcTimestamp($currentExpirationTime)
