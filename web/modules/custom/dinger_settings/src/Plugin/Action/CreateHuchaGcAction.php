@@ -62,10 +62,13 @@ final class CreateHuchaGcAction extends ActionBase implements ContainerFactoryPl
      */
     try {
       $expirationTask = $this->googleCloudService->createNodeExpirationTask($entity, $this->getTriggerTime($entity));
-      $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
-      $entity->save();
+      if ($expirationTask) {
+        $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+      } else {
+        $this->logger->error('Create HuchaGc Task failed.');
+      }
     }
-    catch (EntityStorageException|ApiException|ValidationException $e) {
+    catch (ApiException|ValidationException $e) {
       $this->logger->error($e);
     }
   }

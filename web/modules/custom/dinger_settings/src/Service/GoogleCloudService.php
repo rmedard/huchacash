@@ -186,7 +186,7 @@ final class GoogleCloudService {
       $client = $this->getCloudTasksClient();
       $result = $client->createTask($request);
 
-      $this->logger->info('Task successfully created for Node ID: @id', ['@id' => $targetNode->id()]);
+      $this->logger->info('Task successfully created for Node ID: @id', ['@id' => $targetNode->uuid()]);
 
       return $result;
     } catch (\Exception $e) {
