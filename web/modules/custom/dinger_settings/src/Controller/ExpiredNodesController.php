@@ -12,6 +12,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
+use Google\Cloud\Core\Exception\GoogleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,9 +43,9 @@ final class ExpiredNodesController extends ControllerBase
     $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
   }
 
-  public static function create(ContainerInterface $container): StripeController|static
+  public static function create(ContainerInterface $container): ExpiredNodesController
   {
-    return new static(
+    return new ExpiredNodesController(
       $container->get('logger.factory')
     );
   }
@@ -91,7 +92,7 @@ final class ExpiredNodesController extends ControllerBase
             $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
             $firestoreCloudService->deleteFireCall($node->uuid());
 
-          } catch (EntityStorageException $e) {
+          } catch (EntityStorageException|GoogleException $e) {
             $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
           }
         }
