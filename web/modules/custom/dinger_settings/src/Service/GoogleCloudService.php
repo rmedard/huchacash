@@ -215,7 +215,7 @@ final class GoogleCloudService {
   }
 
   private function isEligible(NodeInterface $targetNode, DrupalDateTime $triggerTime): bool {
-    if (!$targetNode->hasField(HuchaGcAction::GC_TASK_FIELD_NAME)) {
+    if (!$targetNode->hasField(UpdateHuchaGcAction::GC_TASK_FIELD_NAME)) {
       return FALSE;
     }
 
