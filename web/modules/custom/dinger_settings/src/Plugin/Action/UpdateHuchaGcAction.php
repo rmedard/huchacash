@@ -25,9 +25,15 @@ final class UpdateHuchaGcAction extends HuchaGcAction {
    */
   protected LoggerChannelInterface $logger;
 
+  /**
+   * @var GoogleCloudService
+   */
+  public GoogleCloudService $googleCloudService;
+
   public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $loggerFactory, GoogleCloudService $googleCloudService) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $googleCloudService);
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerFactory->get('UpdateHuchaGcAction');
+    $this->googleCloudService = $googleCloudService;
   }
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): UpdateHuchaGcAction {
