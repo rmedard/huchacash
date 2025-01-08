@@ -13,13 +13,6 @@ title: 'Bug Reporting'
 description: ''
 categories: {  }
 elements: |-
-  reporter:
-    '#type': entity_autocomplete
-    '#title': Reporter
-    '#access_create_roles':
-      - administrator
-    '#target_type': node
-    '#selection_handler': eca
   bug_description:
     '#type': textarea
     '#title': 'Bug Description'
@@ -27,6 +20,7 @@ elements: |-
     '#type': webform_image_file
     '#title': Screenshots
     '#multiple': true
+    '#max_filesize': '5'
     '#sanitize': true
 css: ''
 javascript: ''
