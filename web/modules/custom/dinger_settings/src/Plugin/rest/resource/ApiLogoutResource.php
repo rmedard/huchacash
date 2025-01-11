@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\dinger_settings\Plugin\rest\resource;
 
-use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\rest\Attribute\RestResource;
@@ -56,6 +56,8 @@ final class ApiLogoutResource extends ResourceBase {
    */
   protected AccountProxyInterface $loggedUser;
 
+  protected EntityTypeManagerInterface $entityTypeManager;
+
   /**
    * {@inheritdoc}
    */
@@ -64,9 +66,11 @@ final class ApiLogoutResource extends ResourceBase {
     $plugin_id,
     $plugin_definition,
     LoggerInterface $logger,
+    EntityTypeManagerInterface $entityTypeManager,
     AccountProxyInterface $loggedUser
   ) {
     $this->loggedUser = $loggedUser;
+    $this->entityTypeManager = $entityTypeManager;
     parent::__construct($configuration, $plugin_id, $plugin_definition, [], $logger);
   }
 
@@ -79,6 +83,7 @@ final class ApiLogoutResource extends ResourceBase {
       $plugin_id,
       $plugin_definition,
       $container->get('logger.factory')->get('rest'),
+      $container->get('entity_type.manager'),
       $container->get('current_user')
     );
   }
@@ -91,14 +96,14 @@ final class ApiLogoutResource extends ResourceBase {
     $this->logger->info('Logout resource triggered. User logged-in: ' . $this->loggedUser->isAuthenticated());
     if ($this->loggedUser->isAuthenticated()) {
       try {
-        $tokenEntityStorage = Drupal::entityTypeManager()->getStorage('oauth2_token');
+        $tokenEntityStorage = $this->entityTypeManager->getStorage('oauth2_token');
         $userTokenIds = $tokenEntityStorage->getQuery()
           ->accessCheck(false)
           ->condition('auth_user_id', $this->loggedUser->id())
           ->execute();
         if (count($userTokenIds) > 0) {
           $userTokens = $tokenEntityStorage->loadMultiple($userTokenIds);
-          foreach ($userTokens as $tokenId => $token) {
+          foreach ($userTokens as $token) {
             $token->delete();
           }
           $this->logger->info('Logout successful');
