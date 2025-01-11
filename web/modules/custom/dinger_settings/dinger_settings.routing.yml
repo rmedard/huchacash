@@ -34,11 +34,3 @@ dinger_settings.social_auth_capture:
     _title: 'Social auth Controller'
   requirements:
     _custom_access: '\Drupal\dinger_settings\Controller\SocialAuthController::authorize'
-
-dinger_settings.customer_logout:
-  path: 'customer-logout'
-  defaults:
-    _title: 'Customer Logout'
-    _controller: '\Drupal\dinger_settings\Controller\CustomerLogout'
-  requirements:
-    _user_is_logged_in: 'true'
