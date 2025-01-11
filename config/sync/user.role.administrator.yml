@@ -11,8 +11,8 @@ label: Administrator
 weight: 3
 is_admin: true
 permissions:
-  - 'create field_tx_bank_account'
-  - 'edit field_tx_bank_account'
-  - 'edit own field_tx_bank_account'
-  - 'view field_tx_bank_account'
-  - 'view own field_tx_bank_account'
+  - 'create field_call_order_confirm_nbr'
+  - 'edit field_call_order_confirm_nbr'
+  - 'edit own field_call_order_confirm_nbr'
+  - 'view field_call_order_confirm_nbr'
+  - 'view own field_call_order_confirm_nbr'
