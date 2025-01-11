@@ -3,6 +3,8 @@
 namespace Drupal\dinger_settings\Controller;
 
 use Drupal;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageException;
@@ -47,16 +49,20 @@ final class StripeController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('token');
+    $this->secret = $this->configFactory->get('dinger_settings')->get('token');
   }
 
-  public static function create(ContainerInterface $container): StripeController|static
+  public static function create(ContainerInterface $container): StripeController
   {
-    return new static(
+    return new StripeController(
       $container->get('logger.factory')
     );
   }
 
+  /**
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
+   */
   public function capture(Request $request): Response
   {
     // Keep things fast.
@@ -114,7 +120,8 @@ final class StripeController extends ControllerBase
           $paymentIntent = $event->data->jsonSerialize()['object'];
           $customerUuid = $paymentIntent['metadata']['customer_business_id'];
           $amount = doubleval($paymentIntent['amount']) / 100;
-          $customer = Drupal::service('entity.repository')->loadEntityByUuid('node', $customerUuid);
+          $customers = $this->entityTypeManager()->getStorage('node')->loadByProperties(['uuid' => $customerUuid]);
+          $customer = current(reset($customers));
           if ($customer instanceof NodeInterface) {
             try {
               Node::create([

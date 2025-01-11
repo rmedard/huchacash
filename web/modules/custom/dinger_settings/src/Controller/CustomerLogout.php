@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\dinger_settings\Controller;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -50,7 +53,7 @@ final class CustomerLogout extends ControllerBase {
     return new self(
       $container->get('current_user'),
       $container->get('session_manager'),
-      $container->get('logger.factory'),
+      $container->get('logger.factory')
     );
   }
 
@@ -63,7 +66,16 @@ final class CustomerLogout extends ControllerBase {
   public function __invoke(): ResourceResponse
   {
     if (!$this->currentUser->isAnonymous()) {
-      $this->sessionManager->destroy();
+      if ($this->sessionManager->isStarted()) {
+        $this->sessionManager->destroy();
+      }
+      try {
+        $oauthTokenStorage = $this->entityTypeManager()->getStorage('oauth2_token');
+        $oauthTokens = $oauthTokenStorage->getQuery()->condition('auth_user_id', $this->currentUser->id())->execute();
+        $oauthTokenStorage->delete($oauthTokens);
+      } catch (InvalidPluginDefinitionException|PluginNotFoundException|EntityStorageException $e) {
+        $this->logger->error($e->getMessage());
+      }
       $response = new ResourceResponse();
       $response->setStatusCode(Response::HTTP_OK);
       $response->setContent('You have been successfully logged out.');

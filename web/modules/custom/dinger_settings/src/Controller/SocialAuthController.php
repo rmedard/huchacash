@@ -12,6 +12,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,18 +47,18 @@ final class SocialAuthController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
+    $this->secret = $this->configFactory->get('dinger_settings')->get('callback_token');
   }
 
-  public static function create(ContainerInterface $container): StripeController|static
+  public static function create(ContainerInterface $container): SocialAuthController
   {
-    return new static(
+    return new SocialAuthController(
       $container->get('logger.factory')
     );
   }
 
   /**
-   * @throws EntityStorageException
+   * @throws EntityStorageException|GuzzleException
    */
   public function capture(Request $request): Response
   {
@@ -125,13 +126,16 @@ final class SocialAuthController extends ControllerBase
     return AccessResult::forbidden();
   }
 
+  /**
+   * @throws GuzzleException
+   */
   private function verifyGoogleSignInToken($token): array
   {
-    $url = Drupal::service('config.factory')->get('dinger_settings')->get('google_token_verification_url');
+    $url = $this->configFactory->get('dinger_settings')->get('google_token_verification_url');
     $response = Drupal::httpClient()->get($url, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
     if ($response->getStatusCode() == Response::HTTP_OK) {
       $this->logger->info('Google Sign In token verified successfully');
-      $data = (array) Json::decode($response->getBody());
+      $data = (array)Json::decode($response->getBody());
       return [
         'sub' => $data['sub'],
         'name' => $data['name'],

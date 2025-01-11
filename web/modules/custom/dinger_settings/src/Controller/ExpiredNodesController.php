@@ -3,6 +3,8 @@
 namespace Drupal\dinger_settings\Controller;
 
 use Drupal;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
@@ -40,7 +42,7 @@ final class ExpiredNodesController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger)
   {
     $this->logger = $logger->get('ExpiredNodesController');
-    $this->secret = Drupal::service('config.factory')->get('dinger_settings')->get('callback_token');
+    $this->secret = $this->configFactory->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): ExpiredNodesController
@@ -50,6 +52,10 @@ final class ExpiredNodesController extends ControllerBase
     );
   }
 
+  /**
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
+   */
   public function capture(Request $request): Response {
     $response = new Response();
     $payload = $request->getContent();
@@ -72,7 +78,8 @@ final class ExpiredNodesController extends ControllerBase
       return $response;
     }
 
-    $node = Drupal::service('entity.repository')->loadEntityByUuid('node', $uuid);
+    $entities = $this->entityTypeManager->getStorage('node')->loadByProperties(['uuid' => $uuid]);
+    $node = current(reset($entities));
     if ($node === null or !$node instanceof NodeInterface) {
       $response->setContent($this->t('Node @id not found!', ['@id' => $uuid]));
       $response->setStatusCode(Response::HTTP_NOT_FOUND);
