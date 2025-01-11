@@ -71,7 +71,10 @@ final class CustomerLogout extends ControllerBase {
       }
       try {
         $oauthTokenStorage = $this->entityTypeManager()->getStorage('oauth2_token');
-        $oauthTokens = $oauthTokenStorage->getQuery()->condition('auth_user_id', $this->currentUser->id())->execute();
+        $oauthTokens = $oauthTokenStorage->getQuery()
+          ->accessCheck(false)
+          ->condition('auth_user_id', $this->currentUser->id())
+          ->execute();
         $oauthTokenStorage->delete($oauthTokens);
       } catch (InvalidPluginDefinitionException|PluginNotFoundException|EntityStorageException $e) {
         $this->logger->error($e->getMessage());
