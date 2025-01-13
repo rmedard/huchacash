@@ -47,7 +47,7 @@ final class SocialAuthController extends ControllerBase
 
   public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
-    $this->logger = $logger->get('dinger_settings');
+    $this->logger = $logger->get('SocialAuthController');
     $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
   }
 
