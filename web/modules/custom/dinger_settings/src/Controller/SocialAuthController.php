@@ -5,6 +5,7 @@ namespace Drupal\dinger_settings\Controller;
 use Drupal;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -44,16 +45,17 @@ final class SocialAuthController extends ControllerBase
    */
   protected string $secret;
 
-  public function __construct(LoggerChannelFactory $logger)
+  public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = $this->configFactory->get('dinger_settings')->get('callback_token');
+    $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): SocialAuthController
   {
     return new SocialAuthController(
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('config.factory')
     );
   }
 

@@ -43,7 +43,7 @@ final class ExpiredNodesController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
     $this->logger = $logger->get('ExpiredNodesController');
-    $this->secret = $configFactory->get('dinger_settings')->get('token');
+    $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): ExpiredNodesController
@@ -81,7 +81,7 @@ final class ExpiredNodesController extends ControllerBase
     }
 
     $entities = $this->entityTypeManager->getStorage('node')->loadByProperties(['uuid' => $uuid]);
-    $node = current(reset($entities));
+    $node = reset($entities);
     if ($node === null or !$node instanceof NodeInterface) {
       $response->setContent($this->t('Node @id not found!', ['@id' => $uuid]));
       $response->setStatusCode(Response::HTTP_NOT_FOUND);
