@@ -50,7 +50,7 @@ final class StripeController extends ControllerBase
   public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = $configFactory->get('dinger_settings')->get('token');
+    $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
   }
 
   public static function create(ContainerInterface $container): StripeController
@@ -123,7 +123,7 @@ final class StripeController extends ControllerBase
           $customerUuid = $paymentIntent['metadata']['customer_business_id'];
           $amount = doubleval($paymentIntent['amount']) / 100;
           $customers = $this->entityTypeManager()->getStorage('node')->loadByProperties(['uuid' => $customerUuid]);
-          $customer = current(reset($customers));
+          $customer = reset($customers);
           if ($customer instanceof NodeInterface) {
             try {
               Node::create([
