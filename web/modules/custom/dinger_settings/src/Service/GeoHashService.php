@@ -19,7 +19,7 @@ final class GeoHashService {
    */
   public function __construct(LoggerChannelFactory $logger)
   {
-    $this->logger = $logger->get('firestore_service');
+    $this->logger = $logger->get('GeoHashService');
   }
 
   // Default geohash length

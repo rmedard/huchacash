@@ -8,8 +8,9 @@ use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
-use Drupal\dinger_settings\Plugin\Action\CreateGcAction;
+use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
 use Drupal\node\Entity\Node;
+use Google\Cloud\Core\Exception\GoogleException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class OrdersService
@@ -20,7 +21,7 @@ final class OrdersService
    * @param LoggerChannelFactory $logger
    */
   public function __construct(LoggerChannelFactory $logger) {
-    $this->logger = $logger->get('orders_service');
+    $this->logger = $logger->get('OrdersService');
   }
 
   public function isActive(Node $order): bool {
@@ -35,6 +36,9 @@ final class OrdersService
     return false;
   }
 
+  /**
+   * @throws GoogleException
+   */
   public function onOrderUpdated(Node $order): void {
     if ($order->isNew()) {
       throw new BadRequestHttpException('Order has invalid state. Should not be new.');
@@ -60,8 +64,8 @@ final class OrdersService
 
         /** @var GoogleCloudService $googleCloudService **/
         $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
-        $googleCloudService->deleteGcTask($attributedCall->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
-        $googleCloudService->deleteGcTask($order->get(CreateGcAction::GC_TASK_FIELD_NAME)->getString());
+        $googleCloudService->deleteGcTask($attributedCall->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+        $googleCloudService->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
       }
     }
   }

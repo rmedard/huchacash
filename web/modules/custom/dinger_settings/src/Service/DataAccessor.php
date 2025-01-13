@@ -31,7 +31,7 @@ final class DataAccessor
   public function __construct(EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactory $logger)
   {
     $this->entityTypeManager = $entityTypeManager;
-    $this->logger = $logger->get('dinger_settings_data');
+    $this->logger = $logger->get('DataAccessor');
   }
 
   public function getOrdersExpiringInHours(int $hours = 0, $orderStatus = 'any'): array {
