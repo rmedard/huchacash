@@ -49,7 +49,7 @@ final class StripeController extends ControllerBase
 
   public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
-    $this->logger = $logger->get('dinger_settings');
+    $this->logger = $logger->get('StripeController');
     $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
   }
 
