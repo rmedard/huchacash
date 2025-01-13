@@ -10,6 +10,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
@@ -29,6 +31,8 @@ final class ExpiredNodesController extends ControllerBase
    */
   protected LoggerChannelInterface $logger;
 
+  protected EntityStorageInterface $nodeStorage;
+
   /**
    * Secret to compare against a passed token.
    *
@@ -40,17 +44,27 @@ final class ExpiredNodesController extends ControllerBase
    */
   protected string $secret;
 
-  public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
+  /**
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
+   */
+  public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory, EntityTypeManagerInterface $entityTypeManager)
   {
     $this->logger = $logger->get('ExpiredNodesController');
     $this->secret = $configFactory->get('dinger_settings')->get('callback_token');
+    $this->nodeStorage = $entityTypeManager->getStorage('node');
   }
 
+  /**
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
+   */
   public static function create(ContainerInterface $container): ExpiredNodesController
   {
     return new ExpiredNodesController(
       $container->get('logger.factory'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -80,7 +94,7 @@ final class ExpiredNodesController extends ControllerBase
       return $response;
     }
 
-    $entities = $this->entityTypeManager->getStorage('node')->loadByProperties(['uuid' => $uuid]);
+    $entities = $this->nodeStorage->loadByProperties(['uuid' => $uuid]);
     $node = reset($entities);
     if ($node === null or !$node instanceof NodeInterface) {
       $response->setContent($this->t('Node @id not found!', ['@id' => $uuid]));
