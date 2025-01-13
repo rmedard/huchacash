@@ -6,6 +6,7 @@ use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -26,7 +27,7 @@ final class StripeController extends ControllerBase
    *
    * @var LoggerChannelInterface
    */
-  protected Drupal\Core\Logger\LoggerChannelInterface $logger;
+  protected LoggerChannelInterface $logger;
 
   /**
    * Enable or disable debugging.
@@ -46,16 +47,17 @@ final class StripeController extends ControllerBase
    */
   protected string $secret;
 
-  public function __construct(LoggerChannelFactory $logger)
+  public function __construct(LoggerChannelFactory $logger, ConfigFactory $configFactory)
   {
     $this->logger = $logger->get('dinger_settings');
-    $this->secret = $this->configFactory->get('dinger_settings')->get('token');
+    $this->secret = $configFactory->get('dinger_settings')->get('token');
   }
 
   public static function create(ContainerInterface $container): StripeController
   {
     return new StripeController(
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('config.factory')
     );
   }
 
