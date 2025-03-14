@@ -11,11 +11,14 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+use Drupal\dinger_settings\Utils\TransactionStatus;
+use Drupal\dinger_settings\Utils\TransactionType;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeStorage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final class TransactionsService {
+final class TransactionsService
+{
 
   /**
    * @var EntityTypeManagerInterface
@@ -39,7 +42,8 @@ final class TransactionsService {
     $this->logger = $logger->get('TransactionsService');
   }
 
-  public function processDeliveredOrderTransactions(Node $order): void {
+  public function processDeliveredOrderTransactions(Node $order): void
+  {
     if ($order->bundle() !== 'order') {
       throw new BadRequestHttpException('Node should be an Order.');
     }
@@ -54,7 +58,7 @@ final class TransactionsService {
     }
 
     try {
-      /** @var NodeStorage $storage **/
+      /** @var NodeStorage $storage * */
       $storage = $this->entityTypeManager->getStorage('node');
 
       $shoppingCostRef = $order->get('field_order_shopping_total_cost');
@@ -65,8 +69,8 @@ final class TransactionsService {
           'field_tx_amount' => $purchaseCost,
           'field_tx_from' => $order->get('field_order_creator')->entity,
           'field_tx_to' => $order->get('field_order_executor')->entity,
-          'field_tx_type' => 'purchase_cost',
-          'field_tx_status' => 'confirmed',
+          'field_tx_type' => TransactionType::PURCHASE_COST,
+          'field_tx_status' => TransactionStatus::CONFIRMED,
         ])->save();
         $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
@@ -81,8 +85,8 @@ final class TransactionsService {
         'field_tx_amount' => $effectiveDeliveryFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
-        'field_tx_type' => 'delivery_fee',
-        'field_tx_status' => 'confirmed',
+        'field_tx_type' => TransactionType::DELIVERY_FEE,
+        'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $deliveryFeeTxId]);
 
@@ -91,60 +95,60 @@ final class TransactionsService {
         'field_tx_amount' => $systemServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => Node::load($systemCustomer),
-        'field_tx_type' => 'service_fee',
-        'field_tx_status' => 'confirmed',
+        'field_tx_type' => TransactionType::SERVICE_FEE,
+        'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
       $order->save();
-    }
-    catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
+    } catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
       $this->logger->error($e);
     }
   }
 
-  public function updateAccountsOnTransactionPresave(Node $transaction): void {
+  public function updateAccountsOnTransactionPresave(Node $transaction): void
+  {
     $txStatus = $transaction->get('field_tx_status')->getString();
     $transactionType = $transaction->get('field_tx_type')->getString();
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
       switch ($txStatus) {
-        case 'confirmed':
+        case TransactionStatus::CONFIRMED:
           if ($transaction->isNew()) {
-            if ($transactionType !== 'top_up') {
-              /** @var Node $txInitiator **/
+            if ($transactionType !== TransactionType::TOP_UP) {
+              /** @var Node $txInitiator * */
               $txInitiator = $transaction->get('field_tx_from')->entity;
               $this->debit($txInitiator, $txAmount, TRUE);
             }
 
-            if ($transactionType !== 'withdrawal') {
-              /** @var Node $txBeneficiary **/
+            if ($transactionType !== TransactionType::WITHDRAWAL) {
+              /** @var Node $txBeneficiary * */
               $txBeneficiary = $transaction->get('field_tx_to')->entity;
               $this->credit($txBeneficiary, $txAmount);
             }
           } else {
-            /** @var Node $originalTransaction **/
+            /** @var Node $originalTransaction * */
             $originalTransaction = $transaction->original;
             $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
             if ($txStatusChanged) {
-              /** @var Node $txInitiator **/
+              /** @var Node $txInitiator * */
               $txInitiator = $transaction->get('field_tx_from')->entity;
               $this->debit($txInitiator, $txAmount, FALSE);
 
-              if ($transactionType !== 'withdrawal') {
-                /** @var Node $txBeneficiary **/
+              if ($transactionType !== TransactionType::WITHDRAWAL) {
+                /** @var Node $txBeneficiary * */
                 $txBeneficiary = $transaction->get('field_tx_to')->entity;
                 $this->credit($txBeneficiary, $txAmount);
               }
             }
           }
           break;
-        case 'initiated':
-          /** @var Node $txInitiator **/
+        case TransactionStatus::INITIATED:
+          /** @var Node $txInitiator * */
           $txInitiator = $transaction->get('field_tx_from')->entity;
           $this->freezeDebit($txInitiator, $txAmount);
           break;
-        case 'cancelled':
-          /** @var Node $txInitiator **/
+        case TransactionStatus::CANCELLED:
+          /** @var Node $txInitiator * */
           $txInitiator = $transaction->get('field_tx_from')->entity;
           $this->unfreezeDebit($txInitiator, $txAmount);
           break;
@@ -157,7 +161,8 @@ final class TransactionsService {
   /**
    * @throws EntityStorageException
    */
-  private function debit(Node $customer, float $amount, bool $isDirectDebit): void {
+  private function debit(Node $customer, float $amount, bool $isDirectDebit): void
+  {
     $accountName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
     $availableBalance = doubleval($customer->get($accountName)->getString());
     $newBalance = $availableBalance - $amount;
@@ -169,7 +174,8 @@ final class TransactionsService {
   /**
    * @throws EntityStorageException
    */
-  private function credit(Node $customer, float $amount): void {
+  private function credit(Node $customer, float $amount): void
+  {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance + $amount;
     $customer
@@ -180,7 +186,8 @@ final class TransactionsService {
   /**
    * @throws EntityStorageException
    */
-  private function freezeDebit(Node $customer, float $amount): void {
+  private function freezeDebit(Node $customer, float $amount): void
+  {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance - $amount;
     $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
@@ -194,7 +201,8 @@ final class TransactionsService {
   /**
    * @throws EntityStorageException
    */
-  private function unfreezeDebit(Node $customer, float $amount): void {
+  private function unfreezeDebit(Node $customer, float $amount): void
+  {
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance + $amount;
     $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());

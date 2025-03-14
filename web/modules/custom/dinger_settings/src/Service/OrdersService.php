@@ -36,9 +36,6 @@ final class OrdersService
     return false;
   }
 
-  /**
-   * @throws GoogleException
-   */
   public function onOrderUpdated(Node $order): void {
     if ($order->isNew()) {
       throw new BadRequestHttpException('Order has invalid state. Should not be new.');
@@ -60,7 +57,11 @@ final class OrdersService
 
         /** @var FirestoreCloudService $firestoreCloudService **/
         $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
-        $firestoreCloudService->deleteFireCall($attributedCall->uuid());
+        try {
+          $firestoreCloudService->deleteFireCall($attributedCall->uuid());
+        } catch (GoogleException $e) {
+          $this->logger->warning('Failed to delete order attributed Call: ' . $e->getMessage());
+        }
 
         /** @var GoogleCloudService $googleCloudService **/
         $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
