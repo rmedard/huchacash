@@ -11,8 +11,8 @@ label: Administrator
 weight: 3
 is_admin: true
 permissions:
-  - 'create field_call_order_confirm_nbr'
-  - 'edit field_call_order_confirm_nbr'
-  - 'edit own field_call_order_confirm_nbr'
-  - 'view field_call_order_confirm_nbr'
-  - 'view own field_call_order_confirm_nbr'
+  - 'create field_tx_type'
+  - 'edit field_tx_type'
+  - 'edit own field_tx_type'
+  - 'view field_tx_type'
+  - 'view own field_tx_type'

@@ -23,6 +23,6 @@ grant_types:
     description: ''
 umbrella: false
 parent: _none
-granularity: role
-permission: ''
-role: customer
+granularity_id: role
+granularity_configuration:
+  role: customer
