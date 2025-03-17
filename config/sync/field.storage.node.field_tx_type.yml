@@ -33,6 +33,9 @@ settings:
     -
       value: withdrawal
       label: Withdrawal
+    -
+      value: refund
+      label: Refund
   allowed_values_function: ''
 module: options
 locked: false
