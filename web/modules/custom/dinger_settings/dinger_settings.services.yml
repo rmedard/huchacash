@@ -45,3 +45,9 @@ services:
     class: Drupal\dinger_settings\Service\GeoHashService
     arguments:
       - '@logger.factory'
+
+  dinger_settings.event_subscriber:
+    class: Drupal\dinger_settings\EventSubscriber\WebformAuthSubscriber
+    arguments: ['@simple_oauth.authentication.simple_oauth', '@logger.factory']
+    tags:
+      - { name: event_subscriber }
