@@ -16,7 +16,7 @@ grant_types:
     status: false
     description: ''
   refresh_token:
-    status: false
+    status: true
     description: ''
   authorization_code:
     status: false
