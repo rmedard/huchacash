@@ -53,7 +53,7 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
         }
         catch (Exception $e) {
           $this->logger->error($e);
-          $this->logger->error('OAuth authentication failed: @error', ['@error' => $e->getMessage()]);
+          $this->logger->error('OAuth authentication failed: @error | Key: @key', ['@error' => $e->getMessage(), '@key' => $request->headers->get('Authorization')]);
           $response = new JsonResponse(
             ['error' => 'Invalid OAuth token'],
             401
