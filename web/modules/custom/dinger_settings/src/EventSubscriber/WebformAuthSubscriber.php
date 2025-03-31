@@ -55,11 +55,11 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
         catch (Exception $e) {
           $this->logger->error($e);
           $this->logger->error('OAuth authentication failed: @error | Key: @key', ['@error' => $e->getMessage(), '@key' => $request->headers->get('Authorization')]);
-          $response = new JsonResponse(
-            ['error' => 'Invalid OAuth token'],
-            401
-          );
-          $event->setResponse($response);
+//          $response = new JsonResponse(
+//            ['error' => 'Invalid OAuth token'],
+//            401
+//          );
+//          $event->setResponse($response);
         }
       } else {
         $this->logger->info('No oauth token found. User logged-in: ' . Drupal::currentUser()->isAuthenticated() ? 'true' : 'false');
