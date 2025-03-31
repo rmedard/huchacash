@@ -39,7 +39,7 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
   {
     $request = $event->getRequest();
 
-    $paths = ['/form/bug-reporting', 'webform_rest/submit'];
+    $paths = ['/form/bug-reporting'];
 
     // Check if this is a webform submission route
     if (in_array($request->getPathInfo(), $paths)) {
@@ -48,7 +48,8 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
         try {
           $account = $this->authenticationProvider->authenticate($request);
           if ($account) {
-            Drupal::currentUser()->setAccount($account);
+            //Drupal::currentUser()->setAccount($account);
+            user_login_finalize($account);
           }
         }
         catch (Exception $e) {
