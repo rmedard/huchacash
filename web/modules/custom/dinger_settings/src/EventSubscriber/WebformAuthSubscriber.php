@@ -39,7 +39,7 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
   {
     $request = $event->getRequest();
 
-    $paths = ['/form/bug_reporting'];
+    $paths = ['/form/bug-reporting'];
 
     // Check if this is a webform submission route
     if (in_array($request->getPathInfo(), $paths)) {
@@ -60,7 +60,7 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
           $event->setResponse($response);
         }
       } else {
-        $this->logger->info('Unauthenticated OAuth webform request');
+        $this->logger->info('No oauth token found');
       }
     }
   }
