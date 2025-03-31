@@ -39,21 +39,19 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
   {
     $request = $event->getRequest();
 
-    $paths = ['/form/bug-reporting'];
+    $paths = ['/form/bug-reporting', 'webform_rest/submit'];
 
     // Check if this is a webform submission route
     if (in_array($request->getPathInfo(), $paths)) {
       $this->logger->info('Subscriber triggered');
       if ($request->headers->has('Authorization')) {
         try {
-          $this->logger->info('Key: ' . $request->headers->get('Authorization'));
           $account = $this->authenticationProvider->authenticate($request);
           if ($account) {
             Drupal::currentUser()->setAccount($account);
           }
         }
         catch (Exception $e) {
-          $this->logger->error($e);
           $this->logger->error('OAuth authentication failed: @error', ['@error' => $e->getMessage()]);
           $response = new JsonResponse(
             ['error' => 'Invalid OAuth token'],
