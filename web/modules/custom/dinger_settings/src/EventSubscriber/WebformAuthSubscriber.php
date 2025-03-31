@@ -44,11 +44,12 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
     // Check if this is a webform submission route
     if (in_array($request->getPathInfo(), $paths)) {
       $this->logger->info('Subscriber triggered by path: ' . $request->getPathInfo());
-      if ($request->headers->has('Authorization') and !Drupal::currentUser()->isAuthenticated()) {
+      if ($request->headers->has('Authorization') and Drupal::currentUser()->isAnonymous()) {
         try {
           $account = $this->authenticationProvider->authenticate($request);
           if ($account) {
             user_login_finalize($account);
+            $event->getResponse()->headers->set('Authorization', 'Bearer ' . $request->headers->get('Authorization'));
           }
         }
         catch (Exception $e) {
