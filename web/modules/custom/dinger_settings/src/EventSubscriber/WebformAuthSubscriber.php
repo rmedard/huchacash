@@ -39,10 +39,11 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
   {
     $request = $event->getRequest();
 
-    $paths = ['/webform/bug_reporting'];
+    $paths = ['/form/bug_reporting'];
 
     // Check if this is a webform submission route
     if (in_array($request->getPathInfo(), $paths)) {
+      $this->logger->info('Subscriber triggered');
       if ($request->headers->has('Authorization')) {
         try {
           $account = $this->authenticationProvider->authenticate($request);
