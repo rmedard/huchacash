@@ -62,7 +62,7 @@ final readonly class WebformAuthSubscriber implements EventSubscriberInterface {
           $event->setResponse($response);
         }
       } else {
-        $this->logger->info('No oauth token found');
+        $this->logger->info('No oauth token found. User logged-in: ' . Drupal::currentUser()->isAuthenticated());
       }
     }
   }
