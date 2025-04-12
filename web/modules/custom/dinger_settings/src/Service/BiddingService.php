@@ -126,7 +126,7 @@ final class BiddingService {
         ->condition('field_bid_call.target_id', $call->id())
         ->execute();
       $bids = Node::loadMultiple($existingBidIds);
-      foreach ($bids as $bidId => $bid) {
+      foreach ($bids as $bid) {
         $bid->set('field_bid_status', 'rejected');
         $bid->save();
       }
