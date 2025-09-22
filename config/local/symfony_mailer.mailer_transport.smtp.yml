@@ -6,8 +6,8 @@ id: smtp
 label: SMTP
 plugin: smtp
 configuration:
-  user: postmaster@hucha.cash
-  pass: 2adc62a1376c623f514be6bb096ff4f9-77316142-34064b23
+  user: ''
+  pass: ''
   host: localhost
   port: 1025
   query:
