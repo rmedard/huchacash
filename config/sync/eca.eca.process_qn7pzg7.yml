@@ -1,0 +1,49 @@
+uuid: 119570bd-74b1-413b-95ed-e767a3eb5822
+langcode: en
+status: true
+dependencies:
+  config:
+    - webform.webform.bug_reporting
+  module:
+    - eca_content
+    - eca_log
+    - eca_misc
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: bpmn_io
+    data: 'hash:904b807501eb180b4044f5e3fc0e2639'
+    label: noname
+id: process_qn7pzg7
+weight: 0
+events:
+  Event_0jwn1l2:
+    plugin: 'content_entity:insert'
+    label: Event_0jwn1l2
+    configuration:
+      type: 'webform_submission bug_reporting'
+    successors:
+      -
+        id: Activity_0qkebdg
+        condition: ''
+conditions: {  }
+gateways: {  }
+actions:
+  Activity_0qkebdg:
+    label: Activity_0qkebdg
+    plugin: eca_token_load_query_arg
+    configuration:
+      token_name: customer_id
+      argument_name: customerId
+    successors:
+      -
+        id: Activity_01tlar9
+        condition: ''
+  Activity_01tlar9:
+    label: Activity_01tlar9
+    plugin: eca_write_log_message
+    configuration:
+      channel: ''
+      severity: 6
+      message: 'Bug introduced by customer: [customer_id]'
+    successors: {  }

@@ -1,16 +1,9 @@
-uuid: df35e18a-3416-40c1-a0ea-07adb4d0a5b2
+uuid: 4b812f03-693b-4c5e-9563-580088f57b9f
 langcode: en
 status: true
-dependencies:
-  config:
-    - eca.eca.process_h9zowbo
-id: process_h9zowbo
-label: onOrderPresave
-tags:
-  - untagged
-documentation: ''
-filename: ''
-modeldata: |
+dependencies: {  }
+id: eca_bpmn_io_process_h9zowbo
+data: |
   <?xml version="1.0" encoding="UTF-8"?>
   <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
     <bpmn2:process id="Process_h9zOWBo" name="onOrderPresave" isExecutable="true" camunda:versionTag="1.0.0">

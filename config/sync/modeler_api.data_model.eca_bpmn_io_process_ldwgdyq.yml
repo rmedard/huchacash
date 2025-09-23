@@ -1,16 +1,9 @@
-uuid: 1c69d076-d8c1-484a-a476-2db98dee77df
+uuid: 32dacfee-3685-4e67-8bf1-7656bd3701d6
 langcode: en
 status: true
-dependencies:
-  config:
-    - eca.eca.process_ldwgdyq
-id: process_ldwgdyq
-label: onBidCreated
-tags:
-  - untagged
-documentation: ''
-filename: ''
-modeldata: |
+dependencies: {  }
+id: eca_bpmn_io_process_ldwgdyq
+data: |
   <?xml version="1.0" encoding="UTF-8"?>
   <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
     <bpmn2:process id="Process_lDwgDyQ" name="onBidCreated" isExecutable="true" camunda:versionTag="1.0.0">

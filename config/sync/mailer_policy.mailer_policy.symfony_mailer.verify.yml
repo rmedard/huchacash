@@ -1,8 +1,8 @@
-uuid: d42a3b92-e655-4d29-ad97-5bf7042430af
+uuid: 8d407b76-15b1-48be-9aeb-ed5f2c0136b9
 langcode: en
 status: true
 dependencies: {  }
-id: symfony_mailer.test
+id: symfony_mailer.verify
 configuration:
   email_from:
     addresses:

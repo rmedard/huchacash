@@ -7,10 +7,14 @@ dependencies:
   module:
     - dinger_settings
     - eca_content
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: bpmn_io
+    data: 'hash:5ad90c3646e871d1a6e5486e470b9b44'
+    label: onOrderPresave
+    version: 1.0.0
 id: process_h9zowbo
-modeller: bpmn_io
-label: onOrderPresave
-version: 1.0.0
 weight: -4
 events:
   Event_0fmnvb3:
@@ -57,14 +61,14 @@ gateways:
         condition: Flow_026tn95
 actions:
   Activity_15bm887:
-    plugin: update_gc_task_action
     label: updateGCTask
+    plugin: update_gc_task_action
     configuration:
       object: node
     successors: {  }
   Activity_1qmpu63:
-    plugin: create_gc_task_action
     label: createGcTask
+    plugin: create_gc_task_action
     configuration:
       object: node
     successors: {  }

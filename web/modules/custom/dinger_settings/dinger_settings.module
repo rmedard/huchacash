@@ -127,7 +127,7 @@ function dinger_settings_node_update(NodeInterface $node): void
 {
   switch ($node->bundle()) {
     case 'bid':
-      /** @var $biddingService BiddingService */
+      /** @var BiddingService $biddingService */
       $biddingService = Drupal::service('hucha_settings.bidding_service');
       $biddingService->onBidUpdated($node);
       break;
@@ -135,6 +135,7 @@ function dinger_settings_node_update(NodeInterface $node): void
       /** @var OrdersService $ordersService **/
       $ordersService = Drupal::service('hucha_settings.orders_service');
       $ordersService->onOrderUpdated($node);
+      break;
   }
 }
 

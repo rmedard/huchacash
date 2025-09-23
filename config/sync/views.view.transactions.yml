@@ -654,11 +654,6 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
-              anonymous: '0'
-              content_editor: '0'
-              administrator: '0'
-              executor_customer: '0'
-              ordering_customer: '0'
             placeholder: ''
           is_grouped: false
           group_info:
@@ -698,6 +693,7 @@ display:
           empty_table: false
           caption: ''
           description: ''
+          class: ''
       row:
         type: 'entity:node'
         options:
@@ -952,11 +948,6 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
-              anonymous: '0'
-              content_editor: '0'
-              administrator: '0'
-              executor_customer: '0'
-              ordering_customer: '0'
             placeholder: ''
           is_grouped: false
           group_info:
@@ -999,10 +990,6 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
-              anonymous: '0'
-              content_editor: '0'
-              administrator: '0'
-              customer: '0'
             reduce: false
           is_grouped: false
           group_info:
@@ -1043,10 +1030,6 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
-              anonymous: '0'
-              content_editor: '0'
-              administrator: '0'
-              customer: '0'
             reduce: false
           is_grouped: false
           group_info:

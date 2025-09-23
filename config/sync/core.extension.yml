@@ -27,8 +27,8 @@ module:
   eca_access: 0
   eca_base: 0
   eca_content: 0
+  eca_log: 0
   eca_misc: 0
-  eca_modeller_bpmn: 0
   eca_ui: 0
   editor: 0
   email_registration: 0
@@ -52,9 +52,12 @@ module:
   jsonapi_extras: 0
   jsonapi_resources: 0
   link: 0
+  mailer_policy: 0
+  mailer_transport: 0
   media: 0
   menu_link_content: 0
   menu_ui: 0
+  modeler_api: 0
   module_filter: 0
   mysql: 0
   node: 0
