@@ -1,0 +1,77 @@
+uuid: 35eca6a9-3c6c-4d60-a1bb-8b9408eeb35e
+langcode: en
+status: true
+dependencies: {  }
+id: eca_bpmn_io_process_qn7pzg7
+data: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <bpmn2:process id="Process_qn7pzG7" isExecutable="true">
+      <bpmn2:startEvent id="Event_0jwn1l2" camunda:modelerTemplate="org.drupal.event.content_entity:insert">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="content_entity:insert" />
+          </camunda:properties>
+          <camunda:field name="type">
+            <camunda:string>webform_submission bug_reporting</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:outgoing>Flow_1w9d8wr</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:task id="Activity_0qkebdg" camunda:modelerTemplate="org.drupal.action.eca_token_load_query_arg">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_token_load_query_arg" />
+          </camunda:properties>
+          <camunda:field name="argument_name">
+            <camunda:string>customerId</camunda:string>
+          </camunda:field>
+          <camunda:field name="token_name">
+            <camunda:string>customer_id</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_1w9d8wr</bpmn2:incoming>
+        <bpmn2:outgoing>Flow_16c2uw9</bpmn2:outgoing>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_1w9d8wr" sourceRef="Event_0jwn1l2" targetRef="Activity_0qkebdg" />
+      <bpmn2:task id="Activity_01tlar9" camunda:modelerTemplate="org.drupal.action.eca_write_log_message">
+        <bpmn2:extensionElements>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="eca_write_log_message" />
+          </camunda:properties>
+          <camunda:field name="channel">
+            <camunda:string></camunda:string>
+          </camunda:field>
+          <camunda:field name="severity">
+            <camunda:string>6</camunda:string>
+          </camunda:field>
+          <camunda:field name="message">
+            <camunda:string>Bug introduced by customer: [customer_id]</camunda:string>
+          </camunda:field>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_16c2uw9</bpmn2:incoming>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_16c2uw9" sourceRef="Activity_0qkebdg" targetRef="Activity_01tlar9" />
+    </bpmn2:process>
+    <bpmndi:BPMNDiagram id="sid-8416cf90-2d96-40b4-9d03-80131402ebaa">
+      <bpmndi:BPMNPlane id="sid-8b03f768-2682-4ba7-802e-7687217304ba" bpmnElement="Process_qn7pzG7">
+        <bpmndi:BPMNShape id="Event_0jwn1l2_di" bpmnElement="Event_0jwn1l2">
+          <dc:Bounds x="262" y="142" width="36" height="36" />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_0qkebdg_di" bpmnElement="Activity_0qkebdg">
+          <dc:Bounds x="350" y="120" width="100" height="80" />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_01tlar9_di" bpmnElement="Activity_01tlar9">
+          <dc:Bounds x="510" y="120" width="100" height="80" />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNEdge id="Flow_1w9d8wr_di" bpmnElement="Flow_1w9d8wr">
+          <di:waypoint x="298" y="160" />
+          <di:waypoint x="350" y="160" />
+        </bpmndi:BPMNEdge>
+        <bpmndi:BPMNEdge id="Flow_16c2uw9_di" bpmnElement="Flow_16c2uw9">
+          <di:waypoint x="450" y="160" />
+          <di:waypoint x="510" y="160" />
+        </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+  </bpmn2:definitions>

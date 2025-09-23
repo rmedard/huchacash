@@ -61,6 +61,8 @@ final class CallsService {
   }
 
   public function onCallPresave(NodeInterface $call): void {
+    $this->logger->info('Triggered call presave for call #' . $call->id());
+
     $isCallUpdate = !$call->isNew();
     if ($isCallUpdate) {
       /** @var $originalCall NodeInterface */
@@ -98,7 +100,6 @@ final class CallsService {
             case 'completed':
               $order->set('field_order_status', 'delivered');
               $order->save();
-
           }
         } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
           $this->logger->error($e);
@@ -118,6 +119,7 @@ final class CallsService {
   }
 
   private function processAttributedCall(NodeInterface $call): void {
+    $this->logger->debug('Processing attributed Call: ' . $call->id());
     $callStatus = $call->get('field_call_status')->getString();
     if ($callStatus !== 'attributed') {
       throw new BadRequestHttpException(t('Call @id has invalid status. @invalid should be attributed', [

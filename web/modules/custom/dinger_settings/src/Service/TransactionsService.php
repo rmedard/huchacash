@@ -99,6 +99,13 @@ final class TransactionsService
         'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
+
+      $this->logger->info('Transactions processed. Attaching them to order @order', ['@order' => $order->id()]);
+
+      /**
+       * Prevent hooks from firing during this save. VERY IMPORTANT!!
+       */
+      $order->setSyncing(true);
       $order->save();
     } catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
       $this->logger->error($e);

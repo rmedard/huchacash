@@ -23,6 +23,7 @@ focus_color: ''
 layout_density: small
 show_description_toggle: false
 show_user_theme_settings: false
+sticky_action_buttons: true
 icon_default: true
 icon_path: ''
 icon_upload: ''

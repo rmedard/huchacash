@@ -1,16 +1,9 @@
-uuid: bd263da8-6b07-4584-bb62-93249dfdb398
+uuid: 2c477411-0fc8-47f5-8983-254ead8425a4
 langcode: en
 status: true
-dependencies:
-  config:
-    - eca.eca.process_kfh8ruo
-id: process_kfh8ruo
-label: onTransactionPresave
-tags:
-  - untagged
-documentation: ''
-filename: ''
-modeldata: |
+dependencies: {  }
+id: eca_bpmn_io_process_kfh8ruo
+data: |
   <?xml version="1.0" encoding="UTF-8"?>
   <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
     <bpmn2:process id="Process_kFH8ruO" name="onTransactionPresave" isExecutable="true" camunda:versionTag="1.0.0">
