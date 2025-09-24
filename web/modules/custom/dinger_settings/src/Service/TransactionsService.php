@@ -175,6 +175,7 @@ final class TransactionsService
     $newBalance = $availableBalance - $amount;
     $customer
       ->set($accountName, $newBalance)
+      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -187,6 +188,7 @@ final class TransactionsService
     $newBalance = $availableBalance + $amount;
     $customer
       ->set('field_customer_available_balance', $newBalance)
+      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -202,6 +204,7 @@ final class TransactionsService
     $customer
       ->set('field_customer_available_balance', $newBalance)
       ->set('field_customer_pending_balance', $newFrozenBalance)
+      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -217,6 +220,7 @@ final class TransactionsService
     $customer
       ->set('field_customer_available_balance', $newBalance)
       ->set('field_customer_pending_balance', $newFrozenBalance)
+      ->setSyncing(TRUE) // Do not trigger hooks on customer
       ->save();
   }
 }
