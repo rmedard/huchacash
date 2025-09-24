@@ -123,28 +123,30 @@ final class TransactionsService
     $transactionType = $transaction->get('field_tx_type')->getString();
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
+      /** @var Node $txInitiator * */
+      $txInitiator = $transaction->get('field_tx_from')->entity;
+      if ($txInitiator->bundle() !== 'customer') {
+        $this->logger->info('Initiator has to be a customer.');
+      }
       switch ($txStatus) {
         case TransactionStatus::CONFIRMED:
           if ($transactionType !== TransactionType::TOP_UP) {
-            /** @var Node $txInitiator * */
-            $txInitiator = $transaction->get('field_tx_from')->entity;
             $this->debit($txInitiator, $txAmount, TRUE);
           }
 
           if ($transactionType !== TransactionType::WITHDRAWAL) {
             /** @var Node $txBeneficiary * */
             $txBeneficiary = $transaction->get('field_tx_to')->entity;
+            if ($txBeneficiary->bundle() !== 'customer') {
+              $this->logger->info('Beneficiary has to be a customer.');
+            }
             $this->credit($txBeneficiary, $txAmount);
           }
           break;
         case TransactionStatus::INITIATED:
-          /** @var Node $txInitiator * */
-          $txInitiator = $transaction->get('field_tx_from')->entity;
           $this->freezeDebit($txInitiator, $txAmount);
           break;
         case TransactionStatus::CANCELLED:
-          /** @var Node $txInitiator * */
-          $txInitiator = $transaction->get('field_tx_from')->entity;
           $this->unfreezeDebit($txInitiator, $txAmount);
           break;
       }
