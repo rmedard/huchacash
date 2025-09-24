@@ -1,0 +1,52 @@
+uuid: 73e7f30b-8831-4a38-8550-9cef42dd8d27
+langcode: en
+status: true
+dependencies: {  }
+id: eca_bpmn_io_process_llodg4a
+data: |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qa="http://some-company/schema/bpmn/qa" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <bpmn2:process id="Process_lloDg4a" name="onTransactionCreated" isExecutable="true" camunda:versionTag="1.0.0">
+      <bpmn2:startEvent id="content_entity__insert_1_1" name="Insert content entity" camunda:modelerTemplate="org.drupal.event.content_entity:insert">
+        <bpmn2:extensionElements>
+          <camunda:field name="type">
+            <camunda:string>node transaction</camunda:string>
+          </camunda:field>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="content_entity:insert" />
+          </camunda:properties>
+        </bpmn2:extensionElements>
+        <bpmn2:outgoing>Flow_14d5soh</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:task id="update_accounts_tx_created_action_1hz9cxt" name="Update accounts on transaction created action" camunda:modelerTemplate="org.drupal.action.update_accounts_tx_created_action">
+        <bpmn2:extensionElements>
+          <camunda:field name="object">
+            <camunda:string>entity</camunda:string>
+          </camunda:field>
+          <camunda:properties>
+            <camunda:property name="pluginid" value="update_accounts_tx_created_action" />
+          </camunda:properties>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>Flow_14d5soh</bpmn2:incoming>
+      </bpmn2:task>
+      <bpmn2:sequenceFlow id="Flow_14d5soh" sourceRef="content_entity__insert_1_1" targetRef="update_accounts_tx_created_action_1hz9cxt" />
+    </bpmn2:process>
+    <bpmndi:BPMNDiagram id="sid-19e6ba8d-ea93-46c2-9700-1d107b91a278">
+      <bpmndi:BPMNPlane id="sid-3878ef82-13ff-4e99-b70b-9ef0ea7d26fb" bpmnElement="Process_lloDg4a">
+        <bpmndi:BPMNShape id="Event_0k6r6lh_di" bpmnElement="content_entity__insert_1_1">
+          <dc:Bounds x="242" y="152" width="36" height="36" />
+          <bpmndi:BPMNLabel>
+            <dc:Bounds x="227" y="195" width="67" height="27" />
+          </bpmndi:BPMNLabel>
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNShape id="Activity_1hz9cxt_di" bpmnElement="update_accounts_tx_created_action_1hz9cxt">
+          <dc:Bounds x="330" y="130" width="100" height="80" />
+          <bpmndi:BPMNLabel />
+        </bpmndi:BPMNShape>
+        <bpmndi:BPMNEdge id="Flow_14d5soh_di" bpmnElement="Flow_14d5soh">
+          <di:waypoint x="278" y="170" />
+          <di:waypoint x="330" y="170" />
+        </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+  </bpmn2:definitions>

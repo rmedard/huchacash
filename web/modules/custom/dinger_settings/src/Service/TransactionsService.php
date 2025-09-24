@@ -44,6 +44,7 @@ final class TransactionsService
 
   public function processDeliveredOrderTransactions(Node $order): void
   {
+    $this->logger->info('Processing delivered order @id transactions.', ['@id' => $order->id()]);
     if ($order->bundle() !== 'order') {
       throw new BadRequestHttpException('Node should be an Order.');
     }
@@ -55,6 +56,11 @@ final class TransactionsService
     $systemCustomer = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_system_customer');
     if (!$systemCustomer or !is_numeric($systemCustomer)) {
       throw new BadRequestHttpException('System customer has not been set.');
+    }
+
+    $attributedCall = $order->get('field_order_attributed_call')->entity;
+    if ($attributedCall == null) {
+      throw new BadRequestHttpException('Order attributed Call should be set.');
     }
 
     try {
@@ -75,7 +81,6 @@ final class TransactionsService
         $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
 
-      $attributedCall = $order->get('field_order_attributed_call')->entity;
       $totalDeliveryFee = doubleval(trim($attributedCall->get('field_call_proposed_service_fee')->getString()));
       $systemServiceFee = doubleval(trim($attributedCall->get('field_call_system_service_fee')->getString()));
       $effectiveDeliveryFee = $totalDeliveryFee - $systemServiceFee;
@@ -112,7 +117,7 @@ final class TransactionsService
     }
   }
 
-  public function updateAccountsOnTransactionPresave(Node $transaction): void
+  public function updateAccountsOnTransactionCreated(Node $transaction): void
   {
     $txStatus = $transaction->get('field_tx_status')->getString();
     $transactionType = $transaction->get('field_tx_type')->getString();
@@ -120,33 +125,16 @@ final class TransactionsService
     try {
       switch ($txStatus) {
         case TransactionStatus::CONFIRMED:
-          if ($transaction->isNew()) {
-            if ($transactionType !== TransactionType::TOP_UP) {
-              /** @var Node $txInitiator * */
-              $txInitiator = $transaction->get('field_tx_from')->entity;
-              $this->debit($txInitiator, $txAmount, TRUE);
-            }
+          if ($transactionType !== TransactionType::TOP_UP) {
+            /** @var Node $txInitiator * */
+            $txInitiator = $transaction->get('field_tx_from')->entity;
+            $this->debit($txInitiator, $txAmount, TRUE);
+          }
 
-            if ($transactionType !== TransactionType::WITHDRAWAL) {
-              /** @var Node $txBeneficiary * */
-              $txBeneficiary = $transaction->get('field_tx_to')->entity;
-              $this->credit($txBeneficiary, $txAmount);
-            }
-          } else {
-            /** @var Node $originalTransaction * */
-            $originalTransaction = $transaction->original;
-            $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
-            if ($txStatusChanged) {
-              /** @var Node $txInitiator * */
-              $txInitiator = $transaction->get('field_tx_from')->entity;
-              $this->debit($txInitiator, $txAmount, FALSE);
-
-              if ($transactionType !== TransactionType::WITHDRAWAL) {
-                /** @var Node $txBeneficiary * */
-                $txBeneficiary = $transaction->get('field_tx_to')->entity;
-                $this->credit($txBeneficiary, $txAmount);
-              }
-            }
+          if ($transactionType !== TransactionType::WITHDRAWAL) {
+            /** @var Node $txBeneficiary * */
+            $txBeneficiary = $transaction->get('field_tx_to')->entity;
+            $this->credit($txBeneficiary, $txAmount);
           }
           break;
         case TransactionStatus::INITIATED:
@@ -165,6 +153,33 @@ final class TransactionsService
     }
   }
 
+  public function updateAccountsOnTransactionUpdated(Node $transaction): void {
+    $txStatus = $transaction->get('field_tx_status')->getString();
+    $transactionType = $transaction->get('field_tx_type')->getString();
+    $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
+    try {
+      /** @var Node $txInitiator * */
+      $txInitiator = $transaction->get('field_tx_from')->entity;
+      if ($txStatus !== TransactionStatus::CONFIRMED) {
+        /** @var Node $originalTransaction * */
+        $originalTransaction = $transaction->original;
+        $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
+        if ($txStatusChanged) {
+          $this->debit($txInitiator, $txAmount, FALSE);
+          if ($transactionType !== TransactionType::WITHDRAWAL) {
+            /** @var Node $txBeneficiary * */
+            $txBeneficiary = $transaction->get('field_tx_to')->entity;
+            $this->credit($txBeneficiary, $txAmount);
+          }
+        }
+      } elseif ($txStatus !== TransactionStatus::CANCELLED) {
+        $this->unfreezeDebit($txInitiator, $txAmount);
+      }
+    } catch (EntityStorageException $e) {
+      $this->logger->error($e);
+    }
+  }
+
   /**
    * @throws EntityStorageException
    */
@@ -175,7 +190,6 @@ final class TransactionsService
     $newBalance = $availableBalance - $amount;
     $customer
       ->set($accountName, $newBalance)
-      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -188,7 +202,6 @@ final class TransactionsService
     $newBalance = $availableBalance + $amount;
     $customer
       ->set('field_customer_available_balance', $newBalance)
-      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -204,7 +217,6 @@ final class TransactionsService
     $customer
       ->set('field_customer_available_balance', $newBalance)
       ->set('field_customer_pending_balance', $newFrozenBalance)
-      ->setSyncing(TRUE)
       ->save();
   }
 
@@ -220,7 +232,6 @@ final class TransactionsService
     $customer
       ->set('field_customer_available_balance', $newBalance)
       ->set('field_customer_pending_balance', $newFrozenBalance)
-      ->setSyncing(TRUE) // Do not trigger hooks on customer
       ->save();
   }
 }
