@@ -37,6 +37,9 @@ final class OrdersService
   }
 
   public function onOrderUpdated(Node $order): void {
+
+    $this->logger->debug('Order @id updated', ['@id' => $order->id()]);
+
     if ($order->isNew()) {
       throw new BadRequestHttpException('Order has invalid state. Should not be new.');
     }
