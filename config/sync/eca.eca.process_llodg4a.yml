@@ -1,0 +1,37 @@
+uuid: 059b0b65-b3bd-425e-aaf5-53903141483d
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.transaction
+  module:
+    - dinger_settings
+    - eca_content
+    - modeler_api
+third_party_settings:
+  modeler_api:
+    modeler_id: bpmn_io
+    data: 'hash:9320430af2fdb82ea4b84363ff9a9ed3'
+    label: onTransactionCreated
+    version: 1.0.0
+id: process_llodg4a
+weight: 0
+events:
+  content_entity__insert_1_1:
+    plugin: 'content_entity:insert'
+    label: 'Insert content entity'
+    configuration:
+      type: 'node transaction'
+    successors:
+      -
+        id: update_accounts_tx_created_action_1hz9cxt
+        condition: ''
+conditions: {  }
+gateways: {  }
+actions:
+  update_accounts_tx_created_action_1hz9cxt:
+    label: 'Update accounts on transaction created action'
+    plugin: update_accounts_tx_created_action
+    configuration:
+      object: entity
+    successors: {  }

@@ -16,12 +16,12 @@ use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
-  id: 'update_accounts_tx_presave_action',
-  label: new TranslatableMarkup('Update accounts on transaction presave action'),
+  id: 'update_accounts_tx_created_action',
+  label: new TranslatableMarkup('Update accounts on transaction created action'),
   category: new TranslatableMarkup('Custom'),
   type: 'node'
 )]
-final class UpdateAccountsOnTransactionPresaveAction extends ActionBase implements ContainerFactoryPluginInterface {
+final class UpdateAccountsOnTransactionCreatedAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
    * @var LoggerChannelInterface
@@ -35,12 +35,12 @@ final class UpdateAccountsOnTransactionPresaveAction extends ActionBase implemen
 
   public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $loggerFactory, TransactionsService $transactionsService) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->logger = $loggerFactory->get('UpdateAccountsOnTxPresaveAction');
+    $this->logger = $loggerFactory->get('UpdateAccountsOnTransactionCreatedAction');
     $this->transactionsService = $transactionsService;
   }
 
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): UpdateAccountsOnTransactionPresaveAction {
-    return new UpdateAccountsOnTransactionPresaveAction(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): UpdateAccountsOnTransactionCreatedAction {
+    return new UpdateAccountsOnTransactionCreatedAction(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -55,6 +55,6 @@ final class UpdateAccountsOnTransactionPresaveAction extends ActionBase implemen
   }
   public function execute(NodeInterface $transaction = NULL): void {
     $this->logger->info('Executing update accounts on transaction. Id: ' . $transaction->uuid());
-    $this->transactionsService->updateAccountsOnTransactionPresave($transaction);
+    $this->transactionsService->updateAccountsOnTransactionCreated($transaction);
   }
 }
