@@ -184,7 +184,7 @@ final class FirestoreCloudService {
       $fireCall = new FireCall($call);
 
       $document = [
-        'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody(), 0)
+        'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
       ];
 
       // Use explicit URL construction to avoid query parameter issues
@@ -257,7 +257,7 @@ final class FirestoreCloudService {
       $updateMask = [];
 
       foreach ($updates as $update) {
-        $updateFields[$update['path']] = $this->convertValueToFirestoreField($update['value'], 0);
+        $updateFields[$update['path']] = $this->convertValueToFirestoreField($update['value']);
         $updateMask[] = $update['path'];
       }
 
@@ -290,13 +290,14 @@ final class FirestoreCloudService {
    * Convert array to Firestore fields format
    */
   private function convertToFirestoreFields(array $data): array {
-    $fields = [];
-    foreach ($data as $key => $value) {
-      $fields[$key] = $this->convertValueToFirestoreField($value);
-    }
-    return $fields;
+    return array_map(function ($value) {
+      return $this->convertValueToFirestoreField($value);
+    }, $data);
   }
 
+  /**
+   * Convert value to Firestore field format - simplified for flat data only
+   */
   /**
    * Convert value to Firestore field format - simplified for flat data only
    */
@@ -315,24 +316,27 @@ final class FirestoreCloudService {
         return ['timestampValue' => $value];
       }
       return ['stringValue' => $value];
-    } elseif (is_array($value)) {
-      // Only handle geopoints - your only nested structure
-      if (isset($value['latitude']) && isset($value['longitude']) && count($value) === 2) {
+    } elseif (is_object($value) || is_array($value)) {
+      // Convert object to array for consistent handling
+      $arrayValue = is_object($value) ? (array) $value : $value;
+
+      // Handle geopoints - check for latitude/longitude properties
+      if (isset($arrayValue['latitude']) && isset($arrayValue['longitude'])) {
         return [
           'geoPointValue' => [
-            'latitude' => (float)$value['latitude'],
-            'longitude' => (float)$value['longitude']
+            'latitude' => (float) $arrayValue['latitude'],
+            'longitude' => (float) $arrayValue['longitude']
           ]
         ];
       }
 
-      // If it's any other array, something's wrong - just stringify it
-      $this->logger->warning('Unexpected array structure in Firestore conversion: @data', [
-        '@data' => json_encode($value)
+      // If it's any other array/object, log warning and stringify it
+      $this->logger->warning('Unexpected array/object structure in Firestore conversion: @data', [
+        '@data' => json_encode($arrayValue)
       ]);
-      return ['stringValue' => json_encode($value)];
+      return ['stringValue' => json_encode($arrayValue)];
     } else {
-      return ['stringValue' => (string)$value];
+      return ['stringValue' => (string) $value];
     }
   }
 

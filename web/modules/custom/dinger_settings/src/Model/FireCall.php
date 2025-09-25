@@ -8,7 +8,6 @@ use Drupal\dinger_settings\Model\SubModel\UserDetails;
 use Drupal\dinger_settings\Service\GeoHashService;
 use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\node\Entity\Node;
-use Google\Cloud\Core\GeoPoint;
 use Google\Cloud\Core\Timestamp;
 
 class FireCall {
@@ -46,13 +45,19 @@ class FireCall {
     $geoHashService = Drupal::service('dinger_settings.geohash_service');
     return [
       'order_delivery_time' => $this->order->deliveryTime,
-      'delivery_address' => new GeoPoint($this->order->deliveryAddressLat, $this->order->deliveryAddressLng),
+      'delivery_address' => [
+        'latitude' => $this->order->deliveryAddressLat,
+        'longitude' => $this->order->deliveryAddressLng
+      ],
       'delivery_address_full' => $this->order->deliveryAddress,
       'delivery_address_geo_hash' => $geoHashService->encodeGeohash([$this->order->deliveryAddressLat, $this->order->deliveryAddressLng]),
-      'pickup_address' => new GeoPoint($this->order->pickupAddressLat, $this->order->pickupAddressLng),
+      'pickup_address' => [
+        'latitude' => $this->order->pickupAddressLat,
+        'longitude' => $this->order->pickupAddressLng
+      ],
       'pickup_address_full' => $this->order->pickupAddress,
       'pickup_address_geo_hash' => $geoHashService->encodeGeohash([$this->order->pickupAddressLat, $this->order->pickupAddressLng]),
-      'expiration_time' => $this->expirationTime,
+      'expiration_time' => $this->expirationTime->formatAsString(),
       'order_id' => $this->order->id,
       'status' => $this->status,
       'order_type' => $this->order->type,
