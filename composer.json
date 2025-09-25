@@ -39,19 +39,6 @@
                     "reference": "tags/11.2.0"
                 }
             }
-        },
-        "google-api-php-client": {
-            "type": "package",
-            "package": {
-                "name": "googleapis/google-api-php-client",
-                "version": "v2.12.6",
-                "type": "drupal-library",
-                "source": {
-                    "url": "https://github.com/googleapis/google-api-php-client.git",
-                    "type": "git",
-                    "reference": "tags/v2.12.6"
-                }
-            }
         }
     },
     "require": {
@@ -88,10 +75,7 @@
         "drupal/views_bulk_edit": "^3.0",
         "drupal/webform": "^6.3@beta",
         "drush/drush": "^13",
-        "google/cloud-firestore": "^1.47",
-        "google/cloud-tasks": "^1.15",
-        "google/protobuf": "^4.28",
-        "grpc/grpc": "^1.57",
+        "google/cloud-tasks": "^v2.1",
         "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
         "stripe/stripe-php": "^13.18.0",

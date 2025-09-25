@@ -24,6 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 )]
 final class UpdateFireCallAction extends ActionBase implements ContainerFactoryPluginInterface {
 
+  private static array $processing = [];
+
   /**
    * @var LoggerChannelInterface
    */
@@ -59,8 +61,26 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
    * @throws GoogleException
    */
   public function execute(NodeInterface $call = NULL): void {
-    $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
-    $this->firestoreCloudService->updateFireCall($call);
+
+    // Get a unique identifier for this entity
+    $entity_key = $call ? $call->getEntityTypeId() . ':' . $call->id() : 'unknown';
+    // Check if we're already processing this entity
+    if (isset(self::$processing[$entity_key])) {
+      $this->logger->warning('Prevented infinite recursion for entity: @key', [
+        '@key' => $entity_key
+      ]);
+      return;
+    }
+
+    // Mark as processing
+    self::$processing[$entity_key] = TRUE;
+
+    try {
+      $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
+      $this->firestoreCloudService->updateFireCall($call);
+    } finally {
+      unset(self::$processing[$entity_key]);
+    }
   }
 
 }

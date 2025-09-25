@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.transaction.field_tx_bank_account
     - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
+    - field.field.node.transaction.field_tx_order
     - field.field.node.transaction.field_tx_status
     - field.field.node.transaction.field_tx_to
     - field.field.node.transaction.field_tx_type
@@ -29,6 +30,7 @@ hidden:
   field_tx_bank_account: true
   field_tx_comment: true
   field_tx_from: true
+  field_tx_order: true
   field_tx_status: true
   field_tx_to: true
   field_tx_type: true

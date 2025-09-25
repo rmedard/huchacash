@@ -5,6 +5,7 @@ namespace Drupal\dinger_settings\Service;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -92,10 +93,17 @@ final class CallsService {
                 $bid->save();
               }
 
-              if ($order->get('field_order_status')->getString() === 'bidding') {
-                $order->set('field_order_status', 'idle');
-                $order->save();
+              /** @var Drupal\Core\Datetime\DrupalDateTime $orderDeliveryTime */
+              $orderDeliveryTime = $order->get('field_order_delivery_time')->value;
+              if ($orderDeliveryTime < new DrupalDateTime('now')) {
+                $order->set('field_order_status', 'cancelled');
+              } else {
+                if ($order->get('field_order_status')->getString() !== 'cancelled') {
+                  $order->set('field_order_status', 'idle');
+                }
               }
+              $order->save();
+
               break;
             case 'completed':
               $order->set('field_order_status', 'delivered');

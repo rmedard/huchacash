@@ -3,12 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.bid.field_bid_call
     - field.field.node.bid.field_bid_status
-    - field.field.node.call.field_call_bids
-    - field.storage.node.field_bid_call
     - field.storage.node.field_bid_status
-    - field.storage.node.field_call_bids
     - node.type.bid
   module:
     - eca_content
@@ -16,7 +12,7 @@ dependencies:
 third_party_settings:
   modeler_api:
     modeler_id: bpmn_io
-    data: 'hash:c60e124dd1f1fee59c3f473be8a0a50c'
+    data: 'hash:4fa35d5bb8c40a90e255f0ee1018eef7'
     label: onBidCreated
     version: 1.0.0
 id: process_ldwgdyq
@@ -29,11 +25,12 @@ events:
       type: 'node bid'
     successors:
       -
-        id: Activity_16j77wy
+        id: Gateway_10yp8rk
         condition: ''
 conditions:
   Flow_0xgk8c8:
     plugin: eca_entity_field_value
+    label: isAcceptBid
     configuration:
       negate: false
       expected_value: accept
@@ -47,25 +44,10 @@ gateways:
     type: 0
     successors:
       -
-        id: Activity_0eegumj
+        id: eca_set_field_value_0eegumj
         condition: Flow_0xgk8c8
 actions:
-  Activity_16j77wy:
-    label: attachBidToCall
-    plugin: eca_set_field_value
-    configuration:
-      field_name: field_call_bids
-      field_value: '[node:id]'
-      method: 'append:not_full'
-      strip_tags: false
-      trim: false
-      save_entity: true
-      object: 'node:field_bid_call'
-    successors:
-      -
-        id: Gateway_10yp8rk
-        condition: ''
-  Activity_0eegumj:
+  eca_set_field_value_0eegumj:
     label: setBidConfirmed
     plugin: eca_set_field_value
     configuration:

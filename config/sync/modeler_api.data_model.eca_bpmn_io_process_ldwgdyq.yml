@@ -19,42 +19,11 @@ data: |
         <bpmn2:outgoing>Flow_0xiidpb</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:exclusiveGateway id="Gateway_10yp8rk">
-        <bpmn2:incoming>Flow_1k9nham</bpmn2:incoming>
+        <bpmn2:incoming>Flow_0xiidpb</bpmn2:incoming>
         <bpmn2:outgoing>Flow_0xgk8c8</bpmn2:outgoing>
       </bpmn2:exclusiveGateway>
-      <bpmn2:sequenceFlow id="Flow_0xiidpb" sourceRef="Event_0rroo4h" targetRef="Activity_16j77wy" />
-      <bpmn2:task id="Activity_16j77wy" name="attachBidToCall" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
-        <bpmn2:extensionElements>
-          <camunda:properties>
-            <camunda:property name="pluginid" value="eca_set_field_value" />
-          </camunda:properties>
-          <camunda:field name="method">
-            <camunda:string>append:not_full</camunda:string>
-          </camunda:field>
-          <camunda:field name="strip_tags">
-            <camunda:string>no</camunda:string>
-          </camunda:field>
-          <camunda:field name="trim">
-            <camunda:string>no</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_name">
-            <camunda:string>field_call_bids</camunda:string>
-          </camunda:field>
-          <camunda:field name="save_entity">
-            <camunda:string>yes</camunda:string>
-          </camunda:field>
-          <camunda:field name="field_value">
-            <camunda:string>[node:id]</camunda:string>
-          </camunda:field>
-          <camunda:field name="object">
-            <camunda:string>node:field_bid_call</camunda:string>
-          </camunda:field>
-        </bpmn2:extensionElements>
-        <bpmn2:incoming>Flow_0xiidpb</bpmn2:incoming>
-        <bpmn2:outgoing>Flow_1k9nham</bpmn2:outgoing>
-      </bpmn2:task>
-      <bpmn2:sequenceFlow id="Flow_1k9nham" sourceRef="Activity_16j77wy" targetRef="Gateway_10yp8rk" />
-      <bpmn2:task id="Activity_0eegumj" name="setBidConfirmed" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
+      <bpmn2:sequenceFlow id="Flow_0xiidpb" sourceRef="Event_0rroo4h" targetRef="Gateway_10yp8rk" />
+      <bpmn2:task id="eca_set_field_value_0eegumj" name="setBidConfirmed" camunda:modelerTemplate="org.drupal.action.eca_set_field_value">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="eca_set_field_value" />
@@ -83,7 +52,7 @@ data: |
         </bpmn2:extensionElements>
         <bpmn2:incoming>Flow_0xgk8c8</bpmn2:incoming>
       </bpmn2:task>
-      <bpmn2:sequenceFlow id="Flow_0xgk8c8" name="isAcceptBid" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value" sourceRef="Gateway_10yp8rk" targetRef="Activity_0eegumj">
+      <bpmn2:sequenceFlow id="Flow_0xgk8c8" name="isAcceptBid" camunda:modelerTemplate="org.drupal.condition.eca_entity_field_value" sourceRef="Gateway_10yp8rk" targetRef="eca_set_field_value_0eegumj">
         <bpmn2:extensionElements>
           <camunda:properties>
             <camunda:property name="pluginid" value="eca_entity_field_value" />
@@ -120,30 +89,22 @@ data: |
             <dc:Bounds x="233" y="145" width="76" height="14" />
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Activity_16j77wy_di" bpmnElement="Activity_16j77wy">
-          <dc:Bounds x="410" y="80" width="100" height="80" />
-          <bpmndi:BPMNLabel />
-        </bpmndi:BPMNShape>
         <bpmndi:BPMNShape id="Gateway_10yp8rk_di" bpmnElement="Gateway_10yp8rk" isMarkerVisible="true">
-          <dc:Bounds x="655" y="95" width="50" height="50" />
+          <dc:Bounds x="465" y="95" width="50" height="50" />
         </bpmndi:BPMNShape>
-        <bpmndi:BPMNShape id="Activity_0eegumj_di" bpmnElement="Activity_0eegumj">
-          <dc:Bounds x="970" y="80" width="100" height="80" />
+        <bpmndi:BPMNShape id="Activity_0eegumj_di" bpmnElement="eca_set_field_value_0eegumj">
+          <dc:Bounds x="800" y="80" width="100" height="80" />
           <bpmndi:BPMNLabel />
         </bpmndi:BPMNShape>
         <bpmndi:BPMNEdge id="Flow_0xiidpb_di" bpmnElement="Flow_0xiidpb">
           <di:waypoint x="288" y="120" />
-          <di:waypoint x="410" y="120" />
-        </bpmndi:BPMNEdge>
-        <bpmndi:BPMNEdge id="Flow_1k9nham_di" bpmnElement="Flow_1k9nham">
-          <di:waypoint x="510" y="120" />
-          <di:waypoint x="655" y="120" />
+          <di:waypoint x="465" y="120" />
         </bpmndi:BPMNEdge>
         <bpmndi:BPMNEdge id="Flow_0xgk8c8_di" bpmnElement="Flow_0xgk8c8">
-          <di:waypoint x="705" y="120" />
-          <di:waypoint x="970" y="120" />
+          <di:waypoint x="515" y="120" />
+          <di:waypoint x="800" y="120" />
           <bpmndi:BPMNLabel>
-            <dc:Bounds x="810" y="102" width="58" height="14" />
+            <dc:Bounds x="630" y="102" width="58" height="14" />
           </bpmndi:BPMNLabel>
         </bpmndi:BPMNEdge>
       </bpmndi:BPMNPlane>
