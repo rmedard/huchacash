@@ -24,8 +24,8 @@ final class FirestoreCloudService {
   protected ?string $projectId = null;
   protected ?array $credentials = null;
 
-  private const string FIRESTORE_BASE_URL = 'https://firestore.googleapis.com/v1';
-  private const string GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/token';
+  private const FIRESTORE_BASE_URL = 'https://firestore.googleapis.com/v1';
+  private const GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/token';
 
   public function __construct(
     ClientFactory $http_client,
@@ -183,9 +183,8 @@ final class FirestoreCloudService {
     try {
       $fireCall = new FireCall($call);
 
-      $this->logger->debug('Firecall body: @data', ['@data' => json_encode($fireCall->toFirestoreBody(), JSON_PRETTY_PRINT)]);
       $document = [
-        'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
+        'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody(), 0)
       ];
 
       // Use explicit URL construction to avoid query parameter issues
@@ -258,7 +257,7 @@ final class FirestoreCloudService {
       $updateMask = [];
 
       foreach ($updates as $update) {
-        $updateFields[$update['path']] = $this->convertValueToFirestoreField($update['value']);
+        $updateFields[$update['path']] = $this->convertValueToFirestoreField($update['value'], 0);
         $updateMask[] = $update['path'];
       }
 
@@ -290,10 +289,16 @@ final class FirestoreCloudService {
   /**
    * Convert array to Firestore fields format
    */
-  private function convertToFirestoreFields(array $data): array {
+  private function convertToFirestoreFields(array $data, int $depth = 0): array {
+    // Prevent infinite recursion
+    if ($depth > 20) {
+      $this->logger->warning('Maximum recursion depth reached in convertToFirestoreFields');
+      return [];
+    }
+
     $fields = [];
     foreach ($data as $key => $value) {
-      $fields[$key] = $this->convertValueToFirestoreField($value);
+      $fields[$key] = $this->convertValueToFirestoreField($value, $depth + 1);
     }
     return $fields;
   }
@@ -301,7 +306,13 @@ final class FirestoreCloudService {
   /**
    * Convert value to Firestore field format
    */
-  private function convertValueToFirestoreField($value): array {
+  private function convertValueToFirestoreField($value, int $depth = 0): array {
+    // Prevent infinite recursion
+    if ($depth > 20) {
+      $this->logger->warning('Maximum recursion depth reached in convertValueToFirestoreField');
+      return ['stringValue' => '[MAX_DEPTH_EXCEEDED]'];
+    }
+
     if ($value === null) {
       return ['nullValue' => null];
     } elseif (is_bool($value)) {
@@ -311,6 +322,10 @@ final class FirestoreCloudService {
     } elseif (is_float($value)) {
       return ['doubleValue' => $value];
     } elseif (is_string($value)) {
+      // Check if string is already an ISO 8601 timestamp
+      if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/', $value)) {
+        return ['timestampValue' => $value];
+      }
       return ['stringValue' => $value];
     } elseif (is_array($value)) {
       // Handle Firestore timestamp format (from UtilsService::dateTimeToGcTimestamp)
@@ -335,7 +350,7 @@ final class FirestoreCloudService {
       if (array_keys($value) === range(0, count($value) - 1)) {
         $arrayValues = [];
         foreach ($value as $item) {
-          $arrayValues[] = $this->convertValueToFirestoreField($item);
+          $arrayValues[] = $this->convertValueToFirestoreField($item, $depth + 1);
         }
         return [
           'arrayValue' => [
@@ -347,7 +362,7 @@ final class FirestoreCloudService {
       // Handle objects/maps
       return [
         'mapValue' => [
-          'fields' => $this->convertToFirestoreFields($value)
+          'fields' => $this->convertToFirestoreFields($value, $depth + 1)
         ]
       ];
     } else {
