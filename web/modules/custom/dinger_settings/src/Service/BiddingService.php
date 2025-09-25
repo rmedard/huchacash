@@ -59,8 +59,8 @@ final class BiddingService {
     }
 
     /** @var $call NodeInterface */
-    $call = $bid->get('field_bid_call')->entity;
-    $call->get('field_call_bids')->appendItem(['target_id' => $bid->id()]);
+//    $call = $bid->get('field_bid_call')->entity;
+//    $call->get('field_call_bids')->appendItem(['target_id' => $bid->id()]);
 
     $bidType = $bid->get('field_bid_type')->getString();
     if ($bidType === 'accept') {

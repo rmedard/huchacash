@@ -1,0 +1,6 @@
+name: 'Rest Entity Extras'
+type: module
+description: 'This module bundles computed fields for various entities to be exposed via JsonAPI'
+package: Hucha Custom
+core_version_requirement: ^10 || ^11
+version: '10.x-1.0'
