@@ -289,30 +289,18 @@ final class FirestoreCloudService {
   /**
    * Convert array to Firestore fields format
    */
-  private function convertToFirestoreFields(array $data, int $depth = 0): array {
-    // Prevent infinite recursion
-    if ($depth > 20) {
-      $this->logger->warning('Maximum recursion depth reached in convertToFirestoreFields');
-      return [];
-    }
-
+  private function convertToFirestoreFields(array $data): array {
     $fields = [];
     foreach ($data as $key => $value) {
-      $fields[$key] = $this->convertValueToFirestoreField($value, $depth + 1);
+      $fields[$key] = $this->convertValueToFirestoreField($value);
     }
     return $fields;
   }
 
   /**
-   * Convert value to Firestore field format
+   * Convert value to Firestore field format - simplified for flat data only
    */
-  private function convertValueToFirestoreField($value, int $depth = 0): array {
-    // Prevent infinite recursion
-    if ($depth > 20) {
-      $this->logger->warning('Maximum recursion depth reached in convertValueToFirestoreField');
-      return ['stringValue' => '[MAX_DEPTH_EXCEEDED]'];
-    }
-
+  private function convertValueToFirestoreField($value): array {
     if ($value === null) {
       return ['nullValue' => null];
     } elseif (is_bool($value)) {
@@ -322,22 +310,14 @@ final class FirestoreCloudService {
     } elseif (is_float($value)) {
       return ['doubleValue' => $value];
     } elseif (is_string($value)) {
-      // Check if string is already an ISO 8601 timestamp
+      // Check if string is an ISO 8601 timestamp
       if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/', $value)) {
         return ['timestampValue' => $value];
       }
       return ['stringValue' => $value];
     } elseif (is_array($value)) {
-      // Handle Firestore timestamp format (from UtilsService::dateTimeToGcTimestamp)
-      if (isset($value['_seconds']) && isset($value['_nanoseconds'])) {
-        return [
-          'timestampValue' => gmdate('Y-m-d\TH:i:s', $value['_seconds']) .
-            sprintf('.%09dZ', $value['_nanoseconds'])
-        ];
-      }
-
-      // Handle Geopoint format
-      if (isset($value['latitude']) && isset($value['longitude'])) {
+      // Only handle geopoints - your only nested structure
+      if (isset($value['latitude']) && isset($value['longitude']) && count($value) === 2) {
         return [
           'geoPointValue' => [
             'latitude' => (float)$value['latitude'],
@@ -346,27 +326,12 @@ final class FirestoreCloudService {
         ];
       }
 
-      // Handle arrays (check if it's a sequential array)
-      if (array_keys($value) === range(0, count($value) - 1)) {
-        $arrayValues = [];
-        foreach ($value as $item) {
-          $arrayValues[] = $this->convertValueToFirestoreField($item, $depth + 1);
-        }
-        return [
-          'arrayValue' => [
-            'values' => $arrayValues
-          ]
-        ];
-      }
-
-      // Handle objects/maps
-      return [
-        'mapValue' => [
-          'fields' => $this->convertToFirestoreFields($value, $depth + 1)
-        ]
-      ];
+      // If it's any other array, something's wrong - just stringify it
+      $this->logger->warning('Unexpected array structure in Firestore conversion: @data', [
+        '@data' => json_encode($value)
+      ]);
+      return ['stringValue' => json_encode($value)];
     } else {
-      // Fallback for unknown types
       return ['stringValue' => (string)$value];
     }
   }
