@@ -15,6 +15,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\node\NodeInterface;
 use Google\Cloud\Core\Exception\GoogleException;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -57,7 +58,7 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
   }
 
   /**
-   * @throws GoogleException
+   * @throws GuzzleException
    */
   public function execute(NodeInterface $call = NULL): void {
 

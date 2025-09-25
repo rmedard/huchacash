@@ -14,6 +14,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\node\NodeInterface;
 use Google\Cloud\Core\Exception\GoogleException;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -58,7 +59,7 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
   }
 
   /**
-   * @throws GoogleException
+   * @throws GuzzleException
    */
   public function execute(NodeInterface $call = NULL): void {
 
@@ -77,6 +78,25 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
 
     try {
       $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
+      /** @var NodeInterface $originalCall */
+      $originalCall = $call->original;
+      $initialStatus = $originalCall->get('field_call_status')->getString();
+      $currentStatus = $call->get('field_call_status')->getString();
+      if ($initialStatus !== $currentStatus) {
+        switch ($currentStatus) {
+          case 'live':
+          case 'attributed':
+            $this->firestoreCloudService->updateFireCall($call);
+            break;
+          case 'expired':
+          case 'cancelled':
+          case 'completed':
+            $this->firestoreCloudService->deleteFireCall($call);
+            break;
+        }
+      }
+
+
       $this->firestoreCloudService->updateFireCall($call);
     } finally {
       unset(self::$processing[$entity_key]);
