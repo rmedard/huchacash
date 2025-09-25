@@ -130,6 +130,7 @@ final class FirestoreCloudService {
 
   /**
    * Sign JWT with RSA private key
+   * @throws Exception
    */
   private function signJwt(string $data, string $privateKey): string {
     $key = openssl_pkey_get_private($privateKey);
@@ -143,12 +144,16 @@ final class FirestoreCloudService {
 
   /**
    * Make authenticated request to Firestore REST API
-   * @throws Exception|GuzzleException
    */
   private function firestoreRequest(string $method, string $path, array $data = null): array {
     $this->initialize();
 
     $url = self::FIRESTORE_BASE_URL . '/projects/' . $this->projectId . '/databases/(default)' . $path;
+
+    $this->logger->debug('Making Firestore request: @method @url', [
+      '@method' => $method,
+      '@url' => $url,
+    ]);
 
     $options = [
       'headers' => [
@@ -159,6 +164,7 @@ final class FirestoreCloudService {
 
     if ($data !== null) {
       $options['json'] = $data;
+      $this->logger->debug('Request data: @data', ['@data' => json_encode($data)]);
     }
 
     try {
@@ -172,7 +178,7 @@ final class FirestoreCloudService {
 
   /**
    * Create a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function createFireCall(Node $call): void {
     $callUuid = $call->uuid();
@@ -180,13 +186,17 @@ final class FirestoreCloudService {
 
     try {
       $fireCall = new FireCall($call);
-      $path = '/documents/live_calls/documentId=' . $fireCall->id;
 
       $document = [
         'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
       ];
 
-      $this->firestoreRequest('POST', $path, $document);
+      // Use explicit URL construction to avoid query parameter issues
+      $path = '/documents/live_calls';
+      $queryParams = 'documentId=' . urlencode($fireCall->id);
+      $fullPath = $path . '?' . $queryParams;
+
+      $this->firestoreRequest('POST', $fullPath, $document);
 
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
 
@@ -201,7 +211,7 @@ final class FirestoreCloudService {
 
   /**
    * Delete a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function deleteFireCall(string $callUuid): void {
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
@@ -227,7 +237,7 @@ final class FirestoreCloudService {
 
   /**
    * Update a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function updateFireCall(Node $call): void {
     $callUuid = $call->uuid();
@@ -284,9 +294,11 @@ final class FirestoreCloudService {
    * Convert array to Firestore fields format
    */
   private function convertToFirestoreFields(array $data): array {
-    return array_map(function ($value) {
-      return $this->convertValueToFirestoreField($value);
-    }, $data);
+    $fields = [];
+    foreach ($data as $key => $value) {
+      $fields[$key] = $this->convertValueToFirestoreField($value);
+    }
+    return $fields;
   }
 
   /**
