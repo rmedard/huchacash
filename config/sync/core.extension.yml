@@ -71,6 +71,7 @@ module:
   path_alias: 0
   phpass: 0
   rest: 0
+  rest_entity_extras: 0
   restui: 0
   schemata: 0
   schemata_json_schema: 0

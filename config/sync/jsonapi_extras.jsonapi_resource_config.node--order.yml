@@ -11,8 +11,8 @@ third_party_settings:
     default_include:
       - field_order_creator.field_customer_user
       - field_order_executor
-      - field_order_calls
       - field_order_items
+      - computed_order_calls
     default_sorting:
       'sort:titleSort#path': created
       'sort:titleSort#direction': DESC
@@ -136,10 +136,28 @@ resourceFields:
     publicName: path
     enhancer:
       id: ''
-  field_order_calls:
+  computed_call_bids:
     disabled: false
-    fieldName: field_order_calls
-    publicName: field_order_calls
+    fieldName: computed_call_bids
+    publicName: computed_call_bids
+    enhancer:
+      id: ''
+  menu_link:
+    disabled: false
+    fieldName: menu_link
+    publicName: menu_link
+    enhancer:
+      id: ''
+  field_gc_task_name:
+    disabled: false
+    fieldName: field_gc_task_name
+    publicName: field_gc_task_name
+    enhancer:
+      id: ''
+  field_order_attributed_call:
+    disabled: false
+    fieldName: field_order_attributed_call
+    publicName: field_order_attributed_call
     enhancer:
       id: ''
   field_order_creator:
@@ -160,12 +178,6 @@ resourceFields:
     publicName: field_order_delivery_address_str
     enhancer:
       id: ''
-  field_order_delivery_cost:
-    disabled: false
-    fieldName: field_order_delivery_cost
-    publicName: field_order_delivery_cost
-    enhancer:
-      id: ''
   field_order_delivery_time:
     disabled: false
     fieldName: field_order_delivery_time
@@ -176,12 +188,6 @@ resourceFields:
     disabled: false
     fieldName: field_order_executor
     publicName: field_order_executor
-    enhancer:
-      id: ''
-  field_order_flagged_expiration:
-    disabled: true
-    fieldName: field_order_flagged_expiration
-    publicName: field_order_flagged_expiration
     enhancer:
       id: ''
   field_order_items:
@@ -212,12 +218,6 @@ resourceFields:
     disabled: false
     fieldName: field_order_status
     publicName: field_order_status
-    enhancer:
-      id: ''
-  field_order_transactions:
-    disabled: false
-    fieldName: field_order_transactions
-    publicName: field_order_transactions
     enhancer:
       id: ''
   field_order_type:
