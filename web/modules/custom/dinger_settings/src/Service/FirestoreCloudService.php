@@ -332,9 +332,13 @@ final class FirestoreCloudService {
 
       // Handle arrays (check if it's a sequential array)
       if (array_keys($value) === range(0, count($value) - 1)) {
+        $arrayValues = [];
+        foreach ($value as $item) {
+          $arrayValues[] = $this->convertValueToFirestoreField($item);
+        }
         return [
           'arrayValue' => [
-            'values' => array_map([$this, 'convertValueToFirestoreField'], $value)
+            'values' => $arrayValues
           ]
         ];
       }
@@ -467,9 +471,12 @@ final class FirestoreCloudService {
           'longitude' => $field['geoPointValue']['longitude']
         ];
       } elseif (isset($field['arrayValue']['values'])) {
-        $data[$key] = array_map(function($item) {
-          return $this->convertFromFirestoreFields(['temp' => $item])['temp'];
-        }, $field['arrayValue']['values']);
+        $arrayData = [];
+        foreach ($field['arrayValue']['values'] as $item) {
+          $converted = $this->convertFromFirestoreFields(['temp' => $item]);
+          $arrayData[] = $converted['temp'];
+        }
+        $data[$key] = $arrayData;
       } elseif (isset($field['mapValue']['fields'])) {
         $data[$key] = $this->convertFromFirestoreFields($field['mapValue']['fields']);
       }
