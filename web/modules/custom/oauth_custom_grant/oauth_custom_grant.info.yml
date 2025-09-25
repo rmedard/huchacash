@@ -1,6 +1,6 @@
 name: OAuth Custom Grant
 description: 'Provides a custom oauth grant type that supports Gmail and Username/Password sign-in'
-package: Dinger Custom Modules
+package: Hucha Custom
 
 type: module
 core_version_requirement: ^10 || ^11
