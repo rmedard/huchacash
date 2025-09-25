@@ -11,7 +11,7 @@ third_party_settings:
     default_include:
       - field_call_order.field_order_creator.field_customer_user
       - field_call_order.field_order_items
-      - field_call_bids
+      - computed_call_bids
     page_limit: 50
 id: node--call
 disabled: false
@@ -132,10 +132,16 @@ resourceFields:
     publicName: path
     enhancer:
       id: ''
-  field_call_bids:
+  computed_bids:
     disabled: false
-    fieldName: field_call_bids
-    publicName: field_call_bids
+    fieldName: computed_bids
+    publicName: computed_bids
+    enhancer:
+      id: ''
+  menu_link:
+    disabled: false
+    fieldName: menu_link
+    publicName: menu_link
     enhancer:
       id: ''
   field_call_expiry_time:
@@ -150,6 +156,12 @@ resourceFields:
     publicName: field_call_order
     enhancer:
       id: ''
+  field_call_order_confirm_nbr:
+    disabled: false
+    fieldName: field_call_order_confirm_nbr
+    publicName: field_call_order_confirm_nbr
+    enhancer:
+      id: ''
   field_call_proposed_service_fee:
     disabled: false
     fieldName: field_call_proposed_service_fee
@@ -162,9 +174,21 @@ resourceFields:
     publicName: field_call_status
     enhancer:
       id: ''
+  field_call_system_service_fee:
+    disabled: false
+    fieldName: field_call_system_service_fee
+    publicName: field_call_system_service_fee
+    enhancer:
+      id: ''
   field_call_type:
     disabled: false
     fieldName: field_call_type
     publicName: field_call_type
+    enhancer:
+      id: ''
+  field_gc_task_name:
+    disabled: false
+    fieldName: field_gc_task_name
+    publicName: field_gc_task_name
     enhancer:
       id: ''
