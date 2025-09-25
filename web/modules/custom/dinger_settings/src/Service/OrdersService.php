@@ -10,7 +10,9 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
 use Drupal\node\Entity\Node;
+use Exception;
 use Google\Cloud\Core\Exception\GoogleException;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class OrdersService
@@ -58,11 +60,13 @@ final class OrdersService
         /** @var Node $attributedCall **/
         $attributedCall = $order->get('field_order_attributed_call')->entity;
 
-        /** @var FirestoreCloudServiceOld $firestoreCloudService **/
+        /** @var FirestoreCloudService $firestoreCloudService **/
         $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
         try {
           $firestoreCloudService->deleteFireCall($attributedCall->uuid());
-        } catch (GoogleException $e) {
+        } catch (GuzzleException $e) {
+          $this->logger->warning('Failed to delete order attributed Call: ' . $e->getMessage());
+        } catch (Exception $e) {
           $this->logger->warning('Failed to delete order attributed Call: ' . $e->getMessage());
         }
 

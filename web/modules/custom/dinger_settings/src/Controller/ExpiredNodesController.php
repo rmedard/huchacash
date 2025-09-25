@@ -14,10 +14,11 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use Drupal\dinger_settings\Service\FirestoreCloudServiceOld;
+use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\node\NodeInterface;
-use Google\Cloud\Core\Exception\GoogleException;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -111,11 +112,13 @@ final class ExpiredNodesController extends ControllerBase
             $node->set('field_call_status', 'expired');
             $node->save();
 
-            /** @var FirestoreCloudServiceOld $firestoreCloudService **/
+            /** @var FirestoreCloudService $firestoreCloudService **/
             $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
             $firestoreCloudService->deleteFireCall($node->uuid());
 
-          } catch (EntityStorageException|GoogleException $e) {
+          } catch (EntityStorageException|Exception $e) {
+            $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
+          } catch (GuzzleException $e) {
             $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
           }
         }
