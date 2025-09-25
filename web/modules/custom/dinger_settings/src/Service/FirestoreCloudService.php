@@ -180,13 +180,13 @@ final class FirestoreCloudService {
 
     try {
       $fireCall = new FireCall($call);
-      $path = '/documents/live_calls/' . $fireCall->id;
+      $path = '/documents/live_calls/documentId=' . $fireCall->id;
 
       $document = [
         'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
       ];
 
-      $this->firestoreRequest('POST', '/documents/live_calls?documentId=' . $fireCall->id, $document);
+      $this->firestoreRequest('POST', $path, $document);
 
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
 
