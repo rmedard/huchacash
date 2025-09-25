@@ -1,17 +1,17 @@
-uuid: 4035c334-b9a2-469d-b21b-96c1df255044
+uuid: 76094592-bb23-4398-9c15-aed9fb9ecda7
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_call_bids
-    - node.type.bid
-    - node.type.call
-id: node.call.field_call_bids
-field_name: field_call_bids
+    - field.storage.node.field_tx_order
+    - node.type.order
+    - node.type.transaction
+id: node.transaction.field_tx_order
+field_name: field_tx_order
 entity_type: node
-bundle: call
-label: Bids
-description: ''
+bundle: transaction
+label: Order
+description: 'The order which the transaction is attached.'
 required: false
 translatable: false
 default_value: {  }
@@ -20,7 +20,7 @@ settings:
   handler: 'default:node'
   handler_settings:
     target_bundles:
-      bid: bid
+      order: order
     sort:
       field: _none
       direction: ASC

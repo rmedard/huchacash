@@ -3,7 +3,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.call.field_call_bids
     - field.field.node.call.field_call_expiry_time
     - field.field.node.call.field_call_order
     - field.field.node.call.field_call_order_confirm_nbr
@@ -22,14 +21,6 @@ targetEntityType: node
 bundle: call
 mode: default
 content:
-  field_call_bids:
-    type: entity_reference_label
-    label: above
-    settings:
-      link: true
-    third_party_settings: {  }
-    weight: 106
-    region: content
   field_call_expiry_time:
     type: datetime_default
     label: above

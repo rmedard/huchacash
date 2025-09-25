@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.transaction.field_tx_bank_account
     - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
+    - field.field.node.transaction.field_tx_order
     - field.field.node.transaction.field_tx_status
     - field.field.node.transaction.field_tx_to
     - field.field.node.transaction.field_tx_type
@@ -42,6 +43,16 @@ content:
   field_tx_from:
     type: entity_reference_autocomplete
     weight: 2
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_tx_order:
+    type: entity_reference_autocomplete
+    weight: 26
     region: content
     settings:
       match_operator: CONTAINS

@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.transaction.field_tx_bank_account
     - field.field.node.transaction.field_tx_comment
     - field.field.node.transaction.field_tx_from
+    - field.field.node.transaction.field_tx_order
     - field.field.node.transaction.field_tx_status
     - field.field.node.transaction.field_tx_to
     - field.field.node.transaction.field_tx_type
@@ -52,6 +53,14 @@ content:
       link: true
     third_party_settings: {  }
     weight: 102
+    region: content
+  field_tx_order:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 109
     region: content
   field_tx_status:
     type: list_default

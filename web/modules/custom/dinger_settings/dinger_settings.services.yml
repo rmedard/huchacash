@@ -38,8 +38,7 @@ services:
 
   dinger_settings.firestore_cloud_service:
     class: Drupal\dinger_settings\Service\FirestoreCloudService
-    arguments:
-      - '@logger.factory'
+    arguments: ['@http_client_factory', '@config.factory', '@logger.factory']
 
   dinger_settings.geohash_service:
     class: Drupal\dinger_settings\Service\GeoHashService

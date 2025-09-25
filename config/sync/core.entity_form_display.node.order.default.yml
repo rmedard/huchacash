@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.order.field_gc_task_name
     - field.field.node.order.field_order_attributed_call
-    - field.field.node.order.field_order_calls
     - field.field.node.order.field_order_creator
     - field.field.node.order.field_order_delivery_address
     - field.field.node.order.field_order_delivery_address_str
@@ -16,7 +15,6 @@ dependencies:
     - field.field.node.order.field_order_pickup_address_str
     - field.field.node.order.field_order_shopping_total_cost
     - field.field.node.order.field_order_status
-    - field.field.node.order.field_order_transactions
     - field.field.node.order.field_order_type
     - node.type.order
   module:
@@ -38,16 +36,6 @@ content:
   field_order_attributed_call:
     type: entity_reference_autocomplete
     weight: 27
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_order_calls:
-    type: entity_reference_autocomplete
-    weight: 14
     region: content
     settings:
       match_operator: CONTAINS
@@ -131,16 +119,6 @@ content:
     weight: 11
     region: content
     settings: {  }
-    third_party_settings: {  }
-  field_order_transactions:
-    type: entity_reference_autocomplete
-    weight: 12
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
     third_party_settings: {  }
   field_order_type:
     type: options_select

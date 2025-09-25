@@ -58,7 +58,7 @@ final class OrdersService
         /** @var Node $attributedCall **/
         $attributedCall = $order->get('field_order_attributed_call')->entity;
 
-        /** @var FirestoreCloudService $firestoreCloudService **/
+        /** @var FirestoreCloudServiceOld $firestoreCloudService **/
         $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
         try {
           $firestoreCloudService->deleteFireCall($attributedCall->uuid());

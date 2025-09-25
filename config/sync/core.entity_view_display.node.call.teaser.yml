@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-    - field.field.node.call.field_call_bids
     - field.field.node.call.field_call_expiry_time
     - field.field.node.call.field_call_order
     - field.field.node.call.field_call_order_confirm_nbr
@@ -27,7 +26,6 @@ content:
     weight: 100
     region: content
 hidden:
-  field_call_bids: true
   field_call_expiry_time: true
   field_call_order: true
   field_call_order_confirm_nbr: true

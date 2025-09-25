@@ -75,6 +75,7 @@ final class TransactionsService
           'field_tx_amount' => $purchaseCost,
           'field_tx_from' => $order->get('field_order_creator')->entity,
           'field_tx_to' => $order->get('field_order_executor')->entity,
+          'field_tx_order' => $order,
           'field_tx_type' => TransactionType::PURCHASE_COST,
           'field_tx_status' => TransactionStatus::CONFIRMED,
         ])->save();
@@ -90,6 +91,7 @@ final class TransactionsService
         'field_tx_amount' => $effectiveDeliveryFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
+        'field_tx_order' => $order,
         'field_tx_type' => TransactionType::DELIVERY_FEE,
         'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
@@ -100,18 +102,13 @@ final class TransactionsService
         'field_tx_amount' => $systemServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => Node::load($systemCustomer),
+        'field_tx_order' => $order,
         'field_tx_type' => TransactionType::SERVICE_FEE,
         'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
       $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
 
       $this->logger->info('Transactions processed. Attaching them to order @order', ['@order' => $order->id()]);
-
-      /**
-       * Prevent hooks from firing during this save. VERY IMPORTANT!!
-       */
-      $order->setSyncing(true);
-      $order->save();
     } catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {
       $this->logger->error($e);
     }

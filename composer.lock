@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5960c44c2b6974824d99bc4cf2459da2",
+    "content-hash": "8aa3ec3af56a6a17f4ff1e171f92b7fe",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -4704,21 +4704,21 @@
         },
         {
             "name": "google/cloud-tasks",
-            "version": "v1.15.2",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-tasks.git",
-                "reference": "d6019982b3ef489bf1242da426668daaedded3e6"
+                "reference": "8e723a3e3c7f030dc9ae83336edcaa3ed2545858"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-tasks/zipball/d6019982b3ef489bf1242da426668daaedded3e6",
-                "reference": "d6019982b3ef489bf1242da426668daaedded3e6",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-tasks/zipball/8e723a3e3c7f030dc9ae83336edcaa3ed2545858",
+                "reference": "8e723a3e3c7f030dc9ae83336edcaa3ed2545858",
                 "shasum": ""
             },
             "require": {
-                "google/gax": "^1.36.0",
-                "php": "^8.0"
+                "google/gax": "^1.38.0",
+                "php": "^8.1"
             },
             "require-dev": {
                 "google/cloud-core": "^1.52.7",
@@ -4749,9 +4749,9 @@
             ],
             "description": "Google Cloud Tasks Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-tasks/tree/v1.15.2"
+                "source": "https://github.com/googleapis/google-cloud-php-tasks/tree/v2.1.0"
             },
-            "time": "2024-12-12T21:15:35+00:00"
+            "time": "2025-09-20T01:29:44+00:00"
         },
         {
             "name": "google/common-protos",
@@ -7403,16 +7403,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.28",
+            "version": "2.1.29",
             "source": {
                 "type": "git",
-                "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "578fa296a166605d97b94091f724f1257185d278"
+                "url": "https://github.com/phpstan/phpstan-phar-composer-source.git",
+                "reference": "git"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/578fa296a166605d97b94091f724f1257185d278",
-                "reference": "578fa296a166605d97b94091f724f1257185d278",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d618573eed4a1b6b75e37b2e0b65ac65c885d88e",
+                "reference": "d618573eed4a1b6b75e37b2e0b65ac65c885d88e",
                 "shasum": ""
             },
             "require": {
@@ -7457,7 +7457,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-09-19T08:58:49+00:00"
+            "time": "2025-09-25T06:58:18+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
