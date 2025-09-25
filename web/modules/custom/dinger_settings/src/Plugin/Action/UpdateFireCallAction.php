@@ -13,7 +13,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
 use Drupal\node\NodeInterface;
-use Google\Cloud\Core\Exception\GoogleException;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -58,9 +58,6 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
 
-  /**
-   * @throws GuzzleException
-   */
   public function execute(NodeInterface $call = NULL): void {
 
     // Get a unique identifier for this entity
@@ -91,13 +88,12 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
           case 'expired':
           case 'cancelled':
           case 'completed':
-            $this->firestoreCloudService->deleteFireCall($call);
+            $this->firestoreCloudService->deleteFireCall($call->uuid());
             break;
         }
       }
-
-
-      $this->firestoreCloudService->updateFireCall($call);
+    } catch (Exception $e) {
+      $this->logger->error($e->getMessage());
     } finally {
       unset(self::$processing[$entity_key]);
     }
