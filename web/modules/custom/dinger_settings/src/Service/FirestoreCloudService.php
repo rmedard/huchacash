@@ -13,7 +13,6 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 
 final class FirestoreCloudService {
@@ -116,8 +115,6 @@ final class FirestoreCloudService {
 
     } catch (RequestException $e) {
       throw new Exception('Failed to get access token: ' . $e->getMessage());
-    } catch (GuzzleException $e) {
-      throw new Exception('Failed to get access token: ' . $e->getMessage());
     }
   }
 
@@ -130,7 +127,6 @@ final class FirestoreCloudService {
 
   /**
    * Sign JWT with RSA private key
-   * @throws Exception
    */
   private function signJwt(string $data, string $privateKey): string {
     $key = openssl_pkey_get_private($privateKey);
@@ -305,27 +301,53 @@ final class FirestoreCloudService {
    * Convert value to Firestore field format
    */
   private function convertValueToFirestoreField($value): array {
-    if (is_string($value)) {
-      return ['stringValue' => $value];
+    if ($value === null) {
+      return ['nullValue' => null];
+    } elseif (is_bool($value)) {
+      return ['booleanValue' => $value];
     } elseif (is_int($value)) {
       return ['integerValue' => (string)$value];
     } elseif (is_float($value)) {
       return ['doubleValue' => $value];
-    } elseif (is_bool($value)) {
-      return ['booleanValue' => $value];
-    } elseif (is_array($value) && isset($value['_seconds'], $value['_nanoseconds'])) {
-      // Firestore timestamp format
-      return [
-        'timestampValue' => date('c', $value['_seconds']) // ISO 8601 format
-      ];
+    } elseif (is_string($value)) {
+      return ['stringValue' => $value];
     } elseif (is_array($value)) {
+      // Handle Firestore timestamp format (from UtilsService::dateTimeToGcTimestamp)
+      if (isset($value['_seconds']) && isset($value['_nanoseconds'])) {
+        return [
+          'timestampValue' => gmdate('Y-m-d\TH:i:s', $value['_seconds']) .
+            sprintf('.%09dZ', $value['_nanoseconds'])
+        ];
+      }
+
+      // Handle Geopoint format
+      if (isset($value['latitude']) && isset($value['longitude'])) {
+        return [
+          'geoPointValue' => [
+            'latitude' => (float)$value['latitude'],
+            'longitude' => (float)$value['longitude']
+          ]
+        ];
+      }
+
+      // Handle arrays (check if it's a sequential array)
+      if (array_keys($value) === range(0, count($value) - 1)) {
+        return [
+          'arrayValue' => [
+            'values' => array_map([$this, 'convertValueToFirestoreField'], $value)
+          ]
+        ];
+      }
+
+      // Handle objects/maps
       return [
         'mapValue' => [
           'fields' => $this->convertToFirestoreFields($value)
         ]
       ];
     } else {
-      return ['nullValue' => null];
+      // Fallback for unknown types
+      return ['stringValue' => (string)$value];
     }
   }
 
@@ -422,16 +444,32 @@ final class FirestoreCloudService {
   private function convertFromFirestoreFields(array $fields): array {
     $data = [];
     foreach ($fields as $key => $field) {
-      if (isset($field['stringValue'])) {
-        $data[$key] = $field['stringValue'];
+      if (isset($field['nullValue'])) {
+        $data[$key] = null;
+      } elseif (isset($field['booleanValue'])) {
+        $data[$key] = $field['booleanValue'];
       } elseif (isset($field['integerValue'])) {
         $data[$key] = (int)$field['integerValue'];
       } elseif (isset($field['doubleValue'])) {
         $data[$key] = $field['doubleValue'];
-      } elseif (isset($field['booleanValue'])) {
-        $data[$key] = $field['booleanValue'];
+      } elseif (isset($field['stringValue'])) {
+        $data[$key] = $field['stringValue'];
       } elseif (isset($field['timestampValue'])) {
-        $data[$key] = strtotime($field['timestampValue']);
+        // Convert timestamp back to array format that matches your existing code
+        $timestamp = strtotime($field['timestampValue']);
+        $data[$key] = [
+          '_seconds' => $timestamp,
+          '_nanoseconds' => 0 // We lose nanosecond precision in conversion
+        ];
+      } elseif (isset($field['geoPointValue'])) {
+        $data[$key] = [
+          'latitude' => $field['geoPointValue']['latitude'],
+          'longitude' => $field['geoPointValue']['longitude']
+        ];
+      } elseif (isset($field['arrayValue']['values'])) {
+        $data[$key] = array_map(function($item) {
+          return $this->convertFromFirestoreFields(['temp' => $item])['temp'];
+        }, $field['arrayValue']['values']);
       } elseif (isset($field['mapValue']['fields'])) {
         $data[$key] = $this->convertFromFirestoreFields($field['mapValue']['fields']);
       }
