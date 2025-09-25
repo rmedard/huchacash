@@ -183,6 +183,7 @@ final class FirestoreCloudService {
     try {
       $fireCall = new FireCall($call);
 
+      $this->logger->debug('Firecall body: @data', ['@data' => $fireCall->toFirestoreBody()]);
       $document = [
         'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
       ];
