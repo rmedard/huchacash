@@ -13,6 +13,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 
 final class FirestoreCloudService {
@@ -24,8 +25,8 @@ final class FirestoreCloudService {
   protected ?string $projectId = null;
   protected ?array $credentials = null;
 
-  private const FIRESTORE_BASE_URL = 'https://firestore.googleapis.com/v1';
-  private const GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/token';
+  private const string FIRESTORE_BASE_URL = 'https://firestore.googleapis.com/v1';
+  private const string GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/token';
 
   public function __construct(
     ClientFactory $http_client,
@@ -112,8 +113,9 @@ final class FirestoreCloudService {
       if (!$this->accessToken) {
         throw new Exception('Failed to get access token from response');
       }
-
     } catch (RequestException $e) {
+      throw new Exception('Failed to get access token: ' . $e->getMessage());
+    } catch (GuzzleException $e) {
       throw new Exception('Failed to get access token: ' . $e->getMessage());
     }
   }
@@ -127,6 +129,7 @@ final class FirestoreCloudService {
 
   /**
    * Sign JWT with RSA private key
+   * @throws Exception
    */
   private function signJwt(string $data, string $privateKey): string {
     $key = openssl_pkey_get_private($privateKey);
@@ -140,6 +143,7 @@ final class FirestoreCloudService {
 
   /**
    * Make authenticated request to Firestore REST API
+   * @throws Exception|GuzzleException
    */
   private function firestoreRequest(string $method, string $path, array $data = null): array {
     $this->initialize();
@@ -174,7 +178,7 @@ final class FirestoreCloudService {
 
   /**
    * Create a fire call document
-   * @throws Exception
+   * @throws Exception|GuzzleException
    */
   public function createFireCall(Node $call): void {
     $callUuid = $call->uuid();
@@ -207,7 +211,7 @@ final class FirestoreCloudService {
 
   /**
    * Delete a fire call document
-   * @throws Exception
+   * @throws Exception|GuzzleException
    */
   public function deleteFireCall(string $callUuid): void {
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
@@ -233,7 +237,7 @@ final class FirestoreCloudService {
 
   /**
    * Update a fire call document
-   * @throws Exception
+   * @throws Exception|GuzzleException
    */
   public function updateFireCall(Node $call): void {
     $callUuid = $call->uuid();
@@ -419,6 +423,18 @@ final class FirestoreCloudService {
       if ($e->getCode() === 404) {
         return null;
       }
+      $this->logger->error('Failed to get FireCall @callId: @error', [
+        '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
+      return null;
+    } catch (GuzzleException $e) {
+      $this->logger->error('Failed to get FireCall @callId: @error', [
+        '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
+      return null;
+    } catch (Exception $e) {
       $this->logger->error('Failed to get FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),

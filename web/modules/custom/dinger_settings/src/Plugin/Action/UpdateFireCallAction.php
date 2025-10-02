@@ -94,6 +94,8 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
       }
     } catch (Exception $e) {
       $this->logger->error($e->getMessage());
+    } catch (GuzzleException $e) {
+      $this->logger->error($e->getMessage());
     } finally {
       unset(self::$processing[$entity_key]);
     }
