@@ -110,6 +110,9 @@ function dinger_settings_node_presave(NodeInterface $node): void
     /** @var EntityReferenceFieldItemList $orderItems **/
     $orderItems = $node->get('field_order_items');
     $totalPrice = 0;
+    /**
+     * @var Node  $orderItem
+     */
     foreach ($orderItems->referencedEntities() as $delta => $orderItem) {
       $totalPrice += doubleval($orderItem->get('field_order_item_price')->getString());
     }

@@ -70,7 +70,7 @@ final class TransactionsService
       $shoppingCostRef = $order->get('field_order_shopping_total_cost');
       $purchaseCost = $shoppingCostRef->isEmpty() ? 0 : doubleval($shoppingCostRef->getString());
       if ($purchaseCost > 0) {
-        $purchaseCostTxId = $storage->create([
+        $storage->create([
           'type' => 'transaction',
           'field_tx_amount' => $purchaseCost,
           'field_tx_from' => $order->get('field_order_creator')->entity,
@@ -79,14 +79,13 @@ final class TransactionsService
           'field_tx_type' => TransactionType::PURCHASE_COST,
           'field_tx_status' => TransactionStatus::CONFIRMED,
         ])->save();
-        $order->get('field_order_transactions')->appendItem(['target_id' => $purchaseCostTxId]);
       }
 
       $totalDeliveryFee = doubleval(trim($attributedCall->get('field_call_proposed_service_fee')->getString()));
       $systemServiceFee = doubleval(trim($attributedCall->get('field_call_system_service_fee')->getString()));
       $effectiveDeliveryFee = $totalDeliveryFee - $systemServiceFee;
 
-      $deliveryFeeTxId = $storage->create([
+      $storage->create([
         'type' => 'transaction',
         'field_tx_amount' => $effectiveDeliveryFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
@@ -95,9 +94,8 @@ final class TransactionsService
         'field_tx_type' => TransactionType::DELIVERY_FEE,
         'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
-      $order->get('field_order_transactions')->appendItem(['target_id' => $deliveryFeeTxId]);
 
-      $systemServiceFeeTxId = $storage->create([
+      $storage->create([
         'type' => 'transaction',
         'field_tx_amount' => $systemServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
@@ -106,7 +104,6 @@ final class TransactionsService
         'field_tx_type' => TransactionType::SERVICE_FEE,
         'field_tx_status' => TransactionStatus::CONFIRMED,
       ])->save();
-      $order->get('field_order_transactions')->appendItem(['target_id' => $systemServiceFeeTxId]);
 
       $this->logger->info('Transactions processed. Attaching them to order @order', ['@order' => $order->id()]);
     } catch (InvalidPluginDefinitionException|EntityStorageException|PluginNotFoundException|MathException $e) {

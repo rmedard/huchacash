@@ -4,7 +4,6 @@ namespace Drupal\dinger_settings\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Http\ClientFactory;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
@@ -15,30 +14,27 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use MrShan0\PHPFirestore\FirestoreClient;
 
 final class FirestoreCloudService {
 
   protected Client $httpClient;
   protected ConfigFactoryInterface $configFactory;
   protected LoggerChannelInterface $logger;
-  protected ?string $accessToken = null;
   protected ?string $projectId = null;
   protected ?array $credentials = null;
 
-  private const string FIRESTORE_BASE_URL = 'https://firestore.googleapis.com/v1';
-  private const string GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/token';
 
-  public function __construct(
-    ClientFactory $http_client,
-    ConfigFactoryInterface $config_factory,
-    LoggerChannelFactory $logger
-  ) {
+  protected FirestoreClient $firestoreClient;
+
+
+  /**
+   * @throws Exception
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactory $logger) {
     $this->logger = $logger->get('FirestoreCloudService');
-    $this->httpClient = $http_client->fromOptions([
-      'timeout' => 30,
-      'connect_timeout' => 30,
-    ]);
     $this->configFactory = $config_factory;
+    $this->initialize();
   }
 
   /**
@@ -46,10 +42,6 @@ final class FirestoreCloudService {
    * @throws Exception
    */
   private function initialize(): void {
-    if ($this->accessToken !== null && $this->projectId !== null) {
-      return; // Already initialized
-    }
-
     $settingsFileLocation = Settings::get('gc_tasks_settings_file');
     if (empty($settingsFileLocation) || !file_exists($settingsFileLocation)) {
       throw new Exception('Google Cloud credentials file not found at: ' . $settingsFileLocation);
@@ -57,146 +49,27 @@ final class FirestoreCloudService {
 
     $this->credentials = json_decode(file_get_contents($settingsFileLocation), true);
     $this->projectId = $this->credentials['project_id'] ?? null;
+    $apiKey = $this->credentials['private_key_id'] ?? null;
 
-    if (empty($this->projectId)) {
+    if (empty($this->projectId) || empty($apiKey)) {
       throw new Exception('Project ID not found in credentials file');
     }
 
-    $this->getAccessToken();
-  }
-
-  /**
-   * Get OAuth2 access token using service account credentials
-   * @throws Exception
-   */
-  private function getAccessToken(): void {
-    if (!$this->credentials) {
-      throw new Exception('Credentials not loaded');
-    }
-
-    // Create JWT assertion
-    $header = [
-      'alg' => 'RS256',
-      'typ' => 'JWT'
-    ];
-
-    $now = time();
-    $payload = [
-      'iss' => $this->credentials['client_email'],
-      'scope' => 'https://www.googleapis.com/auth/cloud-platform',
-      'aud' => self::GOOGLE_AUTH_URL,
-      'exp' => $now + 3600,
-      'iat' => $now
-    ];
-
-    $headerEncoded = $this->base64UrlEncode(json_encode($header));
-    $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
-    $signature = $this->signJwt($headerEncoded . '.' . $payloadEncoded, $this->credentials['private_key']);
-
-    $jwt = $headerEncoded . '.' . $payloadEncoded . '.' . $signature;
-
-    // Exchange JWT for access token
-    try {
-      $response = $this->httpClient->post(self::GOOGLE_AUTH_URL, [
-        'form_params' => [
-          'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-          'assertion' => $jwt
-        ],
-        'headers' => [
-          'Content-Type' => 'application/x-www-form-urlencoded'
-        ]
-      ]);
-
-      $data = json_decode($response->getBody()->getContents(), true);
-      $this->accessToken = $data['access_token'] ?? null;
-
-      if (!$this->accessToken) {
-        throw new Exception('Failed to get access token from response');
-      }
-    } catch (RequestException $e) {
-      throw new Exception('Failed to get access token: ' . $e->getMessage());
-    } catch (GuzzleException $e) {
-      throw new Exception('Failed to get access token: ' . $e->getMessage());
-    }
-  }
-
-  /**
-   * Base64 URL encode
-   */
-  private function base64UrlEncode(string $data): string {
-    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-  }
-
-  /**
-   * Sign JWT with RSA private key
-   * @throws Exception
-   */
-  private function signJwt(string $data, string $privateKey): string {
-    $key = openssl_pkey_get_private($privateKey);
-    if (!$key) {
-      throw new Exception('Failed to load private key');
-    }
-
-    openssl_sign($data, $signature, $key, OPENSSL_ALGO_SHA256);
-    return $this->base64UrlEncode($signature);
-  }
-
-  /**
-   * Make authenticated request to Firestore REST API
-   * @throws Exception|GuzzleException
-   */
-  private function firestoreRequest(string $method, string $path, array $data = null): array {
-    $this->initialize();
-
-    $url = self::FIRESTORE_BASE_URL . '/projects/' . $this->projectId . '/databases/(default)' . $path;
-
-    $this->logger->debug('Making Firestore request: @method @url', [
-      '@method' => $method,
-      '@url' => $url,
-    ]);
-
-    $options = [
-      'headers' => [
-        'Authorization' => 'Bearer ' . $this->accessToken,
-        'Content-Type' => 'application/json'
-      ]
-    ];
-
-    if ($data !== null) {
-      $options['json'] = $data;
-      $this->logger->debug('Request data: @data', ['@data' => json_encode($data)]);
-    }
-
-    try {
-      $response = $this->httpClient->request($method, $url, $options);
-      return json_decode($response->getBody()->getContents(), true) ?? [];
-    } catch (RequestException $e) {
-      $this->logger->error('Firestore API request failed: @error', ['@error' => $e->getMessage()]);
-      throw $e;
-    }
+    $this->firestoreClient = new FirestoreClient($this->projectId, $apiKey);
   }
 
   /**
    * Create a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function createFireCall(Node $call): void {
     $callUuid = $call->uuid();
     $this->logger->info('Creating fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
     try {
-      $fireCall = new FireCall($call);
 
-      $document = [
-        'fields' => $this->convertToFirestoreFields($fireCall->toFirestoreBody())
-      ];
-
-      // Use explicit URL construction to avoid query parameter issues
-      $path = '/documents/live_calls';
-      $queryParams = 'documentId=' . urlencode($fireCall->id);
-      $fullPath = $path . '?' . $queryParams;
-
-      $this->firestoreRequest('POST', $fullPath, $document);
+      $fireCallDocument = (new FireCall($call))->toFirestoreDocument();
+      $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
 
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
 
@@ -211,27 +84,20 @@ final class FirestoreCloudService {
 
   /**
    * Delete a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function deleteFireCall(string $callUuid): void {
+
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
     try {
-      $path = '/documents/live_calls/' . $callUuid;
-      $this->firestoreRequest('DELETE', $path);
-
-      $this->logger->info('FireCall deleted successfully: @callId', ['@callId' => $callUuid]);
-
-    } catch (RequestException $e) {
-      if ($e->getCode() === 404) {
-        $this->logger->warning('FireCall not found during deletion: @callId', ['@callId' => $callUuid]);
-      } else {
-        $this->logger->error('Failed to delete FireCall @callId: @error', [
-          '@callId' => $callUuid,
-          '@error' => $e->getMessage(),
-        ]);
-        throw $e;
-      }
+      $this->firestoreClient->deleteDocument('live_calls', $callUuid);
+    }  catch (Exception $e) {
+      $this->logger->error('Failed to create FireCall @callId: @error', [
+        '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
+      throw $e;
     }
   }
 
@@ -240,6 +106,7 @@ final class FirestoreCloudService {
    * @throws Exception|GuzzleException
    */
   public function updateFireCall(Node $call): void {
+
     $callUuid = $call->uuid();
     $this->logger->info('Updating fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
@@ -258,23 +125,12 @@ final class FirestoreCloudService {
 
       // Convert updates to Firestore field format
       $updateFields = [];
-      $updateMask = [];
 
       foreach ($updates as $update) {
-        $updateFields[$update['path']] = $this->convertValueToFirestoreField($update['value']);
-        $updateMask[] = $update['path'];
+        $updateFields[$update['path']] = $update['value'];
       }
 
-      $path = '/documents/live_calls/' . $callUuid;
-      $data = [
-        'fields' => $updateFields
-      ];
-
-      // Add update mask to query string
-      $updateMaskQuery = implode(',', $updateMask);
-      $path .= '?updateMask.fieldPaths=' . urlencode($updateMaskQuery);
-
-      $this->firestoreRequest('PATCH', $path, $data);
+      $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
 
     } catch (RequestException $e) {
@@ -290,59 +146,6 @@ final class FirestoreCloudService {
     }
   }
 
-  /**
-   * Convert array to Firestore fields format
-   */
-  private function convertToFirestoreFields(array $data): array {
-    return array_map(function ($value) {
-      return $this->convertValueToFirestoreField($value);
-    }, $data);
-  }
-
-  /**
-   * Convert value to Firestore field format - simplified for flat data only
-   */
-  /**
-   * Convert value to Firestore field format - simplified for flat data only
-   */
-  private function convertValueToFirestoreField($value): array {
-    if ($value === null) {
-      return ['nullValue' => null];
-    } elseif (is_bool($value)) {
-      return ['booleanValue' => $value];
-    } elseif (is_int($value)) {
-      return ['integerValue' => (string)$value];
-    } elseif (is_float($value)) {
-      return ['doubleValue' => $value];
-    } elseif (is_string($value)) {
-      // Check if string is an ISO 8601 timestamp
-      if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/', $value)) {
-        return ['timestampValue' => $value];
-      }
-      return ['stringValue' => $value];
-    } elseif (is_object($value) || is_array($value)) {
-      // Convert object to array for consistent handling
-      $arrayValue = is_object($value) ? (array) $value : $value;
-
-      // Handle geopoints - check for latitude/longitude properties
-      if (isset($arrayValue['latitude']) && isset($arrayValue['longitude'])) {
-        return [
-          'geoPointValue' => [
-            'latitude' => (float) $arrayValue['latitude'],
-            'longitude' => (float) $arrayValue['longitude']
-          ]
-        ];
-      }
-
-      // If it's any other array/object, log warning and stringify it
-      $this->logger->warning('Unexpected array/object structure in Firestore conversion: @data', [
-        '@data' => json_encode($arrayValue)
-      ]);
-      return ['stringValue' => json_encode($arrayValue)];
-    } else {
-      return ['stringValue' => (string) $value];
-    }
-  }
 
   /**
    * Prepare updates array based on changes between original and current call
@@ -392,96 +195,5 @@ final class FirestoreCloudService {
     }
 
     return $updates;
-  }
-
-  /**
-   * Check if Firestore client is properly initialized
-   */
-  public function isConnected(): bool {
-    try {
-      $this->initialize();
-      return true;
-    } catch (Exception $e) {
-      return false;
-    }
-  }
-
-  /**
-   * Get a document (useful for debugging)
-   */
-  public function getFireCall(string $callUuid): ?array {
-    try {
-      $path = '/documents/live_calls/' . $callUuid;
-      $response = $this->firestoreRequest('GET', $path);
-
-      if (isset($response['fields'])) {
-        return $this->convertFromFirestoreFields($response['fields']);
-      }
-
-      return null;
-    } catch (RequestException $e) {
-      if ($e->getCode() === 404) {
-        return null;
-      }
-      $this->logger->error('Failed to get FireCall @callId: @error', [
-        '@callId' => $callUuid,
-        '@error' => $e->getMessage(),
-      ]);
-      return null;
-    } catch (GuzzleException $e) {
-      $this->logger->error('Failed to get FireCall @callId: @error', [
-        '@callId' => $callUuid,
-        '@error' => $e->getMessage(),
-      ]);
-      return null;
-    } catch (Exception $e) {
-      $this->logger->error('Failed to get FireCall @callId: @error', [
-        '@callId' => $callUuid,
-        '@error' => $e->getMessage(),
-      ]);
-      return null;
-    }
-  }
-
-  /**
-   * Convert Firestore fields back to regular array
-   */
-  private function convertFromFirestoreFields(array $fields): array {
-    $data = [];
-    foreach ($fields as $key => $field) {
-      if (isset($field['nullValue'])) {
-        $data[$key] = null;
-      } elseif (isset($field['booleanValue'])) {
-        $data[$key] = $field['booleanValue'];
-      } elseif (isset($field['integerValue'])) {
-        $data[$key] = (int)$field['integerValue'];
-      } elseif (isset($field['doubleValue'])) {
-        $data[$key] = $field['doubleValue'];
-      } elseif (isset($field['stringValue'])) {
-        $data[$key] = $field['stringValue'];
-      } elseif (isset($field['timestampValue'])) {
-        // Convert timestamp back to array format that matches your existing code
-        $timestamp = strtotime($field['timestampValue']);
-        $data[$key] = [
-          '_seconds' => $timestamp,
-          '_nanoseconds' => 0 // We lose nanosecond precision in conversion
-        ];
-      } elseif (isset($field['geoPointValue'])) {
-        $data[$key] = [
-          'latitude' => $field['geoPointValue']['latitude'],
-          'longitude' => $field['geoPointValue']['longitude']
-        ];
-      } elseif (isset($field['arrayValue']['values'])) {
-        $arrayData = [];
-        foreach ($field['arrayValue']['values'] as $item) {
-          $converted = $this->convertFromFirestoreFields(['temp' => $item]);
-          $arrayData[] = $converted['temp'];
-        }
-        $data[$key] = $arrayData;
-      } elseif (isset($field['mapValue']['fields'])) {
-        $data[$key] = $this->convertFromFirestoreFields($field['mapValue']['fields']);
-      }
-    }
-    return $data;
   }
 }

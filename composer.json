@@ -44,6 +44,7 @@
     "require": {
         "php": ">=8.3",
         "ext-openssl": "*",
+        "bensontrent/firestore-php": "^3.1",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.5",
