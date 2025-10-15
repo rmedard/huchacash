@@ -91,7 +91,7 @@ final class FirestoreCloudService {
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
     try {
-      $this->firestoreClient->deleteDocument('live_calls', $callUuid);
+      $this->firestoreClient->deleteDocument('live_calls/' . $callUuid);
     }  catch (Exception $e) {
       $this->logger->error('Failed to create FireCall @callId: @error', [
         '@callId' => $callUuid,
