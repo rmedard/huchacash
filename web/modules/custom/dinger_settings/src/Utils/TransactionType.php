@@ -2,13 +2,18 @@
 
 namespace Drupal\dinger_settings\Utils;
 
-interface TransactionType
+enum TransactionType: string
 {
-  const string TOP_UP = 'top_up';
-  const string PURCHASE_COST = 'purchase_cost';
-  const string DELIVERY_FEE = 'delivery_fee';
-  const string SERVICE_FEE = 'service_fee';
-  const string FINE = 'fine';
-  const string WITHDRAWAL = 'withdrawal';
-  const string REFUND = 'refund';
+  case TOP_UP = 'top_up';
+  case PURCHASE_COST = 'purchase_cost';
+  case DELIVERY_FEE = 'delivery_fee';
+  case SERVICE_FEE = 'service_fee';
+  case FINE = 'fine';
+  case WITHDRAWAL = 'withdrawal';
+  case REFUND = 'refund';
+
+  public static function fromString(string $value): self
+  {
+    return self::tryFrom($value);
+  }
 }

@@ -10,7 +10,7 @@ use Drupal\Core\Site\Settings;
 use Drupal\dinger_settings\Model\FireCall;
 use Drupal\dinger_settings\Utils\FirestoreFieldFilter;
 use Drupal\dinger_settings\Utils\FirestoreFieldValue;
-use Drupal\dinger_settings\Utils\FirestoreHelper;
+use Drupal\dinger_settings\Utils\FirestoreQueryHelper;
 use Drupal\dinger_settings\Utils\FirestoreOperator;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -155,7 +155,7 @@ final class FirestoreCloudService {
   private function deleteBidsByCallId(string $callUuid): void {
     $callId = FirestoreFieldValue::string($callUuid);
     $filter = new FirestoreFieldFilter('call_id', $callId, FirestoreOperator::EQUAL);
-    $bidDocuments = FirestoreHelper::queryFirestore($this->firestoreClient, 'live_bids', $filter);
+    $bidDocuments = FirestoreQueryHelper::queryFirestore($this->firestoreClient, 'live_bids', $filter);
     if (empty($bidDocuments)) {
       $this->logger->info('No bids to call @callId to delete', ['@callId' => $callUuid]);
       return;

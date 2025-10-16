@@ -2,8 +2,8 @@
 
 namespace Drupal\dinger_settings\Utils;
 
-interface GcNodeType {
+enum GcNodeType: string {
 
-  const string ORDER = 'order';
-  const string CALL = 'call';
+  case ORDER = 'order';
+  case CALL = 'call';
 }

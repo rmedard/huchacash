@@ -76,8 +76,8 @@ final class TransactionsService
           'field_tx_from' => $order->get('field_order_creator')->entity,
           'field_tx_to' => $order->get('field_order_executor')->entity,
           'field_tx_order' => $order,
-          'field_tx_type' => TransactionType::PURCHASE_COST,
-          'field_tx_status' => TransactionStatus::CONFIRMED,
+          'field_tx_type' => TransactionType::PURCHASE_COST->value,
+          'field_tx_status' => TransactionStatus::CONFIRMED->value,
         ])->save();
       }
 
@@ -91,8 +91,8 @@ final class TransactionsService
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_order' => $order,
-        'field_tx_type' => TransactionType::DELIVERY_FEE,
-        'field_tx_status' => TransactionStatus::CONFIRMED,
+        'field_tx_type' => TransactionType::DELIVERY_FEE->value,
+        'field_tx_status' => TransactionStatus::CONFIRMED->value,
       ])->save();
 
       $storage->create([
@@ -101,8 +101,8 @@ final class TransactionsService
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => Node::load($systemCustomer),
         'field_tx_order' => $order,
-        'field_tx_type' => TransactionType::SERVICE_FEE,
-        'field_tx_status' => TransactionStatus::CONFIRMED,
+        'field_tx_type' => TransactionType::SERVICE_FEE->value,
+        'field_tx_status' => TransactionStatus::CONFIRMED->value,
       ])->save();
 
       $this->logger->info('Transactions processed. Attaching them to order @order', ['@order' => $order->id()]);
@@ -113,8 +113,8 @@ final class TransactionsService
 
   public function updateAccountsOnTransactionCreated(Node $transaction): void
   {
-    $txStatus = $transaction->get('field_tx_status')->getString();
-    $transactionType = $transaction->get('field_tx_type')->getString();
+    $txStatus = TransactionStatus::tryFrom($transaction->get('field_tx_status')->getString());
+    $transactionType = TransactionType::tryFrom($transaction->get('field_tx_type')->getString());
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
       /** @var Node $txInitiator * */
@@ -150,8 +150,8 @@ final class TransactionsService
   }
 
   public function updateAccountsOnTransactionUpdated(Node $transaction): void {
-    $txStatus = $transaction->get('field_tx_status')->getString();
-    $transactionType = $transaction->get('field_tx_type')->getString();
+    $txStatus = TransactionStatus::tryFrom($transaction->get('field_tx_status')->getString());
+    $transactionType = TransactionType::tryFrom($transaction->get('field_tx_type')->getString());
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
       /** @var Node $txInitiator * */

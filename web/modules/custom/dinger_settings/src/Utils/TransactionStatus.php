@@ -2,9 +2,9 @@
 
 namespace Drupal\dinger_settings\Utils;
 
-interface TransactionStatus
+enum TransactionStatus: string
 {
-  const string INITIATED = 'initiated';
-  const string CONFIRMED = 'confirmed';
-  const string CANCELLED = 'cancelled';
+  case INITIATED = 'initiated';
+  case CONFIRMED = 'confirmed';
+  case CANCELLED = 'cancelled';
 }

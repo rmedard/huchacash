@@ -53,7 +53,7 @@ abstract class BaseHuchaGcAction extends ActionBase implements ContainerFactoryP
   }
 
   protected function getTriggerTime(NodeInterface $node): DrupalDateTime {
-    return match ($node->bundle()) {
+    return match (GcNodeType::tryFrom($node->bundle())) {
       GcNodeType::CALL => $node->get('field_call_expiry_time')->date,
       GcNodeType::ORDER => $node->get('field_order_delivery_time')->date,
       default => throw new BadRequestHttpException('Unsupported Node Type'),

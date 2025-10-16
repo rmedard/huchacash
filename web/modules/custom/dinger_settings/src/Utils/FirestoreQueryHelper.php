@@ -14,7 +14,7 @@ use MrShan0\PHPFirestore\Exceptions\UnhandledRequestError;
 use MrShan0\PHPFirestore\FirestoreClient;
 use MrShan0\PHPFirestore\FirestoreDocument;
 
-final class FirestoreHelper
+final class FirestoreQueryHelper
 {
   /**
    * Query Firestore on a single collection and a single field

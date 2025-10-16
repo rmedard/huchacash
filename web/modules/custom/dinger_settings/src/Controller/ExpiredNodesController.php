@@ -86,11 +86,11 @@ final class ExpiredNodesController extends ControllerBase
     $decoded = (array) Json::decode($payload);
     $this->logger->debug('<pre><code>' . print_r($decoded, TRUE) . '</code></pre>');
     $uuid = array_key_exists('uuid', $decoded) ? $decoded['uuid'] : '';
-    $type = array_key_exists('type', $decoded) ? $decoded['type'] : '';
+    $type = GcNodeType::tryFrom(array_key_exists('type', $decoded) ? $decoded['type'] : '');
 
-    if (empty($uuid) || empty($type)) {
+    if (empty($uuid) || is_null($type)) {
       $message = 'Missing uuid or node type. UUID missing: @uuid_missing. Type missing: @type_missing';
-      $this->logger->error($message, ['@uuid_missing' => empty($uuid) ? 'true' : 'false', '@type_missing' => empty($type) ? 'true' : 'false']);
+      $this->logger->error($message, ['@uuid_missing' => empty($uuid) ? 'true' : 'false', '@type_missing' => is_null($type) ? 'true' : 'false']);
       $response->setContent('Missing uuid or node type');
       return $response;
     }
