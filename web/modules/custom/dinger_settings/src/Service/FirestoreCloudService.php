@@ -163,10 +163,15 @@ final class FirestoreCloudService {
 
     /** @var FirestoreDocument $bidDocument */
     foreach ($bidDocuments as $bidDocument) {
-      $bidId = $bidDocument->getName();
+      $bidId = basename($bidDocument->getName());
       try {
         $this->logger->info('Deleting bid. BidId: @bidId', ['@bidId' => $bidId]);
-        $this->firestoreClient->deleteDocument('live_bids/' . $bidId);
+        $deleted = $this->firestoreClient->deleteDocument('live_bids/' . $bidId);
+        if ($deleted) {
+          $this->logger->info('Deleted bid. BidId: @bidId', ['@bidId' => $bidId]);
+        } else {
+          $this->logger->warning('Deleting bid failed. BidId: @bidId', ['@bidId' => $bidId]);
+        }
       } catch (Exception $e) {
         $this->logger->error('Failed to delete Bid @bidId: @error', ['@bidId' => $bidId, '@error' => $e->getMessage()]);
       }
