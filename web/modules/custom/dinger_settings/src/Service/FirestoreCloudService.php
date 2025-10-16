@@ -8,6 +8,10 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\dinger_settings\Model\FireCall;
+use Drupal\dinger_settings\Utils\FirestoreFieldFilter;
+use Drupal\dinger_settings\Utils\FirestoreFieldValue;
+use Drupal\dinger_settings\Utils\FirestoreHelper;
+use Drupal\dinger_settings\Utils\FirestoreOperator;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
@@ -15,6 +19,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use MrShan0\PHPFirestore\FirestoreClient;
+use MrShan0\PHPFirestore\FirestoreDocument;
 
 final class FirestoreCloudService {
 
@@ -91,9 +96,10 @@ final class FirestoreCloudService {
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
     try {
+      $this->deleteBidsByCallId($callUuid);
       $this->firestoreClient->deleteDocument('live_calls/' . $callUuid);
     }  catch (Exception $e) {
-      $this->logger->error('Failed to create FireCall @callId: @error', [
+      $this->logger->error('Failed to delete FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),
       ]);
@@ -142,6 +148,27 @@ final class FirestoreCloudService {
           '@error' => $e->getMessage(),
         ]);
         throw $e;
+      }
+    }
+  }
+
+  private function deleteBidsByCallId(string $callUuid): void {
+    $callId = FirestoreFieldValue::string($callUuid);
+    $filter = new FirestoreFieldFilter('call_id', $callId, FirestoreOperator::EQUAL);
+    $bidDocuments = FirestoreHelper::queryFirestore($this->firestoreClient, 'live_bids', $filter);
+    if (empty($bidDocuments)) {
+      $this->logger->info('No bids to call @callId to delete', ['@callId' => $callUuid]);
+      return;
+    }
+
+    /** @var FirestoreDocument $bidDocument */
+    foreach ($bidDocuments as $bidDocument) {
+      $bidId = $bidDocument->getName();
+      try {
+        $this->logger->info('Deleting bid. BidId: @bidId', ['@bidId' => $bidId]);
+        $this->firestoreClient->deleteDocument('live_bids/' . $bidId);
+      } catch (Exception $e) {
+        $this->logger->error('Failed to delete Bid @bidId: @error', ['@bidId' => $bidId, '@error' => $e->getMessage()]);
       }
     }
   }
