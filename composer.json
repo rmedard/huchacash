@@ -62,7 +62,7 @@
         "drupal/gin_login": "^2.1",
         "drupal/gin_toolbar": "^3.0",
         "drupal/honeypot": "^2.2",
-        "drupal/jsonapi_extras": "3.x-dev@dev",
+        "drupal/jsonapi_extras": "^3.27",
         "drupal/jsonapi_resources": "^1.2",
         "drupal/module_filter": "^5.0",
         "drupal/openapi_jsonapi": "^3.0",
