@@ -1521,17 +1521,17 @@
         },
         {
             "name": "drupal/bpmn_io",
-            "version": "3.0.1",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/bpmn_io.git",
-                "reference": "3.0.1"
+                "reference": "3.0.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/bpmn_io-3.0.1.zip",
-                "reference": "3.0.1",
-                "shasum": "9e0bdfb61854976247514e7c0b525b68272449f1"
+                "url": "https://ftp.drupal.org/files/projects/bpmn_io-3.0.2.zip",
+                "reference": "3.0.2",
+                "shasum": "392e8ffaf6d8e967c41914db590c3b1b1124a139"
             },
             "require": {
                 "drupal/core": "^11.2",
@@ -1546,8 +1546,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "3.0.1",
-                    "datestamp": "1760431525",
+                    "version": "3.0.2",
+                    "datestamp": "1761319420",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2203,17 +2203,17 @@
         },
         {
             "name": "drupal/eca",
-            "version": "3.0.5",
+            "version": "3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/eca.git",
-                "reference": "3.0.5"
+                "reference": "3.0.6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/eca-3.0.5.zip",
-                "reference": "3.0.5",
-                "shasum": "2713af7a16fbe13e49f67bf24e1fb3a9b6646b04"
+                "url": "https://ftp.drupal.org/files/projects/eca-3.0.6.zip",
+                "reference": "3.0.6",
+                "shasum": "fd3360ec0ea8bb843404c05515baa32fab69aa80"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.1",
@@ -2239,8 +2239,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "3.0.5",
-                    "datestamp": "1760110544",
+                    "version": "3.0.6",
+                    "datestamp": "1761318911",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3124,17 +3124,17 @@
         },
         {
             "name": "drupal/modeler_api",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/modeler_api.git",
-                "reference": "1.0.3"
+                "reference": "1.0.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/modeler_api-1.0.3.zip",
-                "reference": "1.0.3",
-                "shasum": "a0239640175c715506336aa0fa9ea763b476acfc"
+                "url": "https://ftp.drupal.org/files/projects/modeler_api-1.0.4.zip",
+                "reference": "1.0.4",
+                "shasum": "765105fe1e475c068f9a05674f20b87b19406189"
             },
             "require": {
                 "drupal/core": "^10.4 || ^11"
@@ -3142,8 +3142,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.0.3",
-                    "datestamp": "1758712784",
+                    "version": "1.0.4",
+                    "datestamp": "1761319262",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4636,16 +4636,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.68.1",
+            "version": "v1.68.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-core.git",
-                "reference": "fef35bddabc292eb1758cafc70cb3526703f57a5"
+                "reference": "f33d7c3e912d83ea731d08975e79de1c3b8c19d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/fef35bddabc292eb1758cafc70cb3526703f57a5",
-                "reference": "fef35bddabc292eb1758cafc70cb3526703f57a5",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/f33d7c3e912d83ea731d08975e79de1c3b8c19d1",
+                "reference": "f33d7c3e912d83ea731d08975e79de1c3b8c19d1",
                 "shasum": ""
             },
             "require": {
@@ -4696,9 +4696,9 @@
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.68.1"
+                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.68.2"
             },
-            "time": "2025-10-21T22:33:33+00:00"
+            "time": "2025-10-25T01:16:28+00:00"
         },
         {
             "name": "google/cloud-tasks",
