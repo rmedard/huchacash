@@ -11,7 +11,7 @@ class UserDetails {
 
   public function __construct(Node $customer) {
     $this->id = $customer->uuid();
-    $this->photo = '';
+    $this->photo = $customer->get('field_customer_user')->entity->get('user_picture')->value;
     $this->lastname = $customer->get('field_customer_lastname')->getString();
   }
 }

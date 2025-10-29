@@ -7,6 +7,7 @@ use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
+use Drupal\dinger_settings\Model\FireBid;
 use Drupal\dinger_settings\Model\FireCall;
 use Drupal\dinger_settings\Utils\FirestoreFieldFilter;
 use Drupal\dinger_settings\Utils\FirestoreFieldValue;
@@ -73,7 +74,7 @@ final class FirestoreCloudService {
 
     try {
 
-      $fireCallDocument = (new FireCall($call))->toFirestoreDocument();
+      $fireCallDocument = new FireCall($call)->toFirestoreDocument();
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
 
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
@@ -82,6 +83,25 @@ final class FirestoreCloudService {
       $this->logger->error('Failed to create FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),
+      ]);
+      throw $e;
+    }
+  }
+
+  /**
+   * @throws Exception
+   */
+  public function createFireBid(Node $bid): void {
+    $bidUuid = $bid->uuid();
+    $this->logger->info('Creating FireBid @bidUuid', ['@bidUuid' => $bidUuid]);
+    try {
+      $fireBidDocument = new FireBid($bid)->toFirestoreDocument();
+      $this->firestoreClient->addDocument('live_bids', $fireBidDocument, $bidUuid);
+      $this->logger->info('FireBid created successfully: @bidUuid', ['@bidUuid' => $bidUuid]);
+    } catch (Exception $e) {
+      $this->logger->error('Failed to create FireBid @bidUuid: @error', [
+        '@bidUuid' => $bidUuid,
+        '@error' => $e->getMessage()
       ]);
       throw $e;
     }

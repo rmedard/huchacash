@@ -40,6 +40,15 @@ services:
     class: Drupal\dinger_settings\Service\FirestoreCloudService
     arguments: ['@config.factory', '@logger.factory']
 
+  hucha_settings.fire_storage_cloud_service:
+    class: Drupal\dinger_settings\Service\FireStorageCloudService
+    arguments: [
+      '@http_client',
+      '@logger.factory',
+      '@config.factory',
+      '@file_system'
+    ]
+
   dinger_settings.geohash_service:
     class: Drupal\dinger_settings\Service\GeoHashService
     arguments:

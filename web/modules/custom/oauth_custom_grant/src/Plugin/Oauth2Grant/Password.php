@@ -3,6 +3,7 @@
 namespace Drupal\oauth_custom_grant\Plugin\Oauth2Grant;
 
 use DateInterval;
+use DateMalformedIntervalStringException;
 use Drupal\consumers\Entity\Consumer;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -77,7 +78,7 @@ class Password extends Oauth2GrantBase implements ContainerFactoryPluginInterfac
   /**
    * @param Consumer $client
    * @return PasswordGrant
-   * @throws \DateMalformedIntervalStringException
+   * @throws DateMalformedIntervalStringException
    */
   public function getGrantType(Consumer $client): GrantTypeInterface
   {

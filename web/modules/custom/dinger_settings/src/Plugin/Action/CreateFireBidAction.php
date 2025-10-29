@@ -18,12 +18,12 @@ use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
-  id: 'dinger_settings_create_firecall_action',
-  label: new TranslatableMarkup('Create FireCall Action'),
+  id: 'dinger_settings_create_firebid_action',
+  label: new TranslatableMarkup('Create FireBid Action'),
   category: new TranslatableMarkup('Custom'),
   type: 'node'
 )]
-final class CreateFireCallAction extends ActionBase implements ContainerFactoryPluginInterface {
+final class CreateFireBidAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
    * @var LoggerChannelInterface
@@ -37,7 +37,7 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
 
   public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $loggerFactory, FirestoreCloudService $firestoreCloudService) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->logger = $loggerFactory->get('CreateFireCallAction');
+    $this->logger = $loggerFactory->get('CreateFireBidAction');
     $this->firestoreCloudService = $firestoreCloudService;
   }
 
@@ -52,17 +52,19 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
   }
 
   public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE): bool|AccessResultInterface {
-    $isAllowed = $object instanceof NodeInterface && $object->bundle() == 'call';
+    $isAllowed = $object instanceof NodeInterface
+      && $object->bundle() == 'bid'
+      && $object->get('field_bid_type')->getString() == 'bargain';
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
 
   /**
    * @throws Exception
    */
-  public function execute(?NodeInterface $call = NULL): void {
+  public function execute(?NodeInterface $bid = NULL): void {
 
-    /** Create fireCall **/
-    $this->firestoreCloudService->createFireCall($call);
+    /** Create fireBid **/
+    $this->firestoreCloudService->createFireBid($bid);
   }
 
 }

@@ -83,10 +83,11 @@ content:
     weight: 108
     region: content
   field_customer_user:
-    type: entity_reference_label
+    type: entity_reference_entity_view
     label: above
     settings:
-      link: true
+      view_mode: default
+      link: false
     third_party_settings: {  }
     weight: 103
     region: content

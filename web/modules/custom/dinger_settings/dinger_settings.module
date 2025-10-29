@@ -169,9 +169,18 @@ function dinger_settings_file_presave(FileInterface $file): void
     /**
      * @var UtilsService $utilsService
      */
-    $utilsService = Drupal::service('hucha_settings.utils_service');
-    $reference = '_' . $utilsService->generateRandomId();
-    $file->setFilename('file_' . $reference);
+    $utilsService = \Drupal::service('hucha_settings.utils_service');
+    $reference = $utilsService->generateRandomId();
+
+    // Get the file extension
+    $extension = pathinfo($file->getFilename(), PATHINFO_EXTENSION);
+
+    // Set filename with extension
+    $new_filename = 'file_' . $reference;
+    if (!empty($extension)) {
+      $new_filename .= '.' . $extension;
+    }
+    $file->setFilename($new_filename);
   }
 }
 

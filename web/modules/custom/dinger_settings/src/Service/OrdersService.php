@@ -10,9 +10,6 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
 use Drupal\node\Entity\Node;
-use Exception;
-use Google\Cloud\Core\Exception\GoogleException;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class OrdersService

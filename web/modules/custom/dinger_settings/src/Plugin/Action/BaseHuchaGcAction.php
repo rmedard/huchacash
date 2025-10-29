@@ -60,5 +60,5 @@ abstract class BaseHuchaGcAction extends ActionBase implements ContainerFactoryP
     };
   }
 
-  abstract public function execute(NodeInterface $entity = NULL): void;
+  abstract public function execute(?NodeInterface $entity = NULL): void;
 }

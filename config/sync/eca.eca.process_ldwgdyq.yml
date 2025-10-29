@@ -7,12 +7,13 @@ dependencies:
     - field.storage.node.field_bid_status
     - node.type.bid
   module:
+    - dinger_settings
     - eca_content
     - modeler_api
 third_party_settings:
   modeler_api:
     modeler_id: bpmn_io
-    data: 'hash:4fa35d5bb8c40a90e255f0ee1018eef7'
+    data: 'hash:f8f51ecd36a6199773a1398c5b8ef50e'
     label: onBidCreated
     version: 1.0.0
 id: process_ldwgdyq
@@ -28,12 +29,23 @@ events:
         id: Gateway_10yp8rk
         condition: ''
 conditions:
-  Flow_0xgk8c8:
+  eca_entity_field_value_0xgk8c8:
     plugin: eca_entity_field_value
     label: isAcceptBid
     configuration:
       negate: false
       expected_value: accept
+      field_name: field_bid_type
+      operator: equal
+      type: value
+      case: false
+      entity: node
+  eca_entity_field_value_0clpceg:
+    plugin: eca_entity_field_value
+    label: isBargainBid
+    configuration:
+      negate: false
+      expected_value: bargain
       field_name: field_bid_type
       operator: equal
       type: value
@@ -45,7 +57,10 @@ gateways:
     successors:
       -
         id: eca_set_field_value_0eegumj
-        condition: Flow_0xgk8c8
+        condition: eca_entity_field_value_0xgk8c8
+      -
+        id: dinger_settings_create_firebid_action_1lu6sub
+        condition: eca_entity_field_value_0clpceg
 actions:
   eca_set_field_value_0eegumj:
     label: setBidConfirmed
@@ -57,5 +72,11 @@ actions:
       strip_tags: false
       trim: false
       save_entity: true
+      object: node
+    successors: {  }
+  dinger_settings_create_firebid_action_1lu6sub:
+    label: 'Create FireBid Action'
+    plugin: dinger_settings_create_firebid_action
+    configuration:
       object: node
     successors: {  }
