@@ -74,7 +74,8 @@ final class FirestoreCloudService {
 
     try {
 
-      $fireCallDocument = new FireCall($call)->toFirestoreDocument();
+      $fireCall = new FireCall($call);
+      $fireCallDocument = $fireCall->toFirestoreDocument();
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
 
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);

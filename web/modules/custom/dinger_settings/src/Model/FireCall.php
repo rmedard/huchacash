@@ -50,39 +50,6 @@ class FireCall {
     $this->canBargain = in_array($call->get('field_call_type')->getString(), ['negotiable', 'open']);
   }
 
-  public function toFirestoreBody(): array {
-
-    /** @var GeoHashService $geoHashService **/
-    $geoHashService = Drupal::service('dinger_settings.geohash_service');
-    return [
-      'order_delivery_time' => $this->order->deliveryTime,
-      'delivery_address' => [
-        'latitude' => $this->order->deliveryAddressLat,
-        'longitude' => $this->order->deliveryAddressLng
-      ],
-      'delivery_address_full' => $this->order->deliveryAddress,
-      'delivery_address_geo_hash' => $geoHashService->encodeGeohash([$this->order->deliveryAddressLat, $this->order->deliveryAddressLng]),
-      'pickup_address' => [
-        'latitude' => $this->order->pickupAddressLat,
-        'longitude' => $this->order->pickupAddressLng
-      ],
-      'pickup_address_full' => $this->order->pickupAddress,
-      'pickup_address_geo_hash' => $geoHashService->encodeGeohash([$this->order->pickupAddressLat, $this->order->pickupAddressLng]),
-      'expiration_time' => $this->expirationTime->formatAsString(),
-      'order_id' => $this->order->id,
-      'status' => $this->status,
-      'order_type' => $this->order->type,
-      'caller_id' => $this->caller->id,
-      'caller_photo' => $this->caller->photo,
-      'caller_name' => $this->caller->lastname,
-      'proposed_fee' => $this->proposedFee,
-      'shopping_cost' => $this->order->shoppingCost,
-      'can_bargain' => $this->canBargain,
-      'order_number' => intval($this->order->nid),
-      'order_confirmation_number' => 0
-    ];
-  }
-
   public function toFirestoreDocument(): FirestoreDocument {
     /** @var GeoHashService $geoHashService **/
     $geoHashService = Drupal::service('dinger_settings.geohash_service');
