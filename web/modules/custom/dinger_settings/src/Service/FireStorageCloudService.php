@@ -7,6 +7,7 @@ namespace Drupal\dinger_settings\Service;
 use Drupal\Core\Config\ConfigException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
@@ -75,10 +76,29 @@ final class FireStorageCloudService {
     $userPhoto = $user->get('user_picture')->entity;
     $fileExtension = pathinfo($userPhoto->getFileUri(), PATHINFO_EXTENSION);
     $storagePath = "profile_photos/{$customer->uuid()}.$fileExtension";
-    return $this->uploadImage($userPhoto->getFileUri(), $storagePath, $userPhoto->getMimeType());
+    $fireStorageResponse = $this->uploadImage($userPhoto->getFileUri(), $storagePath, $userPhoto->getMimeType());
+
+    $customer->set('field_customer_photo_storagepath', $fireStorageResponse->storagePath);
+    try {
+      $customer->save();
+    } catch (EntityStorageException $e) {
+      $this->logger->error('Updating customer failed: ' . $e->getMessage());
+    }
+
+    return $fireStorageResponse;
   }
 
-  public function deleteImage(string $storage_path): bool {
+  public function deleteCustomerProfilePhoto(Node $customer): bool {
+    if ($customer->bundle() != 'customer') {
+      throw new InvalidArgumentException('Node must be of type Customer.');
+    }
+
+    if ($customer->get('field_customer_photo_storagepath')->isEmpty()) {
+      $this->logger->warning('Profile photo already deleted.');
+      return false;
+    }
+
+    $storage_path = $customer->get('field_customer_photo_storagepath')->getString();
     $bucket = $this->config->get('gc_photo_storage_bucket');
     if (empty($this->projectId) || empty($bucket)) {
       $this->logger->error('Firebase Storage configuration is incomplete.');
@@ -103,10 +123,16 @@ final class FireStorageCloudService {
         '@path' => $storage_path,
       ]);
 
+      $customer->set('field_customer_photo_storagepath', '');
+      $customer->save();
+
       return TRUE;
     } catch (GuzzleException $e) {
       $this->logger->error('Unable to delete file from Firebase Storage: @path | @message',
         ['@path' => $storage_path, '@message' => $e->getMessage()]);
+    } catch (EntityStorageException $e) {
+      $this->logger->error('Updating customer failed: ' . $e->getMessage());
+      return TRUE;
     }
     return FALSE;
   }

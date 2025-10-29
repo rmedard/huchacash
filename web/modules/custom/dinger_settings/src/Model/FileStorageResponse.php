@@ -5,26 +5,10 @@ namespace Drupal\dinger_settings\Model;
 class FileStorageResponse
 {
 
-  private string $publicUrl {
-    get {
-      return $this->publicUrl;
-    }
-  }
-  private string $downloadToken {
-    get {
-      return $this->downloadToken;
-    }
-  }
-  private string $storagePath {
-    get {
-      return $this->storagePath;
-    }
-  }
-  private string $bucketName {
-    get {
-      return $this->bucketName;
-    }
-  }
+  public private(set) string $publicUrl;
+  public private(set) string $downloadToken;
+  public private(set) string $storagePath;
+  public private(set) string $bucketName;
 
   /**
    * @param string $publicUrl

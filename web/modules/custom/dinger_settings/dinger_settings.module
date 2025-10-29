@@ -11,11 +11,14 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\dinger_settings\Model\FileStorageResponse;
 use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
 use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
 use Drupal\dinger_settings\Service\BiddingService;
 use Drupal\dinger_settings\Service\CallsService;
+use Drupal\dinger_settings\Service\CustomersService;
 use Drupal\dinger_settings\Service\DataAccessor;
+use Drupal\dinger_settings\Service\FireStorageCloudService;
 use Drupal\dinger_settings\Service\OrdersService;
 use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\file\FileInterface;
@@ -143,6 +146,38 @@ function dinger_settings_node_update(NodeInterface $node): void
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function dinger_settings_user_update(UserInterface $userEntity): void {
+  if ($userEntity->hasRole('customer')) {
+
+    $originalUser = $userEntity->getOriginal();
+    if ($originalUser) {
+      $originalPhoto = $originalUser->get('user_picture')->target_id;
+      $newPhoto = $userEntity->get('user_picture')->target_id;
+      $profilePhotoUpdated = $originalPhoto !== $newPhoto;
+      if ($profilePhotoUpdated) {
+        /** @var CustomersService $customerService */
+        $customerService = Drupal::service('dinger_settings.customers_service');
+        /** @var Node $customer */
+        $customer = $customerService->findCustomerByUserId($userEntity->id());
+        if ($customer) {
+          /** @var FireStorageCloudService $fireStorage */
+          $fireStorage = Drupal::service('hucha_settings.fire_storage_cloud_service');
+          if ($newPhoto !== null) {
+            $fireStorage->uploadCustomerProfilePhoto($customer);
+          } else {
+            $fireStorage->deleteCustomerProfilePhoto($customer);
+          }
+        } else {
+          Drupal::logger('dinger_settings')->error("User '{$userEntity->id()}' is not attached to customer.");
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_ENTITY_TYPE_insert().
  */
 function dinger_settings_node_insert(NodeInterface $entity): void {
@@ -211,7 +246,7 @@ function dinger_settings_user_insert(UserInterface $user): void
     $phone = Drupal::request()->query->get('phone', '');
     $ageRange = Drupal::request()->query->get('ageRange', '');
     try {
-      Node::create([
+      $newCustomerId = Node::create([
         'type' => 'customer',
         'title' => 'reference_nbr',
         'field_customer_lastname' => $lastname,
@@ -223,6 +258,14 @@ function dinger_settings_user_insert(UserInterface $user): void
         'uid' => $user->id(),
       ])->save();
       Drupal::logger('dinger_settings')->info('New customer created');
+
+      /**
+       * Upload user profile picture to Firebase Storage
+       */
+      /** @var FireStorageCloudService $fireStorage */
+      $fireStorage = Drupal::service('hucha_settings.fire_storage_cloud_service');
+      $fireStorage->uploadCustomerProfilePhoto(Node::load($newCustomerId));
+
     } catch (EntityStorageException $e) {
       Drupal::logger('dinger_settings')->error('Creating customer failed: ' . $e->getMessage());
     }

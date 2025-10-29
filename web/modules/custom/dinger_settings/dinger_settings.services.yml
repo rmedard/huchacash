@@ -59,3 +59,7 @@ services:
     arguments: ['@simple_oauth.authentication.simple_oauth', '@logger.factory']
     tags:
       - { name: event_subscriber }
+
+  dinger_settings.customers_service:
+    class: Drupal\dinger_settings\Service\CustomersService
+    arguments: ['@logger.factory', '@entity_type.manager']
