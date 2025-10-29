@@ -1,0 +1,19 @@
+uuid: 96c7e159-2a7e-4b2b-bccb-3347aa3c6fd8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_customer_photo_storagepath
+    - node.type.customer
+id: node.customer.field_customer_photo_storagepath
+field_name: field_customer_photo_storagepath
+entity_type: node
+bundle: customer
+label: 'Photo storage path'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -11,8 +11,8 @@ label: Administrator
 weight: 3
 is_admin: true
 permissions:
-  - 'create field_tx_type'
-  - 'edit field_tx_type'
-  - 'edit own field_tx_type'
-  - 'view field_tx_type'
-  - 'view own field_tx_type'
+  - 'create field_customer_photo_storagepath'
+  - 'edit field_customer_photo_storagepath'
+  - 'edit own field_customer_photo_storagepath'
+  - 'view field_customer_photo_storagepath'
+  - 'view own field_customer_photo_storagepath'

@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
     - field.field.node.customer.field_customer_phone
+    - field.field.node.customer.field_customer_photo_storagepath
     - field.field.node.customer.field_customer_pref_routes
     - field.field.node.customer.field_customer_user
     - node.type.customer
@@ -73,6 +74,14 @@ content:
       title: ''
     third_party_settings: {  }
     weight: 107
+    region: content
+  field_customer_photo_storagepath:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 111
     region: content
   field_customer_pref_routes:
     type: entity_reference_label
