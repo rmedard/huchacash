@@ -11,7 +11,9 @@ class UserDetails {
 
   public function __construct(Node $customer) {
     $this->id = $customer->uuid();
-    /** @description Photo will be populated directly in Firestore */
+    /** @description Photo will be populated directly in Firestore.
+     * The backend only creates live data, never reads
+     */
     $this->photo = '';
     $this->lastname = $customer->get('field_customer_lastname')->getString();
   }
