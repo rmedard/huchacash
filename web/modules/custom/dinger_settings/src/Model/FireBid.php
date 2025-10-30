@@ -25,6 +25,13 @@ class FireBid {
     $this->call = new FireCall($bid->get('field_bid_call')->entity);
     $this->bidder = new UserDetails($bid->get('field_bid_customer')->entity);
     $this->bargainAmount = $bid->get('field_bid_amount')->value;
+    try {
+      $this->createdAt = new DateTime();
+      $this->createdAt->setTimestamp($bid->getCreatedTime());
+    } catch (\DateMalformedStringException $e) {
+      \Drupal::logger('dinger_settings')->error('Mapping createdAt failed: ' . $e->getMessage());
+      $this->createdAt = new DateTime();
+    }
   }
 
   public function toFirestoreDocument(): FireStoreDocument {

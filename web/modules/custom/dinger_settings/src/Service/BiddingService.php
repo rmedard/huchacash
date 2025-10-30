@@ -2,12 +2,14 @@
 
 namespace Drupal\dinger_settings\Service;
 
+use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\dinger_settings\Utils\BidType;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -58,13 +60,16 @@ final class BiddingService {
       throw new BadRequestHttpException('Bid has invalid state. Should be new.');
     }
 
-    /** @var $call NodeInterface */
-//    $call = $bid->get('field_bid_call')->entity;
-//    $call->get('field_call_bids')->appendItem(['target_id' => $bid->id()]);
-
-    $bidType = $bid->get('field_bid_type')->getString();
-    if ($bidType === 'accept') {
-      $this->processConfirmedBid($bid);
+    $bidType = BidType::from($bid->get('field_bid_type')->getString());
+    switch ($bidType) {
+      case BidType::ACCEPT:
+        $this->processConfirmedBid($bid);
+        break;
+      case BidType::BARGAIN:
+        /** @var FirestoreCloudService $firestoreService */
+        $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+        $firestoreService->createFireBid($bid);
+        break;
     }
   }
 

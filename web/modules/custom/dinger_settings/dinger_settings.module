@@ -11,7 +11,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\dinger_settings\Model\FileStorageResponse;
 use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
 use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
 use Drupal\dinger_settings\Service\BiddingService;
@@ -181,6 +180,7 @@ function dinger_settings_user_update(UserInterface $userEntity): void {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function dinger_settings_node_insert(NodeInterface $entity): void {
+  Drupal::logger('dinger_settings')->notice("Hook INSERT on node type: " . $entity->bundle() . " With ID: " . $entity->id());
   if ($entity->bundle() === 'bid') {
     /** @var $biddingService BiddingService */
     $biddingService = Drupal::service('hucha_settings.bidding_service');

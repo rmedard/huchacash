@@ -2,6 +2,7 @@
 
 namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 
+use Drupal\dinger_settings\Utils\BidType;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\Validator\Constraint;
@@ -24,7 +25,7 @@ class BidConstraintValidator extends ConstraintValidator
   private function hasInvalidAmount(Node $bid): bool
   {
     $amount = doubleval($bid->get('field_bid_amount')->getString());
-    $type = $bid->get('field_bid_type')->value;
-    return $amount == 0 and $type == 'bargain';
+    $type = BidType::from($bid->get('field_bid_type')->getString());
+    return $amount == 0 and $type == BidType::BARGAIN;
   }
 }

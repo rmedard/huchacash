@@ -89,9 +89,6 @@ final class FirestoreCloudService {
     }
   }
 
-  /**
-   * @throws Exception
-   */
   public function createFireBid(Node $bid): void {
     $bidUuid = $bid->uuid();
     $this->logger->info('Creating FireBid @bidUuid', ['@bidUuid' => $bidUuid]);
@@ -104,7 +101,6 @@ final class FirestoreCloudService {
         '@bidUuid' => $bidUuid,
         '@error' => $e->getMessage()
       ]);
-      throw $e;
     }
   }
 
