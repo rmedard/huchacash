@@ -33,6 +33,10 @@ final class FireStorageCloudService {
   protected ?string $projectId = null;
   protected ?array $credentials = null;
 
+  // Cache access token to avoid repeated requests
+  private ?string $cachedAccessToken = null;
+  private ?int $tokenExpiryTime = null;
+
   /**
    * Constructs a FireStorageCloudService object.
    * @throws Exception
@@ -56,6 +60,11 @@ final class FireStorageCloudService {
       throw new ConfigException('Google Cloud credentials file not found at: ' . $settingsFileLocation);
     }
     $this->credentials = json_decode(file_get_contents($settingsFileLocation), TRUE);
+
+    if (!isset($this->credentials['project_id']) || !isset($this->credentials['client_email']) || !isset($this->credentials['private_key'])) {
+      throw new ConfigException('Invalid Google Cloud credentials file format.');
+    }
+
     $this->projectId = $this->credentials['project_id'];
     $this->config = $this->configFactory->get('dinger_settings');
   }
@@ -78,11 +87,13 @@ final class FireStorageCloudService {
     $storagePath = "profile_photos/{$customer->uuid()}.$fileExtension";
     $fireStorageResponse = $this->uploadImage($userPhoto->getFileUri(), $storagePath, $userPhoto->getMimeType());
 
-    $customer->set('field_customer_photo_storagepath', $fireStorageResponse->storagePath);
-    try {
-      $customer->save();
-    } catch (EntityStorageException $e) {
-      $this->logger->error('Updating customer failed: ' . $e->getMessage());
+    if ($fireStorageResponse) {
+      try {
+        $customer->set('field_customer_photo_storagepath', $fireStorageResponse->storagePath);
+        $customer->save();
+      } catch (EntityStorageException $e) {
+        $this->logger->error('Updating customer failed: ' . $e->getMessage());
+      }
     }
 
     return $fireStorageResponse;
@@ -113,7 +124,7 @@ final class FireStorageCloudService {
     }
 
     try {
-      $this->httpClient->request('DELETE', $url, [
+      $response = $this->httpClient->request('DELETE', $url, [
         'headers' => [
           'Authorization' => 'Bearer ' . $access_token,
         ],
@@ -137,6 +148,9 @@ final class FireStorageCloudService {
     return FALSE;
   }
 
+  /**
+   * Upload an image to Firebase Storage.
+   */
   private function uploadImage(string $file_path, string $storage_path, string $content_type): false|FileStorageResponse
   {
     $bucket = $this->config->get('gc_photo_storage_bucket');
@@ -167,7 +181,10 @@ final class FireStorageCloudService {
     }
 
     try {
-      // Upload to Firebase Storage.
+      // Generate download token for public access
+      $download_token = bin2hex(random_bytes(16));
+
+      // Upload to Firebase Storage with metadata
       $url = "https://firebasestorage.googleapis.com/v0/b/$bucket/o";
       $response = $this->httpClient->request('POST', $url, [
         'query' => [
@@ -183,14 +200,14 @@ final class FireStorageCloudService {
       $result = json_decode($response->getBody()->getContents(), TRUE);
 
       if (!isset($result['name'])) {
-        $this->logger->error('Unexpected response from Firebase Storage.');
+        $this->logger->error('Unexpected response from Firebase Storage: ' . json_encode($result));
         return FALSE;
       }
 
-      // Generate download token if not present.
-      $download_token = $result['downloadTokens'] ?? bin2hex(random_bytes(16));
+      // Update metadata to add download token for public URL access
+      $this->updateFileMetadata($bucket, $storage_path, $download_token, $access_token);
 
-      // Construct public URL.
+      // Construct public URL
       $public_url = "https://firebasestorage.googleapis.com/v0/b/$bucket/o/" .
         urlencode($storage_path) . "?alt=media&token=$download_token";
 
@@ -200,13 +217,43 @@ final class FireStorageCloudService {
 
       return new FileStorageResponse($public_url, $download_token, $storage_path, $bucket);
     } catch (GuzzleException $e) {
-      $this->logger->error('Unexpected response from Firebase Storage: ' . $e->getMessage());
+      $this->logger->error('Failed to upload to Firebase Storage: @message', [
+        '@message' => $e->getMessage()
+      ]);
     } catch (RandomException $e) {
       $this->logger->error('Generating random token failed: ' . $e->getMessage());
     }
     return FALSE;
   }
 
+  /**
+   * Update file metadata to add download token.
+   */
+  private function updateFileMetadata(string $bucket, string $storage_path, string $download_token, string $access_token): void {
+    try {
+      $metadata_url = "https://firebasestorage.googleapis.com/v0/b/$bucket/o/" . urlencode($storage_path);
+
+      $this->httpClient->request('PATCH', $metadata_url, [
+        'headers' => [
+          'Authorization' => 'Bearer ' . $access_token,
+          'Content-Type' => 'application/json',
+        ],
+        'json' => [
+          'metadata' => [
+            'firebaseStorageDownloadTokens' => $download_token,
+          ],
+        ],
+      ]);
+    } catch (GuzzleException $e) {
+      $this->logger->warning('Failed to update file metadata: @message', [
+        '@message' => $e->getMessage()
+      ]);
+    }
+  }
+
+  /**
+   * Convert Drupal URI to real filesystem path.
+   */
   private function getRealPath(string $file_path): false|string
   {
     // Check if it's a Drupal URI (e.g., public://, private://).
@@ -216,8 +263,17 @@ final class FireStorageCloudService {
     return $file_path;
   }
 
+  /**
+   * Get OAuth2 access token with caching.
+   */
   private function getAccessToken(): string|false {
+    // Return cached token if still valid (with 5 minute buffer)
+    if ($this->cachedAccessToken && $this->tokenExpiryTime && time() < ($this->tokenExpiryTime - 300)) {
+      return $this->cachedAccessToken;
+    }
+
     $tokenUri = $this->credentials['token_uri'];
+
     // Create JWT for authentication.
     $now = time();
     $payload = [
@@ -240,13 +296,25 @@ final class FireStorageCloudService {
         ],
       ]);
       $result = json_decode($response->getBody()->getContents(), TRUE);
-      return $result['access_token'] ?? FALSE;
+
+      if (isset($result['access_token'])) {
+        // Cache the token
+        $this->cachedAccessToken = $result['access_token'];
+        $this->tokenExpiryTime = time() + ($result['expires_in'] ?? 3600);
+        return $this->cachedAccessToken;
+      }
+
+      $this->logger->error('Access token not found in response: ' . json_encode($result));
+      return FALSE;
     } catch (GuzzleException $e) {
       $this->logger->error('Fetching access token failed: ' . $e->getMessage());
     }
     return FALSE;
   }
 
+  /**
+   * Create JWT for service account authentication.
+   */
   private function createJWT(array $payload, string $private_key): string
   {
     $header = [
@@ -266,9 +334,11 @@ final class FireStorageCloudService {
     return implode('.', $segments);
   }
 
+  /**
+   * Base64 URL-safe encoding.
+   */
   private function base64UrlEncode(string $data): string
   {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
   }
-
 }
