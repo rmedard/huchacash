@@ -139,7 +139,8 @@ final class GoogleCloudService {
 
       $callbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callbackToken;
 
-      $httpRequest = (new HttpRequest())
+      $httpRequest = new HttpRequest();
+      $httpRequest = $httpRequest
         ->setHttpMethod(HttpMethod::POST)
         ->setUrl($callbackUrl)
         ->setHeaders([
@@ -153,13 +154,12 @@ final class GoogleCloudService {
       $scheduleTime = new Timestamp();
       $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
-      $task = (new Task())
+      $task = new Task();
+      $task = $task
         ->setScheduleTime($scheduleTime)
         ->setHttpRequest($httpRequest);
 
-      $request = (new CreateTaskRequest())
-        ->setParent($formattedParent)
-        ->setTask($task);
+      $request = CreateTaskRequest::build($formattedParent, $task);
 
       // Use the safe client initialization
       $client = $this->getCloudTasksClient();
@@ -186,7 +186,7 @@ final class GoogleCloudService {
     try {
       $this
         ->getCloudTasksClient()
-        ->deleteTask((new DeleteTaskRequest())->setName($taskName));
+        ->deleteTask(DeleteTaskRequest::build($taskName));
     }
     catch (ApiException|ValidationException $e) {
       $this->logger->warning('Deleting GC Task failed. ' . $e->getMessage());

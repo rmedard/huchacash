@@ -16,7 +16,12 @@ use Google\ApiCore\ValidationException;
 )]
 final class CreateHuchaGcAction extends BaseHuchaGcAction {
 
-  public function execute(NodeInterface $entity = NULL): void {
+  public function execute(?NodeInterface $entity = NULL): void {
+    if ($entity == NULL) {
+      $this->logger->error('Empty entity received. System cannot create task.');
+      return;
+    }
+
     /**
      * Update entity with created Task name
      */
