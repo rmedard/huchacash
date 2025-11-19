@@ -44,7 +44,7 @@ final class OrdersService
     }
 
     /** @var Node $originalOrder **/
-    $originalOrder = $order->original;
+    $originalOrder = $order->getOriginal();
     $orderStatus = $order->get('field_order_status')->getString();
     $orderStatusUpdated = $orderStatus !== $originalOrder->get('field_order_status')->getString();
     if ($orderStatusUpdated) {

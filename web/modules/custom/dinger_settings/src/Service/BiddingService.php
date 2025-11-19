@@ -45,7 +45,7 @@ final class BiddingService {
     }
 
     /** @var $originalBid NodeInterface */
-    $originalBid = $bid->original;
+    $originalBid = $bid->getOriginal();
     $bidStatus = $bid->get('field_bid_status')->getString();
     $bidStatusUpdated = $bidStatus !== $originalBid->get('field_bid_status')->getString();
     if ($bidStatusUpdated) {

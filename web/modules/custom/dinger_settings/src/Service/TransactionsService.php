@@ -158,7 +158,7 @@ final class TransactionsService
       $txInitiator = $transaction->get('field_tx_from')->entity;
       if ($txStatus !== TransactionStatus::CONFIRMED) {
         /** @var Node $originalTransaction * */
-        $originalTransaction = $transaction->original;
+        $originalTransaction = $transaction->getOriginal();
         $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
         if ($txStatusChanged) {
           $this->debit($txInitiator, $txAmount, FALSE);

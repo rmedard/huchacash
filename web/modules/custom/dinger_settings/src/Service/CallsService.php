@@ -67,7 +67,7 @@ final class CallsService {
     $isCallUpdate = !$call->isNew();
     if ($isCallUpdate) {
       /** @var $originalCall NodeInterface */
-      $originalCall = $call->original;
+      $originalCall = $call->getOriginal();
       $callStatus = $call->get('field_call_status')->getString();
       $callStatusUpdated = $callStatus !== $originalCall->get('field_call_status')->getString();
 

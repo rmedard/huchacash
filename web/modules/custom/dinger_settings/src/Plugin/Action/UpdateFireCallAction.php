@@ -58,7 +58,7 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
 
-  public function execute(NodeInterface $call = NULL): void {
+  public function execute(?NodeInterface $call = NULL): void {
 
     // Get a unique identifier for this entity
     $entity_key = $call ? $call->getEntityTypeId() . ':' . $call->id() : 'unknown';
@@ -76,7 +76,7 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
     try {
       $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
       /** @var NodeInterface $originalCall */
-      $originalCall = $call->original;
+      $originalCall = $call->getOriginal();
       $initialStatus = $originalCall->get('field_call_status')->getString();
       $currentStatus = $call->get('field_call_status')->getString();
       if ($initialStatus !== $currentStatus) {

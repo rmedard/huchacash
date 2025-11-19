@@ -134,7 +134,7 @@ final class FirestoreCloudService {
     $this->logger->info('Updating fireCall. CallId: @callId', ['@callId' => $callUuid]);
 
     try {
-      $originalCall = $call->original;
+      $originalCall = $call->getOriginal();
       if (!$originalCall instanceof NodeInterface) {
         $this->logger->warning('Original call not available for update. CallId: @callId', ['@callId' => $callUuid]);
         return;
