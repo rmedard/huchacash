@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../../../../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 services:
   hucha_settings.data_accessor:
     class: Drupal\dinger_settings\Service\DataAccessor
@@ -39,6 +40,14 @@ services:
   dinger_settings.firestore_cloud_service:
     class: Drupal\dinger_settings\Service\FirestoreCloudService
     arguments: ['@config.factory', '@logger.factory']
+
+  dinger_settings.firebase_functions_service:
+    class: Drupal\dinger_settings\Service\FirebaseFunctionsService
+    arguments: [
+      '@http_client',
+      '@logger.factory',
+      '@config.factory'
+    ]
 
   hucha_settings.fire_storage_cloud_service:
     class: Drupal\dinger_settings\Service\FireStorageCloudService

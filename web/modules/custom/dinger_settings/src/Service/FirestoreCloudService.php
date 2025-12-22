@@ -97,23 +97,10 @@ final class FirestoreCloudService {
 
     /** @var NodeInterface $bidder */
     $bidder = $bid->get('field_bid_customer')->entity;
-    $updates[] = [
-      'path' => 'executor_id',
-      'value' => $bidder->uuid(),
-    ];
-    $updates[] = [
-      'path' => 'executor_name',
-      'value' => $bidder->get('field_customer_lastname')->getString(),
-    ];
-    $updates[] = [
-      'path' => 'executor_photo',
-      'value' => $bidder->get('field_customer_photo_storagepath')->getString(),
-    ];
 
     $updateFields = [];
-    foreach ($updates as $update) {
-      $updateFields[$update['path']] = $update['value'];
-    }
+    $updateFields['executor_id'] = $bidder->uuid();
+    $updateFields['executor_name'] = $bidder->get('field_customer_lastname')->getString();
 
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
     try {
