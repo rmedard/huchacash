@@ -60,14 +60,16 @@ final class BiddingService {
       throw new BadRequestHttpException('Bid has invalid state. Should be new.');
     }
 
+    /** @var FirestoreCloudService $firestoreService */
+    $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+
     $bidType = BidType::from($bid->get('field_bid_type')->getString());
     switch ($bidType) {
       case BidType::ACCEPT:
         $this->processConfirmedBid($bid);
+        $firestoreService->updateAcceptedCall($bid);
         break;
       case BidType::BARGAIN:
-        /** @var FirestoreCloudService $firestoreService */
-        $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
         $firestoreService->createFireBid($bid);
         break;
     }

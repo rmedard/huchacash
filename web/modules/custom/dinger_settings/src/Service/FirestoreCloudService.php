@@ -19,6 +19,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use InvalidArgumentException;
 use MrShan0\PHPFirestore\FirestoreClient;
 use MrShan0\PHPFirestore\FirestoreDocument;
 
@@ -86,6 +87,47 @@ final class FirestoreCloudService {
         '@error' => $e->getMessage(),
       ]);
       throw $e;
+    }
+  }
+
+  public function updateAcceptedCall(NodeInterface $bid): void {
+    if ($bid->get('field_bid_type')->getString() !== 'accept') {
+      throw new InvalidArgumentException('Bid needs to be of type \'accept\'.');
+    }
+
+    /** @var NodeInterface $bidder */
+    $bidder = $bid->get('field_bid_customer')->entity;
+    $updates[] = [
+      'path' => 'executor_id',
+      'value' => $bidder->uuid(),
+    ];
+    $updates[] = [
+      'path' => 'executor_name',
+      'value' => $bidder->get('field_customer_lastname')->getString(),
+    ];
+    $updates[] = [
+      'path' => 'executor_photo',
+      'value' => $bidder->get('field_customer_photo_storagepath')->getString(),
+    ];
+
+    $updateFields = [];
+    foreach ($updates as $update) {
+      $updateFields[$update['path']] = $update['value'];
+    }
+
+    $callUuid = $bid->get('field_bid_call')->entity->uuid();
+    try {
+      $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
+    } catch (RequestException $e) {
+      if ($e->getCode() === 404) {
+        $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
+      } else {
+        $this->logger->error('Failed to update FireCall @callId: @error', [
+          '@callId' => $callUuid,
+          '@error' => $e->getMessage(),
+        ]);
+        throw $e;
+      }
     }
   }
 
