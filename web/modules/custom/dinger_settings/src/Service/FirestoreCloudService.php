@@ -93,7 +93,8 @@ final class FirestoreCloudService {
     $bidUuid = $bid->uuid();
     $this->logger->info('Creating FireBid @bidUuid', ['@bidUuid' => $bidUuid]);
     try {
-      $fireBidDocument = new FireBid($bid)->toFirestoreDocument();
+      $fireBid = new FireBid($bid);
+      $fireBidDocument = $fireBid->toFirestoreDocument();
       $this->firestoreClient->addDocument('live_bids', $fireBidDocument, $bidUuid);
       $this->logger->info('FireBid created successfully: @bidUuid', ['@bidUuid' => $bidUuid]);
     } catch (Exception $e) {
