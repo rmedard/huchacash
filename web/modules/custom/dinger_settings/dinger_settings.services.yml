@@ -71,4 +71,4 @@ services:
 
   dinger_settings.customers_service:
     class: Drupal\dinger_settings\Service\CustomersService
-    arguments: ['@logger.factory', '@entity_type.manager']
+    arguments: ['@logger.factory', '@entity_type.manager', '@dinger_settings.firestore_cloud_service']

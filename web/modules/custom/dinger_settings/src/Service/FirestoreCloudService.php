@@ -199,6 +199,17 @@ final class FirestoreCloudService {
     }
   }
 
+  public function updateCustomerBalance(string $customerId, array $updates): void
+  {
+    if (empty($updates)) {
+      $this->logger->warning("No balance updates available for customer: @customerId", ['@customerId' => $customerId]);
+      return;
+    }
+
+    $this->firestoreClient->updateDocument('user_devices/' . $customerId, $updates, true);
+    $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
+  }
+
   private function deleteBidsByCallId(string $callUuid): void {
     $callId = FirestoreFieldValue::string($callUuid);
     $filter = new FirestoreFieldFilter('call_id', $callId, FirestoreOperator::EQUAL);

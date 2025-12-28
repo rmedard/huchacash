@@ -14,6 +14,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\TransactionsService;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[Action(
   id: 'update_accounts_tx_created_action',
@@ -53,7 +54,10 @@ final class UpdateAccountsOnTransactionCreatedAction extends ActionBase implemen
     $isAllowed = $object instanceof NodeInterface && $object->bundle() == 'transaction';
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
   }
-  public function execute(NodeInterface $transaction = NULL): void {
+  public function execute(?NodeInterface $transaction = NULL): void {
+    if (is_null($transaction)) {
+      throw new BadRequestHttpException('Transaction entity should not be null.');
+    }
     $this->logger->info('Executing update accounts on transaction. Id: ' . $transaction->uuid());
     $this->transactionsService->updateAccountsOnTransactionCreated($transaction);
   }

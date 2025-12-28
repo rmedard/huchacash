@@ -119,6 +119,7 @@ final class TransactionsService
     try {
       /** @var Node $txInitiator * */
       $txInitiator = $transaction->get('field_tx_from')->entity;
+      $txRecipient = $transaction->get('field_tx_to')->entity;
       if ($txInitiator->bundle() !== 'customer') {
         $this->logger->info('Initiator has to be a customer.');
       }
@@ -181,11 +182,11 @@ final class TransactionsService
    */
   private function debit(Node $customer, float $amount, bool $isDirectDebit): void
   {
-    $accountName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
-    $availableBalance = doubleval($customer->get($accountName)->getString());
+    $balanceFieldName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
+    $availableBalance = doubleval($customer->get($balanceFieldName)->getString());
     $newBalance = $availableBalance - $amount;
     $customer
-      ->set($accountName, $newBalance)
+      ->set($balanceFieldName, $newBalance)
       ->save();
   }
 

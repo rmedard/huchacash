@@ -141,6 +141,11 @@ function dinger_settings_node_update(NodeInterface $node): void
       $ordersService = Drupal::service('hucha_settings.orders_service');
       $ordersService->onOrderUpdated($node);
       break;
+    case 'customer':
+      /** @var CustomersService $customerService **/
+      $customerService = Drupal::service('dinger_settings.customers_service');
+      $customerService->onCustomerUpdated($node);
+      break;
   }
 }
 
