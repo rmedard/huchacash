@@ -77,7 +77,7 @@ final class CustomersService
     }
 
     if (!empty($changes)) {
-      $this->cloudService->updateCustomerBalance($customer->id(), $changes);
+      $this->cloudService->updateCustomerBalance($customer->uuid(), $changes);
     }
   }
 
