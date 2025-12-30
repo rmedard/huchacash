@@ -61,23 +61,22 @@ final class CustomersService
     }
 
     $originalCustomer = $customer->getOriginal();
+
     $originalAvailableBalance = doubleval($originalCustomer->get('field_customer_available_balance')->getString());
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
+    $availableBalanceChanged = ($originalAvailableBalance - $availableBalance) != 0;
 
     $originalPendingBalance = doubleval($originalCustomer->get('field_customer_pending_balance')->getString());
     $pendingBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
+    $pendingBalanceChanged = ($originalPendingBalance - $pendingBalance) != 0;
 
-    $changes = [];
-    if ($originalAvailableBalance !== $availableBalance) {
-      $changes['available_balance'] = $availableBalance;
-    }
-
-    if ($originalPendingBalance !== $pendingBalance) {
-      $changes['pending_balance'] = $pendingBalance;
-    }
-
-    if (!empty($changes)) {
-      $this->cloudService->updateCustomerBalance($customer->uuid(), $changes);
+    $hasChanges = $availableBalanceChanged || $pendingBalanceChanged;
+    if ($hasChanges) {
+      $currentValues = [
+        'available_balance' => $availableBalance,
+        'pending_balance' => $pendingBalance,
+      ];
+      $this->cloudService->updateCustomerBalance($customer->uuid(), $currentValues);
     }
   }
 
