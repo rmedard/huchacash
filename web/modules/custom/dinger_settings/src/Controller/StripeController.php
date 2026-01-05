@@ -2,7 +2,6 @@
 
 namespace Drupal\dinger_settings\Controller;
 
-use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Access\AccessResult;
@@ -13,6 +12,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -96,69 +96,46 @@ final class StripeController extends ControllerBase
     $sig_header = $request->headers->get('stripe-signature');
     try {
       $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-      switch ($event->type) {
-        case 'payment_intent.amount_capturable_updated':
-          $this->logger->info('amount_capturable_updated');
-          break;
-        case 'payment_intent.canceled':
-          $this->logger->info('payment_intent.canceled');
-          break;
-        case 'payment_intent.created':
-          $this->logger->info('Payment Created');
-          break;
-        case 'payment_intent.partially_funded':
-          $this->logger->info('payment_intent.partially_funded');
-          break;
-        case 'payment_intent.payment_failed':
-          $this->logger->info('payment_intent.payment_failed');
-          break;
-        case 'payment_intent.processing':
-          $this->logger->info('payment_intent.processing');
-          break;
-        case 'payment_intent.requires_action':
-          $this->logger->info('payment_intent.requires_action');
-          break;
-        case 'payment_intent.succeeded':
-          $paymentIntent = $event->data->jsonSerialize()['object'];
-          $customerUuid = $paymentIntent['metadata']['customer_business_id'];
-          $amount = doubleval($paymentIntent['amount']) / 100;
-          $customers = $this->entityTypeManager()->getStorage('node')->loadByProperties(['uuid' => $customerUuid]);
-          $customer = reset($customers);
-          if ($customer instanceof NodeInterface) {
-            try {
-              Node::create([
-                'type' => 'transaction',
-                'field_tx_from' => $customer->id(),
-                'field_tx_to' => $customer->id(),
-                'field_tx_amount' => $amount,
-                'field_tx_type' => 'top_up',
-                'field_tx_status' => 'confirmed',
-                'uid' => $customer->get('field_customer_user')->target_id
-              ])->save();
-              $this->logger->info('Top-up transaction created successfully');
-            } catch (EntityStorageException $e) {
-              $this->logger->error('Saving top-up transaction failed: ' . $e->getMessage());
-            }
+      if ($event->type == Event::PAYMENT_INTENT_SUCCEEDED) {
+        $paymentIntent = $event->data->jsonSerialize()['object'];
+        $customerUuid = $paymentIntent['metadata']['customer_business_id'];
+        $amount = doubleval($paymentIntent['amount']) / 100;
+        $customers = $this->entityTypeManager()->getStorage('node')->loadByProperties(['uuid' => $customerUuid]);
+        $customer = reset($customers);
+        if ($customer instanceof NodeInterface) {
+          try {
+            Node::create([
+              'type' => 'transaction',
+              'field_tx_from' => $customer->id(),
+              'field_tx_to' => $customer->id(),
+              'field_tx_amount' => $amount,
+              'field_tx_type' => 'top_up',
+              'field_tx_status' => 'confirmed',
+              'uid' => $customer->get('field_customer_user')->target_id
+            ])->save();
+            $this->logger->info('Top-up transaction created successfully');
+          } catch (EntityStorageException $e) {
+            $this->logger->error('Saving top-up transaction failed: ' . $e->getMessage());
           }
-          $this->logger->info('Payment Succeeded by: ' . $customerUuid);
-          break;
-        default:
-          echo 'Received unknown event type ' . $event->type;
+        }
+        $this->logger->info('Payment Succeeded by: ' . $customerUuid);
+      } else {
+        $this->logger->info("Received Stripe Event Type: " . $event->type . ". Not interested in this event.");
       }
     } catch (UnexpectedValueException $e) {
       $this->logger->error($e->getMessage());
       $response->setContent('Invalid payload');
-      $response->setStatusCode(400);
+      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
       return $response;
     } catch (SignatureVerificationException $e) {
       $this->logger->error($e->getMessage());
       $response->setContent('Signature verification failed');
-      $response->setStatusCode(400);
+      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
       return $response;
     }
 
     $response->setContent('Success!');
-    $response->setStatusCode(200);
+    $response->setStatusCode(Response::HTTP_OK);
     return $response;
   }
 
