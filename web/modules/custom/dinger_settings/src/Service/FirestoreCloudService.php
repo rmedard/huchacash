@@ -22,6 +22,7 @@ use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use MrShan0\PHPFirestore\FirestoreClient;
 use MrShan0\PHPFirestore\FirestoreDocument;
+use Symfony\Component\HttpFoundation\Response;
 
 final class FirestoreCloudService {
 
@@ -106,7 +107,7 @@ final class FirestoreCloudService {
     try {
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
     } catch (RequestException $e) {
-      if ($e->getCode() === 404) {
+      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
         $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
       } else {
         $this->logger->error('Failed to update FireCall @callId: @error', [
@@ -139,9 +140,7 @@ final class FirestoreCloudService {
    * @throws Exception
    */
   public function deleteFireCall(string $callUuid): void {
-
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
-
     try {
       $this->deleteBidsByCallId($callUuid);
       $this->firestoreClient->deleteDocument('live_calls/' . $callUuid);
@@ -187,7 +186,7 @@ final class FirestoreCloudService {
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
 
     } catch (RequestException $e) {
-      if ($e->getCode() === 404) {
+      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
         $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
       } else {
         $this->logger->error('Failed to update FireCall @callId: @error', [

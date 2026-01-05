@@ -53,11 +53,13 @@ final class CustomersService
   public function onCustomerUpdated(NodeInterface $customer): void
   {
     if ($customer->isNew()) {
-      throw new InvalidPluginDefinitionException("Customer should not be new");
+      $this->logger->error("Customer should not be new");
+      return;
     }
 
     if ($customer->bundle() != 'customer') {
-      throw new InvalidPluginDefinitionException("Invalid node bundle. It should be a customer");
+      $this->logger->error("Invalid node bundle. It should be a customer");
+      return;
     }
 
     $originalCustomer = $customer->getOriginal();
