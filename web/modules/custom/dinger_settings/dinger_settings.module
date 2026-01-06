@@ -5,11 +5,15 @@
  */
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultAllowed;
+use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\EntityReferenceFieldItemList;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
 use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
@@ -354,59 +358,78 @@ function dinger_settings_cron(): void
 /**
  * Implements hook_ENTITY_TYPE_access().
  */
-function dinger_settings_node_access(EntityInterface $entity, $operation, AccountInterface $account): AccessResult
+function dinger_settings_node_access(NodeInterface $entity, $operation, AccountInterface $account): AccessResult
 {
   if ($account instanceof UserInterface && $account->hasRole('administrator')) {
     return AccessResult::allowed();
   }
 
-  if ($entity instanceof NodeInterface) {
-    switch ($entity->bundle()) {
-      case 'bid':
-        if ($operation === 'update') {
-          $bidCreator = $entity
-            ->get('field_bid_customer')->entity
-            ->get('field_customer_user')->entity;
-          if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
-            return AccessResult::allowed();
-          }
+  switch ($entity->bundle()) {
+    case 'bid':
+      if ($operation === 'update') {
+        $bidCreator = $entity
+          ->get('field_bid_customer')->entity
+          ->get('field_customer_user')->entity;
+        if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
+          return AccessResult::allowed()        // Allow
+            ->cachePerUser()                    // Cache per user. Don't serve cached entity to any user
+            ->addCacheableDependency($entity);  // Invalidate cache is entity updated
+        }
 
-          $relatedCallCreator = $entity
-            ->get('field_bid_call')->entity
+        $relatedCallCreator = $entity
+          ->get('field_bid_call')->entity
+          ->get('field_call_order')->entity
+          ->get('field_order_creator')->entity
+          ->get('field_customer_user')->entity;
+        if ($relatedCallCreator instanceof UserInterface and $relatedCallCreator->id() === $account->id()) {
+          return AccessResult::allowed()
+            ->cachePerUser()
+            ->addCacheableDependency($entity);
+        }
+      }
+      break;
+    case 'call':
+      if ($operation === 'update') {
+        $callCreator = $entity
+          ->get('field_call_order')->entity
+          ->get('field_order_creator')->entity
+          ->get('field_customer_user')->entity;
+        if ($callCreator instanceof UserInterface and $callCreator->id() === $account->id()) {
+          return AccessResult::allowed()
+            ->cachePerUser()
+            ->addCacheableDependency($entity);
+        }
+
+        /**
+         * Allow order executor to update (complete) call attributed to him
+         */
+        if ($entity->get('field_call_status')->getString() == 'attributed') {
+          $executor = $entity
             ->get('field_call_order')->entity
-            ->get('field_order_creator')->entity
+            ->get('field_order_executor')->entity
             ->get('field_customer_user')->entity;
-          if ($relatedCallCreator instanceof UserInterface and $relatedCallCreator->id() === $account->id()) {
-            return AccessResult::allowed();
+          if ($executor instanceof UserInterface and $executor->id() === $account->id()) {
+            return AccessResult::allowed()
+              ->cachePerUser()
+              ->addCacheableDependency($entity);
           }
         }
-        break;
-      case 'call':
-        if ($operation === 'update') {
-          $callCreator = $entity
-            ->get('field_call_order')->entity
-            ->get('field_order_creator')->entity
-            ->get('field_customer_user')->entity;
-          if ($callCreator instanceof UserInterface and $callCreator->id() === $account->id()) {
-            return AccessResult::allowed();
-          }
+      }
+      break;
+    case 'transaction':
+      if ($operation === 'view') {
+        $uid = $account->id();
+        $from_id = $entity->get('field_tx_from')->target_id;
+        $to_id = $entity->get('field_tx_to')->target_id;
 
-          /**
-           * Allow order executor to update (complete) call attributed to him
-           */
-          if ($entity->get('field_call_status')->getString() == 'attributed') {
-            $executor = $entity
-              ->get('field_call_order')->entity
-              ->get('field_order_executor')->entity
-              ->get('field_customer_user')->entity;
-            if ($executor instanceof UserInterface and $executor->id() === $account->id()) {
-              return AccessResult::allowed();
-            }
-          }
+        // Allow if user is sender or receiver.
+        if ($uid && in_array($uid, [$from_id, $to_id])) {
+          return AccessResult::allowed()
+            ->cachePerUser()
+            ->addCacheableDependency($entity);
         }
-        break;
+      }
+      break;
     }
-  }
   return AccessResult::neutral();
 }
-
