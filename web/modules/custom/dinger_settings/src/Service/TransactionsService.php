@@ -119,7 +119,6 @@ final class TransactionsService
     try {
       /** @var Node $txInitiator * */
       $txInitiator = $transaction->get('field_tx_from')->entity;
-      $txRecipient = $transaction->get('field_tx_to')->entity;
       if ($txInitiator->bundle() !== 'customer') {
         $this->logger->info('Initiator has to be a customer.');
       }
@@ -205,13 +204,13 @@ final class TransactionsService
   /**
    * @throws EntityStorageException
    */
-  private function freezeDebit(Node $customer, float $amount): void
+  private function freezeDebit(Node $txInitiatorCustomer, float $amount): void
   {
-    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
+    $availableBalance = doubleval($txInitiatorCustomer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance - $amount;
-    $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
+    $frozenBalance = doubleval($txInitiatorCustomer->get('field_customer_pending_balance')->getString());
     $newFrozenBalance = $frozenBalance + $amount;
-    $customer
+    $txInitiatorCustomer
       ->set('field_customer_available_balance', $newBalance)
       ->set('field_customer_pending_balance', $newFrozenBalance)
       ->save();
