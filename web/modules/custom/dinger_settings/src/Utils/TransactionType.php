@@ -16,4 +16,9 @@ enum TransactionType: string
   {
     return self::tryFrom($value);
   }
+
+  public function hasBeneficiary(): bool
+  {
+    return $this !== TransactionType::WITHDRAWAL;
+  }
 }

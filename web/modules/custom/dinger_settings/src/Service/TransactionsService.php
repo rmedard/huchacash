@@ -250,9 +250,11 @@ final class TransactionsService
       $txInitiator
         ->set('field_customer_pending_balance', $newFrozenBalance)
         ->save();
-      $txBeneficiary
-        ->set('field_customer_available_balance', $newBalance)
-        ->save();
+      if ($txType->hasBeneficiary()) {
+        $txBeneficiary
+          ->set('field_customer_available_balance', $newBalance)
+          ->save();
+      }
     }
   }
 }

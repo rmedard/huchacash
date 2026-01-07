@@ -51,6 +51,15 @@ class TransactionConstraintsValidator extends ConstraintValidator {
             $this->context->addViolation($constraint->message);
           }
           break;
+        case TransactionTypeConstraint::class:
+          /** @var TransactionTypeConstraint $constraint **/
+          if ($transactionType->hasBeneficiary() and $value->get('field_tx_to')->isEmpty()) {
+            $this->context->addViolation($constraint->message);
+          }
+
+          if (!$transactionType->hasBeneficiary() and !$value->get('field_tx_to')->isEmpty()) {
+            $this->context->addViolation($constraint->message);
+          }
       }
     }
   }
