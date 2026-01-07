@@ -15,6 +15,7 @@ use Drupal\dinger_settings\Utils\TransactionStatus;
 use Drupal\dinger_settings\Utils\TransactionType;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeStorage;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class TransactionsService
@@ -41,6 +42,7 @@ final class TransactionsService
     $this->entityTypeManager = $entityTypeManager;
     $this->logger = $logger->get('TransactionsService');
   }
+
 
   public function processDeliveredOrderTransactions(Node $order): void
   {
@@ -117,31 +119,34 @@ final class TransactionsService
     $transactionType = TransactionType::tryFrom($transaction->get('field_tx_type')->getString());
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     try {
-      /** @var Node $txInitiator * */
+      /** @var Node $txInitiator **/
       $txInitiator = $transaction->get('field_tx_from')->entity;
-      if ($txInitiator->bundle() !== 'customer') {
-        $this->logger->info('Initiator has to be a customer.');
-      }
       switch ($txStatus) {
-        case TransactionStatus::CONFIRMED:
-          if ($transactionType !== TransactionType::TOP_UP) {
-            $this->debit($txInitiator, $txAmount, TRUE);
-          }
-
-          if ($transactionType !== TransactionType::WITHDRAWAL) {
-            /** @var Node $txBeneficiary * */
-            $txBeneficiary = $transaction->get('field_tx_to')->entity;
-            if ($txBeneficiary->bundle() !== 'customer') {
-              $this->logger->info('Beneficiary has to be a customer.');
-            }
-            $this->credit($txBeneficiary, $txAmount);
-          }
-          break;
         case TransactionStatus::INITIATED:
           $this->freezeDebit($txInitiator, $txAmount);
           break;
+        case TransactionStatus::CONFIRMED:
+          /** @var Node $txBeneficiary **/
+          $txBeneficiary = $transaction->get('field_tx_to')->entity;
+          switch ($transactionType) {
+            case TransactionType::TOP_UP:
+              $this->credit($txInitiator, $txAmount);
+              break;
+            case TransactionType::PURCHASE_COST:
+            case TransactionType::DELIVERY_FEE:
+            case TransactionType::SERVICE_FEE:
+            case TransactionType::REFUND:
+            case TransactionType::FINE:
+              $this->debit($txInitiator, $txAmount);
+              $this->credit($txBeneficiary, $txAmount);
+              break;
+            case TransactionType::WITHDRAWAL:
+              $this->debit($txInitiator, $txAmount);
+              break;
+          }
+          break;
         case TransactionStatus::CANCELLED:
-          $this->unfreezeDebit($txInitiator, $txAmount);
+          $this->logger->info('Nothing to do. Creating a cancelled transaction.');
           break;
       }
     } catch (EntityStorageException $e) {
@@ -150,26 +155,26 @@ final class TransactionsService
   }
 
   public function updateAccountsOnTransactionUpdated(Node $transaction): void {
+    /** @var Node $originalTransaction * */
+    $originalTransaction = $transaction->getOriginal();
     $txStatus = TransactionStatus::tryFrom($transaction->get('field_tx_status')->getString());
-    $transactionType = TransactionType::tryFrom($transaction->get('field_tx_type')->getString());
-    $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
+
+    $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
+    if (!$txStatusChanged) {
+      $this->logger->info('Transaction status was not changed business-wise.');
+      return;
+    }
+
     try {
-      /** @var Node $txInitiator * */
-      $txInitiator = $transaction->get('field_tx_from')->entity;
-      if ($txStatus !== TransactionStatus::CONFIRMED) {
-        /** @var Node $originalTransaction * */
-        $originalTransaction = $transaction->getOriginal();
-        $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
-        if ($txStatusChanged) {
-          $this->debit($txInitiator, $txAmount, FALSE);
-          if ($transactionType !== TransactionType::WITHDRAWAL) {
-            /** @var Node $txBeneficiary * */
-            $txBeneficiary = $transaction->get('field_tx_to')->entity;
-            $this->credit($txBeneficiary, $txAmount);
-          }
-        }
-      } elseif ($txStatus !== TransactionStatus::CANCELLED) {
-        $this->unfreezeDebit($txInitiator, $txAmount);
+      switch ($txStatus) {
+        case TransactionStatus::INITIATED:
+          throw new InvalidArgumentException('Transaction type cannot be updated to Initiated');
+        case TransactionStatus::CANCELLED:
+          $this->unfreezeDebit($transaction, TRUE);
+          break;
+        case TransactionStatus::CONFIRMED:
+          $this->unfreezeDebit($transaction, FALSE);
+          break;
       }
     } catch (EntityStorageException $e) {
       $this->logger->error($e);
@@ -177,19 +182,20 @@ final class TransactionsService
   }
 
   /**
+   * Expense. Remove money from account
    * @throws EntityStorageException
    */
-  private function debit(Node $customer, float $amount, bool $isDirectDebit): void
+  private function debit(Node $customer, float $amount): void
   {
-    $balanceFieldName = $isDirectDebit ? 'field_customer_available_balance' : 'field_customer_pending_balance';
-    $availableBalance = doubleval($customer->get($balanceFieldName)->getString());
+    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance - $amount;
     $customer
-      ->set($balanceFieldName, $newBalance)
+      ->set('field_customer_available_balance', $newBalance)
       ->save();
   }
 
   /**
+   * Income. Add money to account
    * @throws EntityStorageException
    */
   private function credit(Node $customer, float $amount): void
@@ -219,15 +225,34 @@ final class TransactionsService
   /**
    * @throws EntityStorageException
    */
-  private function unfreezeDebit(Node $customer, float $amount): void
+  private function unfreezeDebit(Node $transaction, bool $isRolledBack): void
   {
-    $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
-    $newBalance = $availableBalance + $amount;
-    $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
-    $newFrozenBalance = $frozenBalance - $amount;
-    $customer
-      ->set('field_customer_available_balance', $newBalance)
-      ->set('field_customer_pending_balance', $newFrozenBalance)
-      ->save();
+    $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
+    $txType = TransactionType::fromString($transaction->get('field_tx_type')->getString());
+
+    /** @var Drupal\node\NodeInterface $txInitiator */
+    /** @var Drupal\node\NodeInterface $txBeneficiary */
+    $txInitiator = $transaction->get('field_tx_from')->entity;
+    $txBeneficiary = $transaction->get('field_tx_to')->entity;
+
+    $frozenBalance = doubleval($txInitiator->get('field_customer_pending_balance')->getString());
+    $newFrozenBalance = $frozenBalance - $txAmount;
+
+    $availableBalance = doubleval($txBeneficiary->get('field_customer_available_balance')->getString());
+    $newBalance = $availableBalance + $txAmount;
+
+    if ($txType == TransactionType::TOP_UP || $isRolledBack) {
+      $txInitiator
+        ->set('field_customer_pending_balance', $newFrozenBalance)
+        ->set('field_customer_available_balance', $newBalance)
+        ->save();
+    } else {
+      $txInitiator
+        ->set('field_customer_pending_balance', $newFrozenBalance)
+        ->save();
+      $txBeneficiary
+        ->set('field_customer_available_balance', $newBalance)
+        ->save();
+    }
   }
 }
