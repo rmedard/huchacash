@@ -205,8 +205,12 @@ final class FirestoreCloudService {
       return;
     }
 
-    $this->firestoreClient->updateDocument('user_devices/' . $customerId, $updates, true);
-    $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
+    try {
+      $this->firestoreClient->updateDocument('user_devices/' . $customerId, $updates, true);
+      $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
+    } catch (RequestException $exception) {
+      $this->logger->warning('Failed to update Balance @customerId: @error', ['@customerId' => $customerId, 'exception' => $exception->getMessage()]);
+    }
   }
 
   private function deleteBidsByCallId(string $callUuid): void {
