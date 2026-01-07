@@ -20,6 +20,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use MrShan0\PHPFirestore\Exceptions\Client\NotFound;
 use MrShan0\PHPFirestore\FirestoreClient;
 use MrShan0\PHPFirestore\FirestoreDocument;
 use Symfony\Component\HttpFoundation\Response;
@@ -208,7 +209,7 @@ final class FirestoreCloudService {
     try {
       $this->firestoreClient->updateDocument('user_devices/' . $customerId, $updates, true);
       $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
-    } catch (RequestException $exception) {
+    } catch (Exception $exception) {
       $this->logger->warning('Failed to update Balance @customerId: @error', ['@customerId' => $customerId, 'exception' => $exception->getMessage()]);
     }
   }
