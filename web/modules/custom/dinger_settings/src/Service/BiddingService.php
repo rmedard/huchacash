@@ -9,7 +9,9 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\dinger_settings\Utils\BidStatus;
 use Drupal\dinger_settings\Utils\BidType;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -46,10 +48,10 @@ final class BiddingService {
 
     /** @var $originalBid NodeInterface */
     $originalBid = $bid->getOriginal();
-    $bidStatus = $bid->get('field_bid_status')->getString();
-    $bidStatusUpdated = $bidStatus !== $originalBid->get('field_bid_status')->getString();
+    $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
+    $bidStatusUpdated = $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     if ($bidStatusUpdated) {
-      if ($bidStatus === 'confirmed') {
+      if ($bidStatus === BidStatus::CONFIRMED) {
         $this->processConfirmedBid($bid);
       }
     }
@@ -86,7 +88,7 @@ final class BiddingService {
         ->getQuery()->accessCheck(FALSE)
         ->condition('type', 'bid')
         ->condition('field_bid_call.target_id', $call->id())
-        ->condition('field_bid_status', 'confirmed')
+        ->condition('field_bid_status', BidStatus::CONFIRMED->value)
         ->execute();
 
       if (count($confirmedBidId) > 1) {
@@ -110,8 +112,8 @@ final class BiddingService {
 
   private function processConfirmedBid(NodeInterface $bid): void {
     $this->logger->info('Process confirmed bid. Bid id: @id', ['@id' => $bid->id()]);
-    $bidStatus = $bid->get('field_bid_status')->getString();
-    if ($bidStatus !== 'confirmed') {
+    $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
+    if ($bidStatus !== BidStatus::CONFIRMED) {
       throw new BadRequestHttpException(t('Bid @id has invalid status. @invalid should be confirmed', [
         '@id' => $bid->id(),
         '@status' => $bidStatus
@@ -134,12 +136,12 @@ final class BiddingService {
         ->execute();
       $bids = Node::loadMultiple($existingBidIds);
       foreach ($bids as $bid) {
-        $bid->set('field_bid_status', 'rejected');
+        $bid->set('field_bid_status', BidStatus::REJECTED->value);
         $bid->save();
       }
 
       $call
-        ->set('field_call_status', 'attributed')
+        ->set('field_call_status', CallStatus::ATTRIBUTED->value)
         ->save();
     }
     catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {

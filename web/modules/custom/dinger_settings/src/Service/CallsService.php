@@ -11,6 +11,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+use Drupal\dinger_settings\Utils\BidStatus;
+use Drupal\dinger_settings\Utils\CallStatus;
+use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Random\RandomException;
@@ -41,22 +44,57 @@ final class CallsService {
   }
 
   public function onCallInserted(NodeInterface $call): void {
-    if ($call->get('field_call_status')->getString() == 'live') {
+    if (!$call->isNew()) {
+      $this->logger->error('Call should be new. CallID: ' . $call->id());
+      return;
+    }
 
-      /** Update order status **/
-      /** @var NodeInterface $order **/
-      $order = $call->get('field_call_order')->entity;
-      try {
-        $order->set('field_order_status', 'bidding');
-        $order->field_order_calls[] = ['target_id' => $call->id()];
-        $order->save();
-        $this->logger->info(t('Order @reference status updated for call @callReference',
-          [
-            '@reference' => $order->getTitle(),
-            '@callReference' => $call->getTitle()
-          ]));
-      } catch (EntityStorageException $e) {
-        $this->logger->error('Attaching call to order failed. Order: ' . $order->id() . '. Error: ' . $e->getMessage());
+    /** Update order status **/
+    /** @var NodeInterface $order **/
+    $order = $call->get('field_call_order')->entity;
+    try {
+      $order->set('field_order_status', OrderStatus::BIDDING);
+      $order->field_order_calls[] = ['target_id' => $call->id()];
+      $order->save();
+      $this->logger->info(t('Order @reference status updated for call @callReference',
+        [
+          '@reference' => $order->getTitle(),
+          '@callReference' => $call->getTitle()
+        ]));
+
+
+      /** Freeze initiator's balance **/
+      /** @var TransactionsService $transactions_service */
+      $transactions_service = Drupal::service('hucha_settings.transactions_service');
+      $transactions_service->freezeCallShoppingBalance($call);
+
+    } catch (EntityStorageException $e) {
+      $this->logger->error('Attaching call to order failed. Order: ' . $order->id() . '. Error: ' . $e->getMessage());
+    }
+  }
+
+  public function onCallUpdated(NodeInterface $call): void {
+    if (!$call->isNew()) {
+      $this->logger->error('Call should be new. CallID: ' . $call->id());
+      return;
+    }
+
+    /** @var $originalCall NodeInterface */
+    $originalCall = $call->getOriginal();
+    $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+    $originalCallStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
+    $callStatusUpdated = $callStatus !== $originalCallStatus;
+
+    if ($callStatusUpdated) {
+      /** @var TransactionsService $transition_service */
+      $transition_service = Drupal::service('hucha_settings.transitions_service');
+
+      if ($callStatus->isFinalState() && $callStatus->needsRollback()) {
+        $transition_service->unfreezeCallBalance($call);
+      }
+
+      if ($callStatus === CallStatus::ATTRIBUTED) {
+        $transition_service->freezeCallServiceFee($call);
       }
     }
   }
@@ -68,19 +106,19 @@ final class CallsService {
     if ($isCallUpdate) {
       /** @var $originalCall NodeInterface */
       $originalCall = $call->getOriginal();
-      $callStatus = $call->get('field_call_status')->getString();
-      $callStatusUpdated = $callStatus !== $originalCall->get('field_call_status')->getString();
+      $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+      $callStatusUpdated = $callStatus !== CallStatus::fromString($originalCall->get('field_call_status')->getString());
 
       if ($callStatusUpdated) {
         try {
           /** @var $order NodeInterface */
           $order = $call->get('field_call_order')->entity;
           switch ($callStatus) {
-            case 'attributed':
-              $this->processAttributedCall($call);
+            case CallStatus::ATTRIBUTED:
+              $this->processPreAttributedCall($call);
               break;
-            case 'cancelled':
-            case 'expired':
+            case CallStatus::CANCELLED:
+            case CallStatus::EXPIRED:
               $callBidIds = $this->entityTypeManager
                 ->getStorage('node')
                 ->getQuery()->accessCheck(FALSE)
@@ -89,25 +127,28 @@ final class CallsService {
                 ->execute();
               $bids = Node::loadMultiple($callBidIds);
               foreach ($bids as $bidId => $bid) {
-                $bid->set('field_bid_status', 'rejected');
+                $bid->set('field_bid_status', BidStatus::REJECTED->value);
                 $bid->save();
               }
 
               /** @var Drupal\Core\Datetime\DrupalDateTime $orderDeliveryTime */
               $orderDeliveryTime = $order->get('field_order_delivery_time')->value;
               if ($orderDeliveryTime < new DrupalDateTime('now')) {
-                $order->set('field_order_status', 'cancelled');
+                $order->set('field_order_status', OrderStatus::CANCELLED->value);
               } else {
-                if ($order->get('field_order_status')->getString() !== 'cancelled') {
-                  $order->set('field_order_status', 'idle');
+                if (OrderStatus::fromString($order->get('field_order_status')->getString()) !== OrderStatus::CANCELLED) {
+                  $order->set('field_order_status', OrderStatus::IDLE->value);
                 }
               }
               $order->save();
-
               break;
-            case 'completed':
-              $order->set('field_order_status', 'delivered');
+            case CallStatus::COMPLETED:
+              $order->set('field_order_status', OrderStatus::DELIVERED->value);
               $order->save();
+              break;
+            case CallStatus::LIVE:
+              $this->logger->warning('Triggered call presave for LIVE call #' . $call->id() . ' => Should never happen');
+              break;
           }
         } catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
           $this->logger->error($e);
@@ -126,10 +167,10 @@ final class CallsService {
     }
   }
 
-  private function processAttributedCall(NodeInterface $call): void {
-    $this->logger->debug('Processing attributed Call: ' . $call->id());
-    $callStatus = $call->get('field_call_status')->getString();
-    if ($callStatus !== 'attributed') {
+  private function processPreAttributedCall(NodeInterface $call): void {
+    $this->logger->debug('Processing pre-attributed Call: ' . $call->id());
+    $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+    if ($callStatus !== CallStatus::ATTRIBUTED) {
       throw new BadRequestHttpException(t('Call @id has invalid status. @invalid should be attributed', [
         '@id' => $call->id(),
         '@status' => $callStatus,
@@ -145,8 +186,9 @@ final class CallsService {
     $biddingService = Drupal::service('hucha_settings.bidding_service');
     $confirmedBid = $biddingService->findCallConfirmedBid($call);
     try {
-      $confirmedCostBeforeServiceFee = $confirmedBid->get('field_bid_amount')->getString();
-      $systemServiceFeeRate = Drupal::config(DingerSettingsConfigForm::SETTINGS)->get('hucha_base_service_fee_rate');
+      $confirmedCostBeforeServiceFee = doubleval($confirmedBid->get('field_bid_amount')->getString());
+      $immutableConfig = Drupal::config(DingerSettingsConfigForm::SETTINGS);
+      $systemServiceFeeRate = doubleval($immutableConfig->get('hucha_base_service_fee_rate'));
       $systemServiceFee = $confirmedCostBeforeServiceFee * $systemServiceFeeRate / 100;
       $call
         ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber())

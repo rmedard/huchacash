@@ -11,9 +11,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+use Drupal\dinger_settings\Utils\OrderType;
 use Drupal\dinger_settings\Utils\TransactionStatus;
 use Drupal\dinger_settings\Utils\TransactionType;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\node\NodeStorage;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -83,13 +85,12 @@ final class TransactionsService
         ])->save();
       }
 
-      $totalDeliveryFee = doubleval(trim($attributedCall->get('field_call_proposed_service_fee')->getString()));
+      $deliveryServiceFee = doubleval(trim($attributedCall->get('field_call_proposed_service_fee')->getString()));
       $systemServiceFee = doubleval(trim($attributedCall->get('field_call_system_service_fee')->getString()));
-      $effectiveDeliveryFee = $totalDeliveryFee - $systemServiceFee;
 
       $storage->create([
         'type' => 'transaction',
-        'field_tx_amount' => $effectiveDeliveryFee,
+        'field_tx_amount' => $deliveryServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_order' => $order,
@@ -170,15 +171,58 @@ final class TransactionsService
         case TransactionStatus::INITIATED:
           throw new InvalidArgumentException('Transaction type cannot be updated to Initiated');
         case TransactionStatus::CANCELLED:
-          $this->unfreezeDebit($transaction, TRUE);
+          $this->unfreezeTransactionDebit($transaction, TRUE);
           break;
         case TransactionStatus::CONFIRMED:
-          $this->unfreezeDebit($transaction, FALSE);
+          $this->unfreezeTransactionDebit($transaction, FALSE);
           break;
       }
     } catch (EntityStorageException $e) {
       $this->logger->error($e);
     }
+  }
+
+  public function freezeCallShoppingBalance(NodeInterface $call): void
+  {
+    /** @var Node $order */
+    $order = $call->get('field_call_order')->entity;
+    /** @var Node $initiator */
+    $initiator = $order->get('field_call_creator')->entity;
+    $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
+    if ($orderType === OrderType::SHOPPING_DELIVERY) {
+      $shoppingCost = doubleval($order->get('field_order_shopping_cost')->value);
+      $this->freezeDebit($initiator, $shoppingCost);
+    }
+  }
+
+  public function freezeCallServiceFee(NodeInterface $call): void {
+    /** @var Node $order */
+    $order = $call->get('field_call_order')->entity;
+    /** @var Node $initiator */
+    $initiator = $order->get('field_order_creator')->entity;
+    $deliveryServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
+    $systemServiceFee = doubleval($call->get('field_call_system_service_fee')->value);
+    $totalServiceFee =  $deliveryServiceFee + $systemServiceFee;
+    $this->freezeDebit($initiator, $totalServiceFee);
+  }
+
+  public function unfreezeCallBalance(NodeInterface $call): void
+  {
+    /** @var Node $order */
+    $order = $call->get('field_call_order')->entity;
+    /** @var Node $initiator */
+    $initiator = $order->get('field_call_creator')->entity;
+    $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
+    $shoppingCost = 0;
+    if ($orderType === OrderType::SHOPPING_DELIVERY) {
+      $shoppingCost = doubleval($order->get('field_order_shopping_cost')->value);
+    }
+
+    $deliveryServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
+    $systemServiceFee = doubleval($call->get('field_call_system_service_fee')->value);
+    $totalServiceFee =  $deliveryServiceFee + $systemServiceFee;
+    $totalOrderFee = $shoppingCost + $totalServiceFee;
+    $this->unfreezeDebit($initiator, $totalOrderFee);
   }
 
   /**
@@ -187,10 +231,14 @@ final class TransactionsService
    */
   private function debit(Node $customer, float $amount): void
   {
+    $frozenBalance = doubleval($customer->get('field_customer_pending_balance')->getString());
+    $newFrozenBalance = $frozenBalance < $amount ? 0 : $frozenBalance - $amount;
+
     $availableBalance = doubleval($customer->get('field_customer_available_balance')->getString());
-    $newBalance = $availableBalance - $amount;
+    $newBalance = $frozenBalance < $amount ? $availableBalance + $frozenBalance - $amount : $availableBalance;
     $customer
       ->set('field_customer_available_balance', $newBalance)
+      ->set('field_customer_pending_balance', $newFrozenBalance)
       ->save();
   }
 
@@ -207,31 +255,47 @@ final class TransactionsService
       ->save();
   }
 
-  /**
-   * @throws EntityStorageException
-   */
-  private function freezeDebit(Node $txInitiatorCustomer, float $amount): void
+  private function freezeDebit(Node $targetCustomer, float $amount): void
   {
-    $availableBalance = doubleval($txInitiatorCustomer->get('field_customer_available_balance')->getString());
+    $availableBalance = doubleval($targetCustomer->get('field_customer_available_balance')->getString());
     $newBalance = $availableBalance - $amount;
-    $frozenBalance = doubleval($txInitiatorCustomer->get('field_customer_pending_balance')->getString());
+    $frozenBalance = doubleval($targetCustomer->get('field_customer_pending_balance')->getString());
     $newFrozenBalance = $frozenBalance + $amount;
-    $txInitiatorCustomer
-      ->set('field_customer_available_balance', $newBalance)
-      ->set('field_customer_pending_balance', $newFrozenBalance)
-      ->save();
+    try {
+      $targetCustomer
+        ->set('field_customer_available_balance', $newBalance)
+        ->set('field_customer_pending_balance', $newFrozenBalance)
+        ->save();
+    } catch (EntityStorageException $e) {
+      $this->logger->error($e);
+    }
+  }
+
+  private function unfreezeDebit(Node $targetCustomer, float $amount): void {
+    $availableBalance = doubleval($targetCustomer->get('field_customer_available_balance')->getString());
+    $newBalance = $availableBalance + $amount;
+    $frozenBalance = doubleval($targetCustomer->get('field_customer_pending_balance')->getString());
+    $newFrozenBalance = $frozenBalance - $amount;
+    try {
+      $targetCustomer
+        ->set('field_customer_available_balance', $newBalance)
+        ->set('field_customer_pending_balance', $newFrozenBalance)
+        ->save();
+    } catch (EntityStorageException $e) {
+      $this->logger->error($e);
+    }
   }
 
   /**
    * @throws EntityStorageException
    */
-  private function unfreezeDebit(Node $transaction, bool $isRolledBack): void
+  private function unfreezeTransactionDebit(Node $transaction, bool $isRolledBack): void
   {
     $txAmount = doubleval($transaction->get('field_tx_amount')->getString());
     $txType = TransactionType::fromString($transaction->get('field_tx_type')->getString());
 
-    /** @var Drupal\node\NodeInterface $txInitiator */
-    /** @var Drupal\node\NodeInterface $txBeneficiary */
+    /** @var NodeInterface $txInitiator */
+    /** @var NodeInterface $txBeneficiary */
     $txInitiator = $transaction->get('field_tx_from')->entity;
     $txBeneficiary = $transaction->get('field_tx_to')->entity;
 

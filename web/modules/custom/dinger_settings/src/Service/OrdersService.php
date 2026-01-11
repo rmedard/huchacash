@@ -9,6 +9,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
+use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -45,10 +46,10 @@ final class OrdersService
 
     /** @var Node $originalOrder **/
     $originalOrder = $order->getOriginal();
-    $orderStatus = $order->get('field_order_status')->getString();
-    $orderStatusUpdated = $orderStatus !== $originalOrder->get('field_order_status')->getString();
+    $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+    $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
     if ($orderStatusUpdated) {
-      if ($orderStatus === 'delivered') {
+      if ($orderStatus === OrderStatus::DELIVERED) {
 
         /** @var TransactionsService $transactionsService **/
         $transactionsService = Drupal::service('hucha_settings.transactions_service');

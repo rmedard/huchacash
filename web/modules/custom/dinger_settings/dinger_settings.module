@@ -12,6 +12,15 @@ use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\dinger_settings\Plugin\Field\UserProfilePictureComputedField;
 use Drupal\dinger_settings\Plugin\Field\UserRolesComputedField;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\AmountPerCallType;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\BidAmountPerBidType;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\BidStatusTransitionConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\CallStatusTransitionConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\OrderStatusTransitionConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionAmountConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionCancelledConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionStatusTransitionConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\UniqueCallPerOrder;
 use Drupal\dinger_settings\Service\BiddingService;
 use Drupal\dinger_settings\Service\CallsService;
 use Drupal\dinger_settings\Service\CustomersService;
@@ -31,11 +40,11 @@ function dinger_settings_entity_type_alter(array &$entity_types): void
 {
   $nodeType = $entity_types['node'];
   if ($nodeType instanceof EntityTypeInterface) {
-    $nodeType->addConstraint('UniqueCallPerOrder');
-    $nodeType->addConstraint('AmountPerCallType');
-    $nodeType->addConstraint('BidAmountPerType');
-    $nodeType->addConstraint('TransactionAmountConstraint');
-    $nodeType->addConstraint('TransactionCancelledConstraint');
+    $nodeType->addConstraint(UniqueCallPerOrder::PLUGIN_ID);
+    $nodeType->addConstraint(AmountPerCallType::PLUGIN_ID);
+    $nodeType->addConstraint(BidAmountPerBidType::PLUGIN_ID);
+    $nodeType->addConstraint(TransactionAmountConstraint::PLUGIN_ID);
+    $nodeType->addConstraint(TransactionCancelledConstraint::PLUGIN_ID);
   }
 }
 
@@ -60,6 +69,23 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
       ->setComputed(true)
       ->setClass(UserRolesComputedField::class);
     $fields['field_user_roles'] = $userRolesFieldDefinition;
+  }
+
+  if ($entity_type->id() === 'node') {
+    switch ($bundle) {
+      case 'call':
+        $fields['field_call_status']->addConstraint(CallStatusTransitionConstraint::PLUGIN_ID);
+        break;
+      case 'bid':
+        $fields['field_bid_status']->addConstraint(BidStatusTransitionConstraint::PLUGIN_ID);
+        break;
+      case 'transaction':
+        $fields['field_tx_status']->addConstraint(TransactionStatusTransitionConstraint::PLUGIN_ID);
+        break;
+      case 'order':
+        $fields['field_order_status']->addConstraint(OrderStatusTransitionConstraint::PLUGIN_ID);
+        break;
+    }
   }
 }
 
@@ -144,6 +170,11 @@ function dinger_settings_node_update(NodeInterface $node): void
       /** @var CustomersService $customerService **/
       $customerService = Drupal::service('dinger_settings.customers_service');
       $customerService->onCustomerUpdated($node);
+      break;
+    case 'call':
+      /** @var CallsService $callsService */
+      $callsService = Drupal::service('hucha_settings.calls_service');
+      $callsService->onCallUpdated($node);
       break;
   }
 }
