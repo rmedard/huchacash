@@ -40,16 +40,9 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
   {
     $logger = $this->loggerChannelFactory->get('StatusTransitionsValidator');
 
-    if ($value->isEmpty()) {
-      $logger->debug("Value is empty");
-    } else {
-      $logger->debug("Name: " . $value->getName() . " | Value: " . $value->getString());
-    }
-
-    if (!isset($value)) {
+    if ($value === null || $value->isEmpty()) {
+      $logger->info("Value on field @field is empty", ['@field' => $value->getName()]);
       return;
-    } else {
-      $logger->debug("Value is empty. Sana");
     }
 
     $entity = $value->getEntity();
