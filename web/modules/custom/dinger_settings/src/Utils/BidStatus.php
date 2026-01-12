@@ -14,7 +14,7 @@ enum BidStatus: string implements StatusBaseInterface
 
   public static function entryPoints(): array
   {
-    return [self::PENDING];
+    return [self::PENDING, self::CONFIRMED];
   }
 
   public function isFinalState(): bool
