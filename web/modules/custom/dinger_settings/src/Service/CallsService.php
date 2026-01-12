@@ -74,8 +74,8 @@ final class CallsService {
   }
 
   public function onCallUpdated(NodeInterface $call): void {
-    if (!$call->isNew()) {
-      $this->logger->error('Call should be new. CallID: ' . $call->id());
+    if ($call->isNew()) {
+      $this->logger->error('Call should NOT be new. CallID: ' . $call->id());
       return;
     }
 
@@ -126,7 +126,7 @@ final class CallsService {
                 ->condition('field_bid_call.target_id', $call->id())
                 ->execute();
               $bids = Node::loadMultiple($callBidIds);
-              foreach ($bids as $bidId => $bid) {
+              foreach ($bids as $bid) {
                 $bid->set('field_bid_status', BidStatus::REJECTED->value);
                 $bid->save();
               }
