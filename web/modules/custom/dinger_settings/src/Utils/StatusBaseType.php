@@ -13,4 +13,9 @@ trait StatusBaseType
     $values = array_map(fn($case) => $case->value, self::entryPoints());
     return '[' . implode(', ', $values) . ']';
   }
+
+  public function toString(): string
+  {
+    return $this->value;
+  }
 }

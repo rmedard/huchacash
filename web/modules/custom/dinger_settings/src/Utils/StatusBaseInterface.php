@@ -9,4 +9,6 @@ interface StatusBaseInterface
   public static function entryPointsString(): string;
 
   public function isFinalState(): bool;
+
+  public function toString(): string;
 }
