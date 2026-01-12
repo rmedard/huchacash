@@ -42,6 +42,8 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
 
     if ($value->isEmpty()) {
       $logger->debug("Value is empty");
+    } else {
+      $logger->debug("Name: " . $value->getName() . " | Value: " . $value->getValue());
     }
 
     if (!isset($value)) {
