@@ -48,7 +48,7 @@ final class CallsService {
     /** @var NodeInterface $order **/
     $order = $call->get('field_call_order')->entity;
     try {
-      $order->set('field_order_status', OrderStatus::BIDDING);
+      $order->set('field_order_status', OrderStatus::BIDDING->value);
       $order->field_order_calls[] = ['target_id' => $call->id()];
       $order->save();
       $this->logger->info(t('Order @reference status updated for call @callReference',
