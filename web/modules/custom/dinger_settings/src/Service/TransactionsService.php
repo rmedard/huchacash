@@ -90,7 +90,7 @@ final class TransactionsService
 
       $storage->create([
         'type' => 'transaction',
-        'field_tx_amount' => $deliveryServiceFee,
+        'field_tx_amount' => $deliveryServiceFee - $systemServiceFee,
         'field_tx_from' => $order->get('field_order_creator')->entity,
         'field_tx_to' => $order->get('field_order_executor')->entity,
         'field_tx_order' => $order,

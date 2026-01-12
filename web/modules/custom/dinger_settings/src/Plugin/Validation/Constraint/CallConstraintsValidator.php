@@ -5,6 +5,7 @@ namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Symfony\Component\Validator\Constraint;
@@ -39,7 +40,7 @@ class CallConstraintsValidator extends ConstraintValidator
         ->condition('type', 'call')
         ->condition('nid', $call->id(), '<>')
         ->condition('field_call_order.target_id', $call->get('field_call_order')->target_id)
-        ->condition('field_call_status', ['live', 'attributed', 'completed'], 'IN')
+        ->condition('field_call_status', [CallStatus::LIVE->value, CallStatus::ATTRIBUTED->value, CallStatus::COMPLETED->value], 'IN')
         ->count()
         ->execute();
       return $callsCount > 0;
