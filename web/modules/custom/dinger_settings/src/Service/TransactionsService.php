@@ -190,7 +190,7 @@ final class TransactionsService
     /** @var Node $order */
     $order = $call->get('field_call_order')->entity;
     /** @var Node $initiator */
-    $initiator = $order->get('field_call_creator')->entity;
+    $initiator = $order->get('field_order_creator')->entity;
     $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
     if ($orderType === OrderType::SHOPPING_DELIVERY) {
       $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
