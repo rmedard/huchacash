@@ -30,7 +30,7 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
   }
 
   /**
-   * @param mixed $value
+   * @param FieldItemListInterface $value
    * @param StatusTransitionConstraintBase $constraint
    * @return void
    * @throws InvalidPluginDefinitionException
@@ -40,9 +40,14 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
   {
     $logger = $this->loggerChannelFactory->get('StatusTransitionsValidator');
 
-    /** @var FieldItemListInterface $value */
+    if ($value->isEmpty()) {
+      $logger->debug("Value is empty");
+    }
+
     if (!isset($value)) {
       return;
+    } else {
+      $logger->debug("Value is empty. Sana");
     }
 
     $entity = $value->getEntity();
