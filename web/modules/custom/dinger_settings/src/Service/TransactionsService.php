@@ -211,7 +211,7 @@ final class TransactionsService
     /** @var Node $order */
     $order = $call->get('field_call_order')->entity;
     /** @var Node $initiator */
-    $initiator = $order->get('field_call_creator')->entity;
+    $initiator = $order->get('field_order_creator')->entity;
     $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
     $shoppingCost = 0;
     if ($orderType === OrderType::SHOPPING_DELIVERY) {
