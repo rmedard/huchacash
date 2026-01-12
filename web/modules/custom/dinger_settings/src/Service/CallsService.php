@@ -83,11 +83,11 @@ final class CallsService {
     if ($callStatusUpdated) {
       /** @var TransactionsService $transition_service */
       $transition_service = Drupal::service('hucha_settings.transactions_service');
-      if ($callStatus->isFinalState() && $callStatus->needsRollback()) {
-        $transition_service->unfreezeCallBalance($call);
-      }
-
-      if ($callStatus === CallStatus::ATTRIBUTED) {
+      if ($callStatus->isFinalState()) {
+        if ($callStatus->needsRollback()) {
+          $transition_service->unfreezeCallBalance($call);
+        }
+      } else {
         $transition_service->freezeCallServiceFee($call);
       }
     }

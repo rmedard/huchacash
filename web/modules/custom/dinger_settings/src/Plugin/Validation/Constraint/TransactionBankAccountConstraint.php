@@ -14,6 +14,4 @@ class TransactionBankAccountConstraint extends TransactionConstraintBase {
 
   public const string PLUGIN_IN = 'TransactionBankAccountConstraint';
   public string $message = 'Bank account is mandatory for withdrawal transactions.';
-
-
 }

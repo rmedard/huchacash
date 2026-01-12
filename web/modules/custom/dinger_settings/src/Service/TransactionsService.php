@@ -11,6 +11,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+use Drupal\dinger_settings\Utils\BidType;
+use Drupal\dinger_settings\Utils\CallStatus;
+use Drupal\dinger_settings\Utils\CallType;
 use Drupal\dinger_settings\Utils\OrderType;
 use Drupal\dinger_settings\Utils\TransactionStatus;
 use Drupal\dinger_settings\Utils\TransactionType;
@@ -200,10 +203,28 @@ final class TransactionsService
     $order = $call->get('field_call_order')->entity;
     /** @var Node $initiator */
     $initiator = $order->get('field_order_creator')->entity;
-    $deliveryServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
-    $systemServiceFee = doubleval($call->get('field_call_system_service_fee')->value);
-    $totalServiceFee =  $deliveryServiceFee + $systemServiceFee;
-    $this->freezeDebit($initiator, $totalServiceFee);
+
+    $callStatus = CallStatus::tryFrom($call->get('field_call_status')->getString());
+    if (!$callStatus->isFinalState()) {
+      $callType = CallType::tryFrom($call->get('field_call_type')->getString());
+      if ($callType === CallType::FIXED_PRICE || $callType === CallType::NEGOTIABLE) {
+        $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
+        if ($callStatus === CallStatus::LIVE) {
+          $this->freezeDebit($initiator, $proposedServiceFee);
+        }
+
+        if ($callStatus === CallStatus::ATTRIBUTED) {
+          /** @var BiddingService $biddingService */
+          $biddingService = Drupal::service('hucha_settings.bidding_service');
+          $confirmedBid = $biddingService->findCallConfirmedBid($call);
+          $bidType = BidType::fromString($confirmedBid->get('field_bid_type')->getString());
+          if ($bidType === BidType::BARGAIN) {
+            $bidAmount = doubleval($confirmedBid->get('field_bid_amount')->getString());
+            $this->freezeDebit($initiator, $bidAmount - $proposedServiceFee);
+          }
+        }
+      }
+    }
   }
 
   public function unfreezeCallBalance(NodeInterface $call): void
@@ -218,10 +239,8 @@ final class TransactionsService
       $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
     }
 
-    $deliveryServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
-    $systemServiceFee = doubleval($call->get('field_call_system_service_fee')->value);
-    $totalServiceFee =  $deliveryServiceFee + $systemServiceFee;
-    $totalOrderFee = $shoppingCost + $totalServiceFee;
+    $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
+    $totalOrderFee = $shoppingCost + $proposedServiceFee;
     $this->unfreezeDebit($initiator, $totalOrderFee);
   }
 
