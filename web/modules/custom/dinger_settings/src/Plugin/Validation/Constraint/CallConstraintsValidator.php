@@ -15,13 +15,16 @@ class CallConstraintsValidator extends ConstraintValidator
 
   public function validate($value, Constraint $constraint): void
   {
+    $logger = \Drupal::logger('StatusTransitionsValidator');
     if ($value instanceof NodeInterface && $value->bundle() === 'call') {
       if ($constraint instanceof UniqueCallPerOrder) {
         if ($this->hasOtherOpenCalls($value)) {
+          $logger->warning('Call has other open calls');
           $this->context->addViolation($constraint->hasAnotherLiveCall, ['%value' => $value->label()]);
         }
       } elseif ($constraint instanceof AmountPerCallType) {
         if ($this->hasInvalidAmount($value)) {
+          $logger->warning('Call has invalid amount');
           $this->context->addViolation($constraint->hasInvalidCallAmount, ['%value' => 'Call']);
         }
       }
