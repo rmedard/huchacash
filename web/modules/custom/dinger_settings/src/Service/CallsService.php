@@ -44,11 +44,6 @@ final class CallsService {
   }
 
   public function onCallInserted(NodeInterface $call): void {
-    if (!$call->isNew()) {
-      $this->logger->error('Call should be new. CallID: ' . $call->id());
-      return;
-    }
-
     /** Update order status **/
     /** @var NodeInterface $order **/
     $order = $call->get('field_call_order')->entity;

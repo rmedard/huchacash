@@ -58,10 +58,6 @@ final class BiddingService {
   }
 
   public function onBidCreated(NodeInterface $bid): void {
-    if (!$bid->isNew()) {
-      throw new BadRequestHttpException('Bid has invalid state. Should be new.');
-    }
-
     /** @var FirestoreCloudService $firestoreService */
     $firestoreService = Drupal::service('dinger_settings.firestore_cloud_service');
 
