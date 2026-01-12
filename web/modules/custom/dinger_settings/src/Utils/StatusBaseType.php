@@ -6,6 +6,7 @@ trait StatusBaseType
 {
   public static function fromString(string $value): self
   {
+    \Drupal::logger('StatusBaseType')->debug('StatusBaseType fromString: ' . $value);
     return self::tryFrom($value);
   }
 
