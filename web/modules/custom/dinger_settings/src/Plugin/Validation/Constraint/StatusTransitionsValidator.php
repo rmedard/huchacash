@@ -4,29 +4,22 @@ namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\dinger_settings\Utils\StatusBaseInterface;
 use Drupal\node\Entity\Node;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StatusTransitionsValidator extends ConstraintValidator implements ContainerInjectionInterface
 {
-  public function __construct(
-    protected EntityTypeManagerInterface $entityTypeManager,
-    protected LoggerChannelFactoryInterface $loggerChannelFactory
-  ) {}
+  public function __construct(protected EntityTypeManagerInterface $entityTypeManager) {}
 
   public static function create(ContainerInterface $container): static
   {
-    return new static(
-      $container->get('entity_type.manager'),
-      $container->get('logger.factory'),
-    );
+    return new static($container->get('entity_type.manager'));
   }
 
   /**
@@ -38,7 +31,7 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
    */
   public function validate(mixed $value, Constraint $constraint): void
   {
-    $logger = $this->loggerChannelFactory->get('StatusTransitionsValidator');
+    $logger = \Drupal::logger('StatusTransitionsValidator');
 
     if ($value === null || $value->isEmpty()) {
       $logger->info("Value on field @field is empty", ['@field' => $value->getName()]);
