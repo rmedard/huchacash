@@ -190,7 +190,7 @@ final class TransactionsService
     $initiator = $order->get('field_call_creator')->entity;
     $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
     if ($orderType === OrderType::SHOPPING_DELIVERY) {
-      $shoppingCost = doubleval($order->get('field_order_shopping_cost')->value);
+      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
       $this->freezeDebit($initiator, $shoppingCost);
     }
   }
@@ -215,7 +215,7 @@ final class TransactionsService
     $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
     $shoppingCost = 0;
     if ($orderType === OrderType::SHOPPING_DELIVERY) {
-      $shoppingCost = doubleval($order->get('field_order_shopping_cost')->value);
+      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
     }
 
     $deliveryServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
