@@ -228,6 +228,15 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
     $callsService = Drupal::service('hucha_settings.calls_service');
     $callsService->onCallInserted($entity);
   }
+
+  if ($entity->bundle() === 'customer') {
+    /**
+     * Upload user profile picture to Firebase Storage
+     */
+    /** @var FireStorageCloudService $fireStorage */
+    $fireStorage = Drupal::service('hucha_settings.fire_storage_cloud_service');
+    $fireStorage->uploadCustomerProfilePhoto($entity);
+  }
 }
 
 /**
@@ -281,7 +290,7 @@ function dinger_settings_user_insert(UserInterface $user): void
     $phone = Drupal::request()->query->get('phone', '');
     $ageRange = Drupal::request()->query->get('ageRange', '');
     try {
-      $newCustomerId = Node::create([
+      Node::create([
         'type' => 'customer',
         'title' => 'reference_nbr',
         'field_customer_lastname' => $lastname,
@@ -293,14 +302,6 @@ function dinger_settings_user_insert(UserInterface $user): void
         'uid' => $user->id(),
       ])->save();
       Drupal::logger('dinger_settings')->info('New customer created');
-
-      /**
-       * Upload user profile picture to Firebase Storage
-       */
-      /** @var FireStorageCloudService $fireStorage */
-      $fireStorage = Drupal::service('hucha_settings.fire_storage_cloud_service');
-      $fireStorage->uploadCustomerProfilePhoto(Node::load($newCustomerId));
-
     } catch (EntityStorageException $e) {
       Drupal::logger('dinger_settings')->error('Creating customer failed: ' . $e->getMessage());
     }
