@@ -9,6 +9,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\dinger_settings\Model\FireBid;
 use Drupal\dinger_settings\Model\FireCall;
+use Drupal\dinger_settings\Utils\BidType;
 use Drupal\dinger_settings\Utils\FirestoreFieldFilter;
 use Drupal\dinger_settings\Utils\FirestoreFieldValue;
 use Drupal\dinger_settings\Utils\FirestoreOperator;
@@ -92,7 +93,7 @@ final class FirestoreCloudService {
   }
 
   public function updateAcceptedCall(NodeInterface $bid): void {
-    if ($bid->get('field_bid_type')->getString() !== 'accept') {
+    if ($bid->get('field_bid_type')->getString() !== BidType::ACCEPT->value) {
       throw new InvalidArgumentException('Bid needs to be of type \'accept\'.');
     }
 
@@ -207,7 +208,7 @@ final class FirestoreCloudService {
     }
 
     try {
-      $this->firestoreClient->updateDocument('user_devices/' . $customerId, $updates, true);
+      $this->firestoreClient->updateDocument('customer_balances/' . $customerId, $updates, true);
       $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
     } catch (Exception $exception) {
       $this->logger->warning('Failed to update Balance @customerId: @error', ['@customerId' => $customerId, 'exception' => $exception->getMessage()]);
