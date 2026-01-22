@@ -93,6 +93,7 @@ final class FireStorageCloudService {
         $customer->save();
       } catch (EntityStorageException $e) {
         $this->logger->error('Updating customer failed: ' . $e->getMessage());
+        return false;
       }
     }
 
