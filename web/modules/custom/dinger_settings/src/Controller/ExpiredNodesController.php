@@ -15,7 +15,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\GcNodeType;
+use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\NodeInterface;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -97,7 +99,7 @@ final class ExpiredNodesController extends ControllerBase
 
     $entities = $this->nodeStorage->loadByProperties(['uuid' => $uuid]);
     $node = reset($entities);
-    if ($node === null or !$node instanceof NodeInterface) {
+    if (!$node instanceof NodeInterface) {
       $response->setContent($this->t('Node @id not found!', ['@id' => $uuid]));
       $response->setStatusCode(Response::HTTP_NOT_FOUND);
       return $response;
@@ -106,7 +108,7 @@ final class ExpiredNodesController extends ControllerBase
     switch ($type) {
       case GcNodeType::CALL:
         $callStatus = $node->get('field_call_status')->getString();
-        if ($callStatus == 'live') {
+        if ($callStatus == CallStatus::LIVE->value) {
           $this->logger->info($this->t('Call @id has expired', ['@id' => $node->id()]));
           try {
             $node->set('field_call_status', 'expired');
@@ -118,17 +120,15 @@ final class ExpiredNodesController extends ControllerBase
 
           } catch (EntityStorageException|Exception $e) {
             $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
-          } catch (GuzzleException $e) {
-            $this->logger->error('Updating call and/or call failed: ' . $e->getMessage());
           }
         }
         break;
       case GcNodeType::ORDER:
         $orderStatus = $node->get('field_order_status')->getString();
-        if ($orderStatus == 'idle') {
+        if ($orderStatus == OrderStatus::IDLE->value) {
           $this->logger->info($this->t('Order @id has expired', ['@id' => $node->id()]));
           try {
-            $node->set('field_order_status', 'cancelled');
+            $node->set('field_order_status', OrderStatus::CANCELLED->value);
             $node->save();
           } catch (EntityStorageException $e) {
             $this->logger->error('Updating Order failed: ' . $e->getMessage());

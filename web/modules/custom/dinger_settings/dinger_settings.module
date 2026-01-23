@@ -24,7 +24,6 @@ use Drupal\dinger_settings\Plugin\Validation\Constraint\UniqueCallPerOrder;
 use Drupal\dinger_settings\Service\BiddingService;
 use Drupal\dinger_settings\Service\CallsService;
 use Drupal\dinger_settings\Service\CustomersService;
-use Drupal\dinger_settings\Service\DataAccessor;
 use Drupal\dinger_settings\Service\FireStorageCloudService;
 use Drupal\dinger_settings\Service\OrdersService;
 use Drupal\dinger_settings\Service\UtilsService;
@@ -223,6 +222,12 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
     $biddingService->onBidCreated($entity);
   }
 
+  if ($entity->bundle() === 'order') {
+    /** @var OrdersService $ordersService */
+    $ordersService = Drupal::service('hucha_settings.orders_service');
+    $ordersService->onOrderCreated($entity);
+  }
+
   if ($entity->bundle() === 'call') {
     /** @var CallsService $callsService **/
     $callsService = Drupal::service('hucha_settings.calls_service');
@@ -314,71 +319,6 @@ function dinger_settings_user_insert(UserInterface $user): void
 function dinger_settings_preprocess_page(&$variables): void {
   if (Drupal::request()->query->has('target')) {
     $variables['target_device'] = Drupal::request()->query->get('target');
-  }
-}
-
-/**
- * Implements hook_cron().
- */
-function dinger_settings_cron(): void
-{
-  $logger = Drupal::logger('dinger_settings');
-
-  /**
-   * @var DataAccessor $dataAccessor
-   * @var UtilsService $utils
-   */
-  $dataAccessor = Drupal::service('hucha_settings.data_accessor');
-  $utils = Drupal::service('hucha_settings.utils_service');
-
-  $active = false;
-  if ($active) {
-    /**
-     * Cancel expired calls
-     */
-    $expiredCalls = $dataAccessor->getExpiredCalls();
-    if (!empty($expiredCalls)) {
-      foreach ($expiredCalls as $expiredCallId => $expiredCall) {
-        if ($expiredCall instanceof NodeInterface) {
-          try {
-            $order = $expiredCall->get('field_call_order')->entity;
-            if ($order == null) {
-              $logger->error('No order attached to call ' . $expiredCallId . ' found');
-            } else {
-              if ($utils->isInThePast($order->get('field_order_delivery_time')->date)) {
-                $order->set('field_order_status', 'cancelled');
-              } else {
-                $order->set('field_order_status', 'idle');
-              }
-              $expiredCall->set('field_call_status', 'expired');
-              $order->save();
-              $expiredCall->save();
-            }
-          } catch (EntityStorageException $e) {
-            $options = ['@message' => $e->getMessage()];
-            $logger->error(t('Updating expired order or call failed. Message: @message', $options));
-          }
-        }
-      }
-    }
-
-    /**
-     * Cancel expired orders
-     */
-    $expiredIdleOrders = $dataAccessor->getOrdersExpiringInHours(0, 'idle');
-    if (!empty($expiredIdleOrders)) {
-      foreach ($expiredIdleOrders as $idleOrderId => $expiredIdleOrder) {
-        if ($expiredIdleOrder instanceof NodeInterface) {
-          try {
-            $expiredIdleOrder->set('field_order_status', 'cancelled');
-            $expiredIdleOrder->save();
-          } catch (EntityStorageException $e) {
-            $options = ['@id' => $idleOrderId, '@message' => $e->getMessage()];
-            $logger->error(t('Updating expired order @id failed. Message: @message', $options));
-          }
-        }
-      }
-    }
   }
 }
 

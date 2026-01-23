@@ -49,20 +49,12 @@ final class CallsService {
     $order = $call->get('field_call_order')->entity;
     try {
       $order->set('field_order_status', OrderStatus::BIDDING->value);
-      $order->field_order_calls[] = ['target_id' => $call->id()];
       $order->save();
       $this->logger->info(t('Order @reference status updated for call @callReference',
         [
           '@reference' => $order->getTitle(),
           '@callReference' => $call->getTitle()
         ]));
-
-
-      /** Freeze initiator's balance **/
-      /** @var TransactionsService $transactions_service */
-      $transactions_service = Drupal::service('hucha_settings.transactions_service');
-      $transactions_service->freezeCallShoppingBalance($call);
-
     } catch (EntityStorageException $e) {
       $this->logger->error('Attaching call to order failed. Order: ' . $order->id() . '. Error: ' . $e->getMessage());
     }
@@ -85,7 +77,7 @@ final class CallsService {
       $transition_service = Drupal::service('hucha_settings.transactions_service');
       if ($callStatus->isFinalState()) {
         if ($callStatus->needsRollback()) {
-          $transition_service->unfreezeCallBalance($call);
+          $transition_service->unfreezeCallServiceFee($call);
         }
       } else {
         $transition_service->freezeCallServiceFee($call);

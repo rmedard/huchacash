@@ -36,6 +36,16 @@ final class OrdersService
     return false;
   }
 
+  public function onOrderCreated(Node $order): void
+  {
+    $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+    if ($orderStatus->isEntryState()) {
+      /** @var TransactionsService $transactionsService **/
+      $transactionsService = Drupal::service('hucha_settings.transactions_service');
+      $transactionsService->freezeOrderShoppingCost($order);
+    }
+  }
+
   public function onOrderUpdated(Node $order): void {
 
     $this->logger->debug('Order @id updated', ['@id' => $order->id()]);
@@ -49,19 +59,28 @@ final class OrdersService
     $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
     $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
     if ($orderStatusUpdated) {
-      if ($orderStatus === OrderStatus::DELIVERED) {
+      if ($orderStatus->isFinalState()) {
+        if ($orderStatus === OrderStatus::DELIVERED) {
 
-        /** @var TransactionsService $transactionsService **/
-        $transactionsService = Drupal::service('hucha_settings.transactions_service');
-        $transactionsService->processDeliveredOrderTransactions($order);
+          /** @var TransactionsService $transactionsService **/
+          $transactionsService = Drupal::service('hucha_settings.transactions_service');
+          $transactionsService->processDeliveredOrderTransactions($order);
 
-        /** @var Node $attributedCall **/
-        $attributedCall = $order->get('field_order_attributed_call')->entity;
+          /** @var Node $attributedCall **/
+          $attributedCall = $order->get('field_order_attributed_call')->entity;
 
-        /** @var GoogleCloudService $googleCloudService **/
-        $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
-        $googleCloudService->deleteGcTask($attributedCall->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
-        $googleCloudService->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+          /** @var GoogleCloudService $googleCloudService **/
+          $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
+          $googleCloudService->deleteGcTask($attributedCall->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+          $googleCloudService->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+        }
+
+        if ($orderStatus === OrderStatus::CANCELLED) {
+          /** Freeze initiator's balance **/
+          /** @var TransactionsService $transactions_service */
+          $transactions_service = Drupal::service('hucha_settings.transactions_service');
+          $transactions_service->unfreezeOrderShoppingCost($order);
+        }
       }
     }
   }

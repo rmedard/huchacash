@@ -185,19 +185,6 @@ final class TransactionsService
     }
   }
 
-  public function freezeCallShoppingBalance(NodeInterface $call): void
-  {
-    /** @var Node $order */
-    $order = $call->get('field_call_order')->entity;
-    /** @var Node $initiator */
-    $initiator = $order->get('field_order_creator')->entity;
-    $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
-    if ($orderType === OrderType::SHOPPING_DELIVERY) {
-      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
-      $this->freezeDebit($initiator, $shoppingCost);
-    }
-  }
-
   public function freezeCallServiceFee(NodeInterface $call): void {
     /** @var Node $order */
     $order = $call->get('field_call_order')->entity;
@@ -227,21 +214,43 @@ final class TransactionsService
     }
   }
 
-  public function unfreezeCallBalance(NodeInterface $call): void
+  public function unfreezeCallServiceFee(NodeInterface $call): void
   {
-    /** @var Node $order */
-    $order = $call->get('field_call_order')->entity;
-    /** @var Node $initiator */
-    $initiator = $order->get('field_order_creator')->entity;
-    $orderType = OrderType::tryFrom($order->get('field_order_type')->getString());
-    $shoppingCost = 0;
-    if ($orderType === OrderType::SHOPPING_DELIVERY) {
-      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
-    }
+    $callType = CallType::from($call->get('field_call_type')->getString());
+    if ($callType->freezesBalance()) {
 
-    $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
-    $totalOrderFee = $shoppingCost + $proposedServiceFee;
-    $this->unfreezeDebit($initiator, $totalOrderFee);
+      /** @var Node $order */
+      $order = $call->get('field_call_order')->entity;
+      /** @var Node $initiator */
+      $initiator = $order->get('field_order_creator')->entity;
+
+      $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
+      $this->unfreezeDebit($initiator, $proposedServiceFee);
+    }
+  }
+
+  public function unfreezeOrderShoppingCost(NodeInterface $order): void
+  {
+    $orderType = OrderType::from($order->get('field_order_type')->getString());
+    if ($orderType === OrderType::SHOPPING_DELIVERY) {
+      /** @var Node $initiator */
+      $initiator = $order->get('field_order_creator')->entity;
+
+      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
+      $this->unfreezeDebit($initiator, $shoppingCost);
+    }
+  }
+
+  public function freezeOrderShoppingCost(NodeInterface $order): void
+  {
+    $orderType = OrderType::from($order->get('field_order_type')->getString());
+    if ($orderType === OrderType::SHOPPING_DELIVERY) {
+      /** @var Node $initiator */
+      $initiator = $order->get('field_order_creator')->entity;
+
+      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
+      $this->freezeDebit($initiator, $shoppingCost);
+    }
   }
 
   /**

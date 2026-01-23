@@ -23,4 +23,8 @@ enum OrderStatus: string implements StatusBaseInterface
       self::DELIVERED, self::CANCELLED => TRUE,
     };
   }
+
+  public function isEntryState(): bool {
+    return in_array($this, self::entryPoints());
+  }
 }
