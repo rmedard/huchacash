@@ -55,6 +55,13 @@ final class CallsService {
           '@reference' => $order->getTitle(),
           '@callReference' => $call->getTitle()
         ]));
+
+      $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+      if ($callStatus->freezesBalance()) {
+        /** @var TransactionsService $transition_service */
+        $transition_service = Drupal::service('hucha_settings.transactions_service');
+        $transition_service->freezeCallServiceFee($call);
+      }
     } catch (EntityStorageException $e) {
       $this->logger->error('Attaching call to order failed. Order: ' . $order->id() . '. Error: ' . $e->getMessage());
     }
@@ -73,14 +80,12 @@ final class CallsService {
     $callStatusUpdated = $callStatus !== $originalCallStatus;
 
     if ($callStatusUpdated) {
-      /** @var TransactionsService $transition_service */
-      $transition_service = Drupal::service('hucha_settings.transactions_service');
       if ($callStatus->isFinalState()) {
         if ($callStatus->needsRollback()) {
+          /** @var TransactionsService $transition_service */
+          $transition_service = Drupal::service('hucha_settings.transactions_service');
           $transition_service->unfreezeCallServiceFee($call);
         }
-      } else {
-        $transition_service->freezeCallServiceFee($call);
       }
     }
   }
