@@ -25,6 +25,6 @@ enum OrderStatus: string implements StatusBaseInterface
   }
 
   public function isEntryState(): bool {
-    return in_array($this, self::entryPoints());
+    return in_array($this, self::entryPoints(), true);
   }
 }
