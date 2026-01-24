@@ -48,7 +48,7 @@ final class BiddingService {
     /** @var $originalBid NodeInterface */
     $originalBid = $bid->getOriginal();
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
-    $bidStatusUpdated = $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
+    $bidStatusUpdated = $originalBid != null && $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     if ($bidStatusUpdated) {
       if ($bidStatus === BidStatus::CONFIRMED) {
         $this->processConfirmedBid($bid);

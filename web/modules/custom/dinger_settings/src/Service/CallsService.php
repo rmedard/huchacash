@@ -3,14 +3,12 @@
 namespace Drupal\dinger_settings\Service;
 
 use Drupal;
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Utils\CallStatus;
+use Drupal\dinger_settings\Utils\CallType;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\NodeInterface;
 
@@ -90,6 +88,13 @@ final class CallsService {
           $transition_service->unfreezeCallServiceFee($call);
         }
       }
+    }
+
+    $callType = CallType::tryFrom($call->get('field_call_type')->getString());
+    if ($callType->allowsBargain()) {
+      /** @var TransactionsService $transition_service */
+      $transition_service = Drupal::service('hucha_settings.transactions_service');
+      $transition_service->freezeBargainedServiceFee($call);
     }
   }
 }

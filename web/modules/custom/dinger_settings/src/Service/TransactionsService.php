@@ -253,6 +253,26 @@ final class TransactionsService
     }
   }
 
+  public function freezeBargainedServiceFee(Node $call): void
+  {
+    /** @var $originalCall NodeInterface */
+    $originalCall = $call->getOriginal();
+    if ($originalCall == null) {
+      $this->logger->error('Original call not found');
+      return;
+    }
+
+    $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->getString());
+    $originalProposedServiceFee = doubleval($originalCall->get('field_call_proposed_service_fee')->getString());
+    $serviceFeeChanged = $proposedServiceFee != $originalProposedServiceFee;
+    if ($serviceFeeChanged) {
+      /** @var NodeInterface $order **/
+      $orderInitiator = $call->get('field_call_order')->entity->get('field_order_creator')->entity;
+      $deltaFee = $proposedServiceFee - $originalProposedServiceFee;
+      $this->freezeDebit($orderInitiator, $deltaFee);
+    }
+  }
+
   /**
    * Expense. Remove money from account
    * @throws EntityStorageException
