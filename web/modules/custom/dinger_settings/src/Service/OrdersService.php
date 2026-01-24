@@ -5,12 +5,15 @@ namespace Drupal\dinger_settings\Service;
 use DateTimeZone;
 use Drupal;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class OrdersService
@@ -82,6 +85,31 @@ final class OrdersService
           $transactions_service->unfreezeOrderShoppingCost($order);
         }
       }
+    }
+  }
+
+  public function updateOrderOnCallCompleted(Node $call): void {
+    $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+    if (!$callStatus->isFinalState()) {
+      $this->logger->error('Invalid call state');
+      return;
+    }
+
+    try {
+      /** @var $order NodeInterface */
+      $order = $call->get('field_call_order')->entity;
+      $newOrderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+      if ($callStatus->needsRollback()) {
+        /** @var DrupalDateTime $orderDeliveryTime */
+        $orderDeliveryTime = $order->get('field_order_delivery_time')->value;
+        $newOrderStatus = $orderDeliveryTime < new DrupalDateTime('now') ? OrderStatus::CANCELLED : OrderStatus::IDLE;
+      } else if ($callStatus === CallStatus::COMPLETED) {
+        $newOrderStatus = OrderStatus::DELIVERED;
+      }
+      $order->set('field_order_status', $newOrderStatus->value);
+      $order->save();
+    } catch (EntityStorageException $e) {
+      $this->logger->error($e);
     }
   }
 }

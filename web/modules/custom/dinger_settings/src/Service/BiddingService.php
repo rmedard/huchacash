@@ -9,11 +9,15 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
 use Drupal\dinger_settings\Utils\BidStatus;
 use Drupal\dinger_settings\Utils\BidType;
 use Drupal\dinger_settings\Utils\CallStatus;
+use Drupal\dinger_settings\Utils\CallType;
+use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Random\RandomException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class BiddingService {
@@ -41,11 +45,6 @@ final class BiddingService {
   }
 
   public function onBidUpdated(NodeInterface $bid): void {
-
-    if ($bid->isNew()) {
-      throw new BadRequestHttpException('Bid has invalid state. Should not be new.');
-    }
-
     /** @var $originalBid NodeInterface */
     $originalBid = $bid->getOriginal();
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
@@ -106,6 +105,26 @@ final class BiddingService {
     }
   }
 
+  public function rejectAllBidsByCall(NodeInterface $call): void
+  {
+    try {
+      $callBidIds = $this->entityTypeManager
+        ->getStorage('node')
+        ->getQuery()->accessCheck(FALSE)
+        ->condition('type', 'bid')
+        ->condition('field_bid_call.target_id', $call->id())
+        ->execute();
+      $bids = Node::loadMultiple($callBidIds);
+      foreach ($bids as $bid) {
+        $bid->set('field_bid_status', BidStatus::REJECTED->value);
+        $bid->save();
+      }
+    } catch (InvalidPluginDefinitionException|PluginNotFoundException|EntityStorageException $e) {
+      $this->logger->debug('Rejecting bids of call @callId failed.', ['@callId' => $call->id()]);
+      $this->logger->error($e);
+    }
+  }
+
   private function processConfirmedBid(NodeInterface $bid): void {
     $this->logger->info('Process confirmed bid. Bid id: @id', ['@id' => $bid->id()]);
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
@@ -131,17 +150,53 @@ final class BiddingService {
         ->condition('field_bid_call.target_id', $call->id())
         ->execute();
       $bids = Node::loadMultiple($existingBidIds);
-      foreach ($bids as $bid) {
-        $bid->set('field_bid_status', BidStatus::REJECTED->value);
-        $bid->save();
+      foreach ($bids as $singleBid) {
+        $singleBid->set('field_bid_status', BidStatus::REJECTED->value);
+        $singleBid->save();
       }
 
-      $call
+      /**
+       * Check whether bid is result of bargain. Update call accordingly
+       */
+      $query = $call
         ->set('field_call_status', CallStatus::ATTRIBUTED->value)
+        ->set('field_call_order_confirm_nbr', $this->getNextOrderNumber());
+      $callType = CallType::tryFrom($call->get('field_call_type')->getString());
+      $finalServiceFee = doubleval($call->get('field_call_proposed_service_fee')->getString());
+      if ($callType->allowsBargain()) {
+        $finalServiceFee = doubleval($bid->get('field_bid_amount')->getString());
+        $query->set('field_call_proposed_service_fee', $finalServiceFee);
+      }
+      $immutableConfig = Drupal::config(DingerSettingsConfigForm::SETTINGS);
+      $systemServiceFeeRate = doubleval($immutableConfig->get('hucha_base_service_fee_rate'));
+      $systemServiceFee = $finalServiceFee * $systemServiceFeeRate / 100;
+      $call->set('field_call_system_service_fee', $systemServiceFee);
+      $query->save();
+
+
+      /**
+       * Update order
+       */
+      $call
+        ->get('field_call_order')
+        ->entity
+        ->set('field_order_status', OrderStatus::DELIVERING->value)
+        ->set('field_order_executor', $bid->get('field_bid_customer')->entity)
+        ->set('field_order_attributed_call', $call)
         ->save();
     }
     catch (EntityStorageException|InvalidPluginDefinitionException|PluginNotFoundException $e) {
       $this->logger->error($e);
+    }
+  }
+
+  public function getNextOrderNumber(): int {
+    try {
+      return random_int(1000, 9999);
+    }
+    catch (RandomException $e) {
+      $this->logger->error($e->getMessage());
+      return 1;
     }
   }
 }

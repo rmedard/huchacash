@@ -12,4 +12,9 @@ enum CallType: string
   {
     return in_array($this, [self::FIXED_PRICE, self::NEGOTIABLE]);
   }
+
+  public function allowsBargain(): bool
+  {
+    return in_array($this, [self::OPEN, self::NEGOTIABLE]);
+  }
 }

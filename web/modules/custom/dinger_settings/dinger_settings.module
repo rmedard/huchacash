@@ -120,12 +120,6 @@ function dinger_settings_node_presave(NodeInterface $node): void
         $node->setTitle('ROUTE' . $reference);
         break;
     }
-  } else {
-    if ($node->bundle() == 'call') {
-      /** @var $callsService CallsService */
-      $callsService = Drupal::service('hucha_settings.calls_service');
-      $callsService->onCallPresave($node);
-    }
   }
 
   if ($node->bundle() == 'order') {
@@ -139,7 +133,7 @@ function dinger_settings_node_presave(NodeInterface $node): void
     /**
      * @var Node  $orderItem
      */
-    foreach ($orderItems->referencedEntities() as $delta => $orderItem) {
+    foreach ($orderItems->referencedEntities() as $orderItem) {
       $totalPrice += doubleval($orderItem->get('field_order_item_price')->getString());
     }
 
