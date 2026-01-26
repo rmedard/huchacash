@@ -89,12 +89,5 @@ final class CallsService {
         }
       }
     }
-
-    $callType = CallType::tryFrom($call->get('field_call_type')->getString());
-    if ($callType->allowsBargain()) {
-      /** @var TransactionsService $transition_service */
-      $transition_service = Drupal::service('hucha_settings.transactions_service');
-      $transition_service->freezeBargainedServiceFee($call);
-    }
   }
 }

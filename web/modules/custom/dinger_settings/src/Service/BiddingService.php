@@ -48,8 +48,20 @@ final class BiddingService {
     /** @var $originalBid NodeInterface */
     $originalBid = $bid->getOriginal();
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
+    $bidType = BidType::fromString($bid->get('field_bid_type')->getString());
     $bidStatusUpdated = $originalBid != null && $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     if ($bidStatusUpdated) {
+      /** @var TransactionsService $transactionsService */
+      $transactionsService = Drupal::service('transactions.service');
+
+      if ($bidStatus === BidStatus::ACCEPTED) {
+        if ($bidType === BidType::BARGAIN) {
+          $transactionsService->freezeBargainedServiceFee($bid);
+        }
+      }
+      if ($bidStatus === BidStatus::RENOUNCED) {
+        $transactionsService->unfreezeBargainedServiceFee($bid);
+      }
       if ($bidStatus === BidStatus::CONFIRMED) {
         $this->processConfirmedBid($bid);
       }

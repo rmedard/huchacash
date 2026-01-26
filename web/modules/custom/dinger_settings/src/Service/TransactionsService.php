@@ -229,18 +229,6 @@ final class TransactionsService
     }
   }
 
-  public function unfreezeOrderShoppingCost(NodeInterface $order): void
-  {
-    $orderType = OrderType::from($order->get('field_order_type')->getString());
-    if ($orderType === OrderType::SHOPPING_DELIVERY) {
-      /** @var Node $initiator */
-      $initiator = $order->get('field_order_creator')->entity;
-
-      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
-      $this->unfreezeDebit($initiator, $shoppingCost);
-    }
-  }
-
   public function freezeOrderShoppingCost(NodeInterface $order): void
   {
     $orderType = OrderType::from($order->get('field_order_type')->getString());
@@ -253,25 +241,41 @@ final class TransactionsService
     }
   }
 
-  public function freezeBargainedServiceFee(Node $call): void
+  public function unfreezeOrderShoppingCost(NodeInterface $order): void
   {
-    /** @var $originalCall NodeInterface */
-    $originalCall = $call->getOriginal();
-    if ($originalCall == null) {
-      $this->logger->error('Original call not found');
-      return;
-    }
+    $orderType = OrderType::from($order->get('field_order_type')->getString());
+    if ($orderType === OrderType::SHOPPING_DELIVERY) {
+      /** @var Node $initiator */
+      $initiator = $order->get('field_order_creator')->entity;
 
-    $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->getString());
-    $originalProposedServiceFee = doubleval($originalCall->get('field_call_proposed_service_fee')->getString());
-    $serviceFeeChanged = $proposedServiceFee != $originalProposedServiceFee;
-    if ($serviceFeeChanged) {
-      /** @var NodeInterface $order **/
-      $orderInitiator = $call->get('field_call_order')->entity->get('field_order_creator')->entity;
-      $deltaFee = $proposedServiceFee - $originalProposedServiceFee;
-      $this->freezeDebit($orderInitiator, $deltaFee);
+      $shoppingCost = doubleval($order->get('field_order_shopping_total_cost')->value);
+      $this->unfreezeDebit($initiator, $shoppingCost);
     }
   }
+
+  public function freezeBargainedServiceFee(Node $bid): void
+  {
+    $bidAmount = doubleval($bid->get('field_bid_amount')->getString());
+    $call = $bid->get('field_bid_call')->entity;
+    $callType = CallType::from($call->get('field_call_type')->getString());
+    $callAmount = 0;
+    if ($callType->freezesBalance()) {
+      $callAmount = doubleval($call->get('field_call_proposed_service_fee')->getString());
+    }
+    $initiator = $call
+      ->get('field_call_order')->entity
+      ->get('field_order_creator')->entity;
+    $this->freezeDebit($initiator, $bidAmount - $callAmount);
+  }
+
+  public function unfreezeBargainedServiceFee(Node $bid): void {
+    $bidAmount = doubleval($bid->get('field_bid_amount')->getString());
+    $initiator = $bid->get('field_bid_call')->entity
+      ->get('field_call_order')->entity
+      ->get('field_order_creator')->entity;
+    $this->unfreezeDebit($initiator, $bidAmount);
+  }
+
 
   /**
    * Expense. Remove money from account

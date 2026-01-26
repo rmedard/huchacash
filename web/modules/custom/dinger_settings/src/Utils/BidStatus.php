@@ -7,8 +7,16 @@ enum BidStatus: string implements StatusBaseInterface
   use StatusBaseType;
 
   case PENDING = 'pending';
+
+  /**
+   * ACCEPTED by the caller
+   */
   case ACCEPTED = 'accepted';
   case CONFIRMED = 'confirmed';
+
+  /**
+   * REJECTED by the caller
+   */
   case REJECTED = 'rejected';
   case RENOUNCED = 'renounced';
 
