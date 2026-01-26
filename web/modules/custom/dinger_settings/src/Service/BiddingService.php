@@ -52,7 +52,7 @@ final class BiddingService {
     $bidStatusUpdated = $originalBid != null && $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     if ($bidStatusUpdated) {
       /** @var TransactionsService $transactionsService */
-      $transactionsService = Drupal::service('transactions.service');
+      $transactionsService = Drupal::service('hucha_settings.transactions_service');
 
       if ($bidStatus === BidStatus::ACCEPTED) {
         if ($bidType === BidType::BARGAIN) {
