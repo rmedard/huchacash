@@ -13,32 +13,6 @@
         "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
-        },
-        "d3": {
-            "type": "package",
-            "package": {
-                "name": "d3/d3",
-                "version": "v3.5.17",
-                "type": "drupal-library",
-                "source": {
-                    "url": "https://github.com/d3/d3.git",
-                    "type": "git",
-                    "reference": "tags/v3.5.17"
-                }
-            }
-        },
-        "highlightjs": {
-            "type": "package",
-            "package": {
-                "name": "highlightjs/highlightjs",
-                "version": "11.2.0",
-                "type": "drupal-library",
-                "source": {
-                    "url": "https://github.com/highlightjs/highlight.js.git",
-                    "type": "git",
-                    "reference": "tags/11.2.0"
-                }
-            }
         }
     },
     "require": {
@@ -67,7 +41,7 @@
         "drupal/module_filter": "^5.0",
         "drupal/openapi_jsonapi": "^3.0",
         "drupal/openapi_ui_redoc": "^1.0@RC",
-        "drupal/pathauto": "^1.13",
+        "drupal/pathauto": "^1.14",
         "drupal/restui": "^1.22",
         "drupal/simple_oauth": "^6.0",
         "drupal/symfony_mailer": "^2.0@alpha",
@@ -78,7 +52,6 @@
         "drush/drush": "^13",
         "google/cloud-core": "^1.65",
         "google/cloud-tasks": "^v2.1",
-        "highlightjs/highlightjs": "^11.2",
         "mautic/api-library": "^3.1.0",
         "stripe/stripe-php": "^13.18.0",
         "vlucas/phpdotenv": "^5.6",
