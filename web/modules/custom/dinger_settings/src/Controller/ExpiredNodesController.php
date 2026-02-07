@@ -72,8 +72,6 @@ final class ExpiredNodesController extends ControllerBase
   }
 
   /**
-   * @throws InvalidPluginDefinitionException
-   * @throws PluginNotFoundException
    */
   public function capture(Request $request): Response {
     $response = new Response();
@@ -133,6 +131,9 @@ final class ExpiredNodesController extends ControllerBase
           } catch (EntityStorageException $e) {
             $this->logger->error('Updating Order failed: ' . $e->getMessage());
           }
+        } else {
+          $this->logger->info($this->t('Order @id has expired! But invalid status: @status',
+            ['@id' => $node->id(), '@status' => $orderStatus]));
         }
         break;
     }
