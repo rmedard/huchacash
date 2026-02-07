@@ -123,18 +123,20 @@ final class ExpiredNodesController extends ControllerBase
         break;
       case GcNodeType::ORDER:
         $orderStatus = $node->get('field_order_status')->getString();
-        if ($orderStatus == OrderStatus::IDLE->value) {
+        if ($orderStatus === OrderStatus::IDLE->value) {
           $this->logger->info($this->t('Order @id has expired', ['@id' => $node->id()]));
-          try {
-            $node->set('field_order_status', OrderStatus::CANCELLED->value);
-            $node->save();
-          } catch (EntityStorageException $e) {
-            $this->logger->error('Updating Order failed: ' . $e->getMessage());
-          }
         } else {
-          $this->logger->info($this->t('Order @id has expired! But invalid status: @status',
+          $this->logger->error($this->t('Order @id has expired! But invalid status: @status',
             ['@id' => $node->id(), '@status' => $orderStatus]));
         }
+
+        try {
+          $node->set('field_order_status', OrderStatus::CANCELLED->value);
+          $node->save();
+        } catch (EntityStorageException $e) {
+          $this->logger->error('Updating Order failed: ' . $e->getMessage());
+        }
+
         break;
     }
 
