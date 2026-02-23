@@ -20,7 +20,6 @@ use Drupal\dinger_settings\Utils\GcNodeType;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\NodeInterface;
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,7 +72,8 @@ final class ExpiredNodesController extends ControllerBase
 
   /**
    */
-  public function capture(Request $request): Response {
+  public function capture(Request $request): Response
+  {
     $response = new Response();
     $payload = $request->getContent();
     if (empty($payload)) {
@@ -83,7 +83,7 @@ final class ExpiredNodesController extends ControllerBase
       return $response;
     }
 
-    $decoded = (array) Json::decode($payload);
+    $decoded = (array)Json::decode($payload);
     $this->logger->debug('<pre><code>' . print_r($decoded, TRUE) . '</code></pre>');
     $uuid = array_key_exists('uuid', $decoded) ? $decoded['uuid'] : '';
     $type = GcNodeType::tryFrom(array_key_exists('type', $decoded) ? $decoded['type'] : '');
@@ -112,7 +112,7 @@ final class ExpiredNodesController extends ControllerBase
             $node->set('field_call_status', 'expired');
             $node->save();
 
-            /** @var FirestoreCloudService $firestoreCloudService **/
+            /** @var FirestoreCloudService $firestoreCloudService * */
             $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
             $firestoreCloudService->deleteFireCall($node->uuid());
 
