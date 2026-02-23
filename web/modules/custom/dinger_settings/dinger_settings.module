@@ -26,11 +26,11 @@ use Drupal\dinger_settings\Service\CallsService;
 use Drupal\dinger_settings\Service\CustomersService;
 use Drupal\dinger_settings\Service\FireStorageCloudService;
 use Drupal\dinger_settings\Service\OrdersService;
-use Drupal\dinger_settings\Service\UtilsService;
 use Drupal\file\FileInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+use Nette\Utils\Random;
 
 /**
  * Implements hook_entity_type_alter().
@@ -94,9 +94,7 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
 function dinger_settings_node_presave(NodeInterface $node): void
 {
   if ($node->isNew()) {
-    /** @var UtilsService $utilsService **/
-    $utilsService = Drupal::service('hucha_settings.utils_service');
-    $reference = '_' . $utilsService->generateRandomId();
+    $reference = '_' . Random::generate();
     switch ($node->bundle()) {
       case 'customer':
         $node->setTitle('CUS' . $reference);
@@ -127,11 +125,11 @@ function dinger_settings_node_presave(NodeInterface $node): void
      * Update order total price (Everytime the order is updated because order items may have changed)
      */
     $currentTotalPrice = doubleval($node->get('field_order_shopping_total_cost')->getString());
-    /** @var EntityReferenceFieldItemList $orderItems **/
+    /** @var EntityReferenceFieldItemList $orderItems * */
     $orderItems = $node->get('field_order_items');
     $totalPrice = 0;
     /**
-     * @var Node  $orderItem
+     * @var Node $orderItem
      */
     foreach ($orderItems->referencedEntities() as $orderItem) {
       $totalPrice += doubleval($orderItem->get('field_order_item_price')->getString());
@@ -155,12 +153,12 @@ function dinger_settings_node_update(NodeInterface $node): void
       $biddingService->onBidUpdated($node);
       break;
     case 'order':
-      /** @var OrdersService $ordersService **/
+      /** @var OrdersService $ordersService * */
       $ordersService = Drupal::service('hucha_settings.orders_service');
       $ordersService->onOrderUpdated($node);
       break;
     case 'customer':
-      /** @var CustomersService $customerService **/
+      /** @var CustomersService $customerService * */
       $customerService = Drupal::service('dinger_settings.customers_service');
       $customerService->onCustomerUpdated($node);
       break;
@@ -175,7 +173,8 @@ function dinger_settings_node_update(NodeInterface $node): void
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
-function dinger_settings_user_update(UserInterface $userEntity): void {
+function dinger_settings_user_update(UserInterface $userEntity): void
+{
   if ($userEntity->hasRole('customer')) {
 
     $originalUser = $userEntity->getOriginal();
@@ -207,7 +206,8 @@ function dinger_settings_user_update(UserInterface $userEntity): void {
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
-function dinger_settings_node_insert(NodeInterface $entity): void {
+function dinger_settings_node_insert(NodeInterface $entity): void
+{
   Drupal::logger('dinger_settings')->notice("Hook INSERT on node type: " . $entity->bundle() . " With ID: " . $entity->id());
   if ($entity->bundle() === 'bid') {
     /** @var $biddingService BiddingService */
@@ -223,7 +223,7 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
   }
 
   if ($entity->bundle() === 'call') {
-    /** @var CallsService $callsService **/
+    /** @var CallsService $callsService * */
     $callsService = Drupal::service('hucha_settings.calls_service');
     $callsService->onCallInserted($entity);
   }
@@ -244,11 +244,7 @@ function dinger_settings_node_insert(NodeInterface $entity): void {
 function dinger_settings_file_presave(FileInterface $file): void
 {
   if ($file->isNew()) {
-    /**
-     * @var UtilsService $utilsService
-     */
-    $utilsService = \Drupal::service('hucha_settings.utils_service');
-    $reference = $utilsService->generateRandomId();
+    $reference = Random::generate(10);
 
     // Get the file extension
     $extension = pathinfo($file->getFilename(), PATHINFO_EXTENSION);
@@ -310,7 +306,8 @@ function dinger_settings_user_insert(UserInterface $user): void
 /**
  * Implements hook_preprocess_HOOK().
  */
-function dinger_settings_preprocess_page(&$variables): void {
+function dinger_settings_preprocess_page(&$variables): void
+{
   if (Drupal::request()->query->has('target')) {
     $variables['target_device'] = Drupal::request()->query->get('target');
   }
@@ -333,8 +330,8 @@ function dinger_settings_node_access(NodeInterface $entity, $operation, AccountI
           ->get('field_customer_user')->entity;
         if ($bidCreator instanceof UserInterface and $bidCreator->id() === $account->id()) {
           return AccessResult::allowed()        // Allow
-            ->cachePerUser()                    // Cache per user. Don't serve cached entity to any user
-            ->addCacheableDependency($entity);  // Invalidate cache is entity updated
+          ->cachePerUser()                    // Cache per user. Don't serve cached entity to any user
+          ->addCacheableDependency($entity);  // Invalidate cache is entity updated
         }
 
         $relatedCallCreator = $entity
@@ -391,6 +388,6 @@ function dinger_settings_node_access(NodeInterface $entity, $operation, AccountI
         }
       }
       break;
-    }
+  }
   return AccessResult::neutral();
 }

@@ -46,7 +46,8 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
     $newStatusType = $enumClass::fromString($newStatus);
 
     if ($entity->isNew()) {
-      if (!in_array($newStatusType, $enumClass::entryPoints(), true)) {
+      $isEntryPoint = in_array($newStatusType, $enumClass::entryPoints(), true);
+      if (!$isEntryPoint) {
         $logger->warning('For @type => Status @status is not a valid entry point', [
           '@type' => $entity->bundle(),
           '@status' => $newStatusType->toString()

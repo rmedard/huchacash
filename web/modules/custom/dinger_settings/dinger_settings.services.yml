@@ -24,10 +24,6 @@ services:
       - '@entity_type.manager'
       - '@logger.factory'
 
-  hucha_settings.utils_service:
-    class: Drupal\dinger_settings\Service\UtilsService
-    arguments: [ ]
-
   hucha_settings.orders_service:
     class: Drupal\dinger_settings\Service\OrdersService
     arguments:

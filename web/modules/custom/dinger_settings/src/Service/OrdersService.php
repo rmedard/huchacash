@@ -42,7 +42,7 @@ final class OrdersService
   public function onOrderCreated(Node $order): void
   {
     $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
-    if ($orderStatus->isEntryState()) {
+    if ($orderStatus->isEntryPoint()) {
       /** @var TransactionsService $transactionsService **/
       $transactionsService = Drupal::service('hucha_settings.transactions_service');
       $transactionsService->freezeOrderShoppingCost($order);

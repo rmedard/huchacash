@@ -2,7 +2,7 @@
 
 namespace Drupal\dinger_settings\Model\SubModel;
 
-use Drupal\dinger_settings\Service\UtilsService;
+use Drupal\dinger_settings\Service\DateUtils;
 use Drupal\node\Entity\Node;
 
 class Order {
@@ -23,7 +23,7 @@ class Order {
     $this->nid = $order->id();
     $this->id = $order->uuid();
     $this->type = $order->get('field_order_type')->getString();
-    $this->deliveryTime = UtilsService::dateTimeToGcTimestamp($order->get('field_order_delivery_time')->date)->formatAsString();
+    $this->deliveryTime = DateUtils::dateTimeToGcTimestamp($order->get('field_order_delivery_time')->date)->formatAsString();
     $this->deliveryAddressLat = $order->get('field_order_delivery_address')->lat;
     $this->deliveryAddressLng = $order->get('field_order_delivery_address')->lng;
     $this->deliveryAddress = $order->get('field_order_delivery_address_str')->getString();

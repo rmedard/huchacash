@@ -29,6 +29,6 @@ enum CallStatus: string implements StatusBaseInterface
   }
 
   public function freezesBalance(): bool {
-    return in_array($this, self::entryPoints(), true);
+    return self::isEntryPoint();
   }
 }

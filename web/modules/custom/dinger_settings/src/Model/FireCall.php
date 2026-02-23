@@ -7,7 +7,7 @@ use Drupal;
 use Drupal\dinger_settings\Model\SubModel\Order;
 use Drupal\dinger_settings\Model\SubModel\UserDetails;
 use Drupal\dinger_settings\Service\GeoHashService;
-use Drupal\dinger_settings\Service\UtilsService;
+use Drupal\dinger_settings\Service\DateUtils;
 use Drupal\node\Entity\Node;
 use Google\Cloud\Core\Timestamp;
 use MrShan0\PHPFirestore\Fields\FirestoreGeoPoint;
@@ -34,7 +34,7 @@ class FireCall {
 
     /** @var Drupal\Core\Datetime\DrupalDateTime $expirationTime */
     $expTime = $call->get('field_call_expiry_time')->date;
-    $this->expirationTime = UtilsService::dateTimeToGcTimestamp($expTime);
+    $this->expirationTime = DateUtils::dateTimeToGcTimestamp($expTime);
     $this->expirationDateTime = new DateTime();
     $this->expirationDateTime->setTimestamp($expTime->getTimestamp());
 

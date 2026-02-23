@@ -264,7 +264,7 @@ final class FirestoreCloudService {
       if ($initialTimestamp !== $currentTimestamp && $currentExpirationTime > new DrupalDateTime()) {
         $updates[] = [
           'path' => 'expiration_time',
-          'value' => UtilsService::dateTimeToGcTimestamp($currentExpirationTime)
+          'value' => DateUtils::dateTimeToGcTimestamp($currentExpirationTime)
         ];
       }
     }

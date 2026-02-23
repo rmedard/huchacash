@@ -18,4 +18,8 @@ trait StatusBaseType
   {
     return $this->value;
   }
+
+  public function isEntryPoint(): bool {
+    return in_array($this->value, self::entryPoints(), true);
+  }
 }
