@@ -7,7 +7,7 @@ use Drupal;
 use Drupal\dinger_settings\Model\SubModel\Order;
 use Drupal\dinger_settings\Model\SubModel\UserDetails;
 use Drupal\dinger_settings\Service\GeoHashService;
-use Drupal\dinger_settings\Service\DateUtils;
+use Drupal\dinger_settings\Utils\DateUtils;
 use Drupal\node\Entity\Node;
 use Google\Cloud\Core\Timestamp;
 use MrShan0\PHPFirestore\Fields\FirestoreGeoPoint;

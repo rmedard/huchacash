@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dinger_settings\Service;
+namespace Drupal\dinger_settings\Utils;
 
 use DateTimeZone;
 use Drupal\Core\Datetime\DrupalDateTime;

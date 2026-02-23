@@ -2,7 +2,7 @@
 
 namespace Drupal\dinger_settings\Model\SubModel;
 
-use Drupal\dinger_settings\Service\DateUtils;
+use Drupal\dinger_settings\Utils\DateUtils;
 use Drupal\node\Entity\Node;
 
 class Order {
