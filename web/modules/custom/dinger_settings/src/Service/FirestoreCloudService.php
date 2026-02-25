@@ -117,7 +117,7 @@ final class FirestoreCloudService {
   }
 
   public function updateBidStatus(String $bidUuid, BidStatus $bidStatus): void {
-    $this->logger->info('Updating bid: @bidUuid setting to status: @status', ['bidUuid' => $bidUuid, 'status' => $bidStatus->value]);
+    $this->logger->info('Updating bid: @bidUuid setting to status: @status', ['@bidUuid' => $bidUuid, '@status' => $bidStatus->value]);
     $updateFields = [];
     $updateFields['status'] = $bidStatus->value;
     try {
