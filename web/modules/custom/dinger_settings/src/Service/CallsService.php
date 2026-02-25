@@ -87,6 +87,10 @@ final class CallsService {
           $transition_service = Drupal::service('hucha_settings.transactions_service');
           $transition_service->unfreezeCallServiceFee($call);
         }
+      } else {
+        if ($callStatus === CallStatus::ATTRIBUTED) {
+          
+        }
       }
     }
   }

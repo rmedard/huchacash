@@ -11,12 +11,12 @@ use Drupal\dinger_settings\Model\FireBid;
 use Drupal\dinger_settings\Model\FireCall;
 use Drupal\dinger_settings\Utils\BidStatus;
 use Drupal\dinger_settings\Utils\BidType;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\DateUtils;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use MrShan0\PHPFirestore\FirestoreClient;
@@ -233,6 +233,24 @@ final class FirestoreCloudService {
   private function prepareUpdates(Node $call, Node $originalCall): array {
     $updates = [];
 
+    // Check status updates
+    $initialStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
+    $currentStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+    if ($initialStatus !== $currentStatus) {
+      /**
+       * No need to update attributed fireCall.
+       * This is handled by firebase function onLiveBidStatusUpdated (on Bid Confirmed)
+       */
+      if ($currentStatus === CallStatus::ATTRIBUTED) {
+        return [];
+      }
+
+      $updates[] = [
+        'path' => 'status',
+        'value' => $currentStatus
+      ];
+    }
+
     // Check expiration time updates
     $initialExpirationTime = $originalCall->get('field_call_expiry_time')->date;
     $currentExpirationTime = $call->get('field_call_expiry_time')->date;
@@ -252,16 +270,6 @@ final class FirestoreCloudService {
           'value' => DateUtils::dateTimeToGcTimestamp($currentExpirationTime)
         ];
       }
-    }
-
-    // Check status updates
-    $initialStatus = $originalCall->get('field_call_status')->getString();
-    $currentStatus = $call->get('field_call_status')->getString();
-    if ($initialStatus !== $currentStatus) {
-      $updates[] = [
-        'path' => 'status',
-        'value' => $currentStatus
-      ];
     }
 
     // Check order confirmation number updates

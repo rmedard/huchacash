@@ -12,9 +12,9 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
+use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\node\NodeInterface;
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[Action(
@@ -77,24 +77,16 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
       $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
       /** @var NodeInterface $originalCall */
       $originalCall = $call->getOriginal();
-      $initialStatus = $originalCall->get('field_call_status')->getString();
-      $currentStatus = $call->get('field_call_status')->getString();
+      $initialStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
+      $currentStatus = CallStatus::fromString($call->get('field_call_status')->getString());
       if ($initialStatus !== $currentStatus) {
-        switch ($currentStatus) {
-          case 'live':
-          case 'attributed':
-            $this->firestoreCloudService->updateFireCall($call);
-            break;
-          case 'expired':
-          case 'cancelled':
-          case 'completed':
-            $this->firestoreCloudService->deleteFireCall($call->uuid());
-            break;
+        if ($currentStatus->isFinalState()) {
+          $this->firestoreCloudService->deleteFireCall($call->uuid());
+        } else {
+          $this->firestoreCloudService->updateFireCall($call);
         }
       }
     } catch (Exception $e) {
-      $this->logger->error($e->getMessage());
-    } catch (GuzzleException $e) {
       $this->logger->error($e->getMessage());
     } finally {
       unset(self::$processing[$entity_key]);
