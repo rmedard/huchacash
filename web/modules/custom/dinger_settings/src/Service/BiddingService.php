@@ -51,6 +51,10 @@ final class BiddingService {
     $bidType = BidType::fromString($bid->get('field_bid_type')->getString());
     $bidStatusUpdated = $originalBid != null && $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     if ($bidStatusUpdated) {
+      /** @var FirestoreCloudService $fireStoreService */
+      $fireStoreService = Drupal::service('dinger_settings.firestore_cloud_service');
+      $fireStoreService->updateBidStatus($bid->uuid(), $bidStatus);
+
       /** @var TransactionsService $transactionsService */
       $transactionsService = Drupal::service('hucha_settings.transactions_service');
 

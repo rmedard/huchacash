@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2de068e5cf9f285ca19150be4d3234e1",
+    "content-hash": "82e47204f6c535bd985f5a56723463f0",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -7385,11 +7385,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.39",
+            "version": "2.1.40",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
-                "reference": "c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
+                "reference": "9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
                 "shasum": ""
             },
             "require": {
@@ -7434,7 +7434,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-11T14:48:56+00:00"
+            "time": "2026-02-23T15:04:35+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -14566,22 +14566,22 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "v1.25.0",
+            "version": "v1.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "7ab965042096282307992f1b9abff020095757f0"
+                "reference": "0da07c10d5fe64cd0c748f0523b47599400f2ed1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/7ab965042096282307992f1b9abff020095757f0",
-                "reference": "7ab965042096282307992f1b9abff020095757f0",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/0da07c10d5fe64cd0c748f0523b47599400f2ed1",
+                "reference": "0da07c10d5fe64cd0c748f0523b47599400f2ed1",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.2 || ^2.0",
                 "php": "8.2.* || 8.3.* || 8.4.* || 8.5.*",
-                "phpdocumentor/reflection-docblock": "^5.2",
+                "phpdocumentor/reflection-docblock": "^5.2 || ^6.0",
                 "sebastian/comparator": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0",
                 "sebastian/recursion-context": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0",
                 "symfony/deprecation-contracts": "^2.5 || ^3.1"
@@ -14631,9 +14631,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpspec/prophecy/issues",
-                "source": "https://github.com/phpspec/prophecy/tree/v1.25.0"
+                "source": "https://github.com/phpspec/prophecy/tree/v1.26.0"
             },
-            "time": "2026-02-09T11:58:00+00:00"
+            "time": "2026-02-24T15:40:48+00:00"
         },
         {
             "name": "phpspec/prophecy-phpunit",

@@ -9,12 +9,9 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\dinger_settings\Model\FireBid;
 use Drupal\dinger_settings\Model\FireCall;
+use Drupal\dinger_settings\Utils\BidStatus;
 use Drupal\dinger_settings\Utils\BidType;
 use Drupal\dinger_settings\Utils\DateUtils;
-use Drupal\dinger_settings\Utils\FirestoreFieldFilter;
-use Drupal\dinger_settings\Utils\FirestoreFieldValue;
-use Drupal\dinger_settings\Utils\FirestoreOperator;
-use Drupal\dinger_settings\Utils\FirestoreQueryHelper;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
@@ -23,7 +20,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 use MrShan0\PHPFirestore\FirestoreClient;
-use MrShan0\PHPFirestore\FirestoreDocument;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FirestoreCloudService {
@@ -75,9 +71,7 @@ final class FirestoreCloudService {
   public function createFireCall(Node $call): void {
     $callUuid = $call->uuid();
     $this->logger->info('Creating fireCall. CallId: @callId', ['@callId' => $callUuid]);
-
     try {
-
       $fireCall = new FireCall($call);
       $fireCallDocument = $fireCall->toFirestoreDocument();
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
@@ -85,11 +79,11 @@ final class FirestoreCloudService {
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
 
     } catch (Exception $e) {
+      $this->logger->error($e);
       $this->logger->error('Failed to create FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),
       ]);
-      throw $e;
     }
   }
 
@@ -110,6 +104,7 @@ final class FirestoreCloudService {
     try {
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
     } catch (RequestException $e) {
+      $this->logger->error($e);
       if ($e->getCode() === Response::HTTP_NOT_FOUND) {
         $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
       } else {
@@ -117,7 +112,25 @@ final class FirestoreCloudService {
           '@callId' => $callUuid,
           '@error' => $e->getMessage(),
         ]);
-        throw $e;
+      }
+    }
+  }
+
+  public function updateBidStatus(String $bidUuid, BidStatus $bidStatus): void {
+    $this->logger->info('Updating bid: @bidUuid setting to status: @status', ['bidUuid' => $bidUuid, 'status' => $bidStatus->value]);
+    $updateFields = [];
+    $updateFields['status'] = $bidStatus->value;
+    try {
+      $this->firestoreClient->updateDocument('live_bids/' . $bidUuid, $updateFields, true);
+    } catch (RequestException $e) {
+      $this->logger->error($e);
+      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
+        $this->logger->warning('FireBid not found during update: @bidId', ['@bidId' => $bidUuid]);
+      } else {
+        $this->logger->error('Failed to update FireBid @bidId: @error', [
+          '@callId' => $bidUuid,
+          '@error' => $e->getMessage(),
+        ]);
       }
     }
   }
@@ -145,20 +158,18 @@ final class FirestoreCloudService {
   public function deleteFireCall(string $callUuid): void {
     $this->logger->info('Deleting fireCall. CallId: @callId', ['@callId' => $callUuid]);
     try {
-      $this->deleteBidsByCallId($callUuid);
       $this->firestoreClient->deleteDocument('live_calls/' . $callUuid);
     }  catch (Exception $e) {
       $this->logger->error('Failed to delete FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),
       ]);
-      throw $e;
     }
   }
 
   /**
    * Update a fire call document
-   * @throws Exception|GuzzleException
+   * @throws Exception
    */
   public function updateFireCall(Node $call): void {
 
@@ -189,6 +200,7 @@ final class FirestoreCloudService {
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
 
     } catch (RequestException $e) {
+      $this->logger->error($e);
       if ($e->getCode() === Response::HTTP_NOT_FOUND) {
         $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
       } else {
@@ -196,7 +208,6 @@ final class FirestoreCloudService {
           '@callId' => $callUuid,
           '@error' => $e->getMessage(),
         ]);
-        throw $e;
       }
     }
   }
@@ -215,33 +226,6 @@ final class FirestoreCloudService {
       $this->logger->warning('Failed to update Balance @customerId: @error', ['@customerId' => $customerId, 'exception' => $exception->getMessage()]);
     }
   }
-
-  private function deleteBidsByCallId(string $callUuid): void {
-    $callId = FirestoreFieldValue::string($callUuid);
-    $filter = new FirestoreFieldFilter('call_id', $callId, FirestoreOperator::EQUAL);
-    $bidDocuments = FirestoreQueryHelper::queryFirestore($this->firestoreClient, 'live_bids', $filter);
-    if (empty($bidDocuments)) {
-      $this->logger->info('No bids to call @callId to delete', ['@callId' => $callUuid]);
-      return;
-    }
-
-    /** @var FirestoreDocument $bidDocument */
-    foreach ($bidDocuments as $bidDocument) {
-      $bidId = basename($bidDocument->getName());
-      try {
-        $this->logger->info('Deleting bid. BidId: @bidId', ['@bidId' => $bidId]);
-        $deleted = $this->firestoreClient->deleteDocument('live_bids/' . $bidId);
-        if ($deleted) {
-          $this->logger->info('Deleted bid. BidId: @bidId', ['@bidId' => $bidId]);
-        } else {
-          $this->logger->warning('Deleting bid failed. BidId: @bidId', ['@bidId' => $bidId]);
-        }
-      } catch (Exception $e) {
-        $this->logger->error('Failed to delete Bid @bidId: @error', ['@bidId' => $bidId, '@error' => $e->getMessage()]);
-      }
-    }
-  }
-
 
   /**
    * Prepare updates array based on changes between original and current call
