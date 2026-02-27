@@ -147,7 +147,7 @@ final class GoogleCloudService {
 
       $callbackUrl = Drupal::request()->getSchemeAndHttpHost() . '/expire-node/' . $callbackToken;
 
-      $httpRequest = new HttpRequest();
+      $httpRequest = (new HttpRequest());
       $httpRequest = $httpRequest
         ->setHttpMethod(HttpMethod::POST)
         ->setUrl($callbackUrl)
@@ -162,8 +162,7 @@ final class GoogleCloudService {
       $scheduleTime = new Timestamp();
       $scheduleTime->fromDateTime($triggerTime->getPhpDateTime());
 
-      $task = new Task();
-      $task = $task
+      $task = (new Task())
         ->setScheduleTime($scheduleTime)
         ->setHttpRequest($httpRequest);
 
@@ -182,17 +181,17 @@ final class GoogleCloudService {
       // Create order calls cleaner task
       if ($targetNode->bundle() === 'order') {
         $url = "https://$location-$projectId.cloudfunctions.net/onOrderExpired";
-        $callsCleanerHttpRequest = new HttpRequest()
+        $callsCleanerHttpRequest = (new HttpRequest())
           ->setHttpMethod(HttpMethod::POST)
           ->setUrl($url)
           ->setHeaders([
             'Content-Type' => 'application/json',
           ])
           ->setBody(json_encode(['order_id' => $targetNode->uuid()]))
-          ->setOidcToken(new OidcToken()
+          ->setOidcToken((new OidcToken())
             ->setServiceAccountEmail($this->serviceAccountEmail)
             ->setAudience($url));
-        $callsCleanerTask = new Task()->setScheduleTime($scheduleTime)->setHttpRequest($callsCleanerHttpRequest);
+        $callsCleanerTask = (new Task())->setScheduleTime($scheduleTime)->setHttpRequest($callsCleanerHttpRequest);
         $callsCleanerRequest = CreateTaskRequest::build($formattedParent, $callsCleanerTask);
         try {
           $cleanerResult = $client->createTask($callsCleanerRequest);
