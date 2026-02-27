@@ -4,9 +4,12 @@ namespace Drupal\dinger_settings\Service;
 
 use DateTimeZone;
 use Drupal;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
@@ -21,10 +24,13 @@ final class OrdersService
   protected LoggerChannelInterface $logger;
 
   /**
-   * @param LoggerChannelFactory $logger
+   * @param LoggerChannelFactoryInterface $loggerFactory
+   * @param EntityTypeManagerInterface $entityTypeManager
    */
-  public function __construct(LoggerChannelFactory $logger) {
-    $this->logger = $logger->get('OrdersService');
+  public function __construct(
+    private readonly LoggerChannelFactoryInterface $loggerFactory,
+    private readonly EntityTypeManagerInterface $entityTypeManager) {
+    $this->logger = $this->loggerFactory->get('OrdersService');
   }
 
   public function isActive(Node $order): bool {
@@ -79,6 +85,27 @@ final class OrdersService
         }
 
         if ($orderStatus === OrderStatus::CANCELLED) {
+
+          /** Cancel live calls **/
+          try {
+            $storage = $this->entityTypeManager->getStorage('node');
+            $callsIds = $storage->getQuery()
+              ->accessCheck(false)
+              ->condition('type', 'call')
+              ->condition('field_call_status', CallStatus::LIVE->value)
+              ->condition('field_call_order.target_id', $order->id())
+              ->execute();
+            $calls = $storage->loadMultiple($callsIds);
+
+            /** @var $orderCall NodeInterface $calls */
+            foreach ($calls as $orderCall) {
+              $orderCall->set('field_call_status', CallStatus::CANCELLED->value);
+              $orderCall->save();
+            }
+          } catch (InvalidPluginDefinitionException|PluginNotFoundException|EntityStorageException $e) {
+            $this->logger->error($e);
+          }
+
           /** Freeze initiator's balance **/
           /** @var TransactionsService $transactions_service */
           $transactions_service = Drupal::service('hucha_settings.transactions_service');

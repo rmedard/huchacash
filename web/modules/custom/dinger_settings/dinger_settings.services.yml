@@ -28,31 +28,34 @@ services:
     class: Drupal\dinger_settings\Service\OrdersService
     arguments:
       - '@logger.factory'
+      - '@entity_type.manager'
 
   dinger_settings.google_cloud_service:
     class: Drupal\dinger_settings\Service\GoogleCloudService
-    arguments: ['@config.factory', '@logger.factory']
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
 
   dinger_settings.firestore_cloud_service:
     class: Drupal\dinger_settings\Service\FirestoreCloudService
-    arguments: ['@config.factory', '@logger.factory']
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
 
   dinger_settings.firebase_functions_service:
     class: Drupal\dinger_settings\Service\FirebaseFunctionsService
-    arguments: [
-      '@http_client',
-      '@logger.factory',
-      '@config.factory'
-    ]
+    arguments:
+      - '@http_client'
+      - '@logger.factory'
+      - '@config.factory'
 
   hucha_settings.fire_storage_cloud_service:
     class: Drupal\dinger_settings\Service\FireStorageCloudService
-    arguments: [
-      '@http_client',
-      '@logger.factory',
-      '@config.factory',
-      '@file_system'
-    ]
+    arguments:
+      - '@http_client'
+      - '@logger.factory'
+      - '@config.factory'
+      - '@file_system'
 
   dinger_settings.geohash_service:
     class: Drupal\dinger_settings\Service\GeoHashService
@@ -61,10 +64,15 @@ services:
 
   dinger_settings.event_subscriber:
     class: Drupal\dinger_settings\EventSubscriber\WebformAuthSubscriber
-    arguments: ['@simple_oauth.authentication.simple_oauth', '@logger.factory']
+    arguments:
+      - '@simple_oauth.authentication.simple_oauth'
+      - '@logger.factory'
     tags:
       - { name: event_subscriber }
 
   dinger_settings.customers_service:
     class: Drupal\dinger_settings\Service\CustomersService
-    arguments: ['@logger.factory', '@entity_type.manager', '@dinger_settings.firestore_cloud_service']
+    arguments:
+      - '@logger.factory'
+      - '@entity_type.manager'
+      - '@dinger_settings.firestore_cloud_service'
