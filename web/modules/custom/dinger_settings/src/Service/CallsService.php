@@ -8,11 +8,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Utils\CallStatus;
-use Drupal\dinger_settings\Utils\CallType;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\NodeInterface;
 
-final class CallsService {
+final class CallsService
+{
 
   /**
    * @var EntityTypeManagerInterface
@@ -36,9 +36,10 @@ final class CallsService {
     $this->logger = $logger->get('CallsService');
   }
 
-  public function onCallInserted(NodeInterface $call): void {
+  public function onCallInserted(NodeInterface $call): void
+  {
     /** Update order status **/
-    /** @var NodeInterface $order **/
+    /** @var NodeInterface $order * */
     $order = $call->get('field_call_order')->entity;
     try {
       $order->set('field_order_status', OrderStatus::BIDDING->value);
@@ -60,7 +61,8 @@ final class CallsService {
     }
   }
 
-  public function onCallUpdated(NodeInterface $call): void {
+  public function onCallUpdated(NodeInterface $call): void
+  {
     if ($call->isNew()) {
       $this->logger->error('Call should NOT be new. CallID: ' . $call->id());
       return;
@@ -86,10 +88,6 @@ final class CallsService {
           /** @var TransactionsService $transition_service */
           $transition_service = Drupal::service('hucha_settings.transactions_service');
           $transition_service->unfreezeCallServiceFee($call);
-        }
-      } else {
-        if ($callStatus === CallStatus::ATTRIBUTED) {
-          
         }
       }
     }

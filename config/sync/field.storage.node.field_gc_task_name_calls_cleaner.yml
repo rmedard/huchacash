@@ -1,0 +1,25 @@
+uuid: f1ee83aa-ab74-44fb-8db6-4d00c2b1c33a
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+third_party_settings:
+  field_permissions:
+    permission_type: custom
+id: node.field_gc_task_name_calls_cleaner
+field_name: field_gc_task_name_calls_cleaner
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

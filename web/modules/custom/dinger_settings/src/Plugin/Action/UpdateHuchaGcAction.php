@@ -6,8 +6,10 @@ use Drupal\Core\Action\Attribute\Action;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\NodeInterface;
 use Google\ApiCore\ApiException;
-use Google\ApiCore\ValidationException;
 
+/**
+ * Action task triggered in presave state.
+ */
 #[Action(
   id: 'update_gc_task_action',
   label: new TranslatableMarkup('Update GC Task Action'),
@@ -17,17 +19,20 @@ use Google\ApiCore\ValidationException;
 final class UpdateHuchaGcAction extends BaseHuchaGcAction {
 
   /**
-   * @throws ValidationException
    * @throws ApiException
    */
-  public function execute(NodeInterface $entity = NULL): void {
+  public function execute(?NodeInterface $entity = NULL): void {
+    if ($entity == NULL) {
+      $this->logger->error('Empty entity received. System cannot update task.');
+      return;
+    }
 
     /**
      * Update entity with created Task name
      */
-    $expirationTask = $this->googleCloudService->updateNodeExpirationTask($entity, $this->getTriggerTime($entity));
-    if ($expirationTask) {
-      $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+    $expirationTasks = $this->googleCloudService->updateNodeExpirationTask($entity, $this->getTriggerTime($entity));
+    if (!empty($expirationTasks)) {
+      $this->applyTaskResults($entity, $expirationTasks);
     } else {
       $this->logger->error('The update huchaGcTask operation has failed.');
     }

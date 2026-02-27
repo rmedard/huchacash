@@ -75,9 +75,7 @@ final class FirestoreCloudService {
       $fireCall = new FireCall($call);
       $fireCallDocument = $fireCall->toFirestoreDocument();
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
-
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
-
     } catch (Exception $e) {
       $this->logger->error($e);
       $this->logger->error('Failed to create FireCall @callId: @error', [
@@ -135,6 +133,25 @@ final class FirestoreCloudService {
     }
   }
 
+  public function updateCallStatus(String $callUuid, CallStatus $callStatus): void {
+    $this->logger->info('Updating call: @callUuid setting to status: @status', ['@callUuid' => $callUuid, '@status' => $callStatus->value]);
+    $updateFields = [];
+    $updateFields['status'] = $callStatus->value;
+    try {
+      $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
+    } catch (RequestException $e) {
+      $this->logger->error($e);
+      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
+        $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
+      } else {
+        $this->logger->error('Failed to update FireBid @callId: @error', [
+          '@callId' => $callUuid,
+          '@error' => $e->getMessage(),
+        ]);
+      }
+    }
+  }
+
   public function createFireBid(Node $bid): void {
     $bidUuid = $bid->uuid();
     $this->logger->info('Creating FireBid @bidUuid', ['@bidUuid' => $bidUuid]);
@@ -166,6 +183,12 @@ final class FirestoreCloudService {
       ]);
     }
   }
+
+  public function deleteOrderFireCalls(string $orderUuid): void {
+    $this->logger->info('Deleting order fireCalls. OrderId: @orderId', ['@orderId' => $orderUuid]);
+
+  }
+
 
   /**
    * Update a fire call document

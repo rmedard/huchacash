@@ -20,6 +20,7 @@ use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\DeleteTaskRequest;
 use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
+use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
 use RuntimeException;
@@ -39,6 +40,8 @@ final class GoogleCloudService {
    * @var ?CloudTasksClient
    */
   protected ?CloudTasksClient $cloudTasksClient = null;
+
+  protected ?string $serviceAccountEmail = null;
 
   protected bool $clientInitializing = false;
 
@@ -72,6 +75,9 @@ final class GoogleCloudService {
           throw new RuntimeException("The Google Cloud credentials file is missing or unreadable at: $gcSettingsFileLocation");
         }
 
+        $credentialsContents = json_decode(file_get_contents($gcSettingsFileLocation), true);
+        $this->serviceAccountEmail = $credentialsContents['client_email'];
+
         $this->cloudTasksClient = new CloudTasksClient(
           [
             'credentials' => $gcSettingsFileLocation,
@@ -90,30 +96,32 @@ final class GoogleCloudService {
   }
 
   /**
-   * @throws ValidationException
    * @throws ApiException
    */
-  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
+  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
     if ($this->isEligible($targetNode, $triggerTime)) {
       return $this->createGcTask($targetNode, $triggerTime);
     }
-    return null;
+    return [];
   }
 
   /**
-   * @throws ValidationException
    * @throws ApiException
    */
-  public function updateNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): ?Task
+  public function updateNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
     if ($this->isEligible($targetNode, $triggerTime)) {
       $taskName = trim($targetNode->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+      if ($targetNode->bundle() === 'order') {
+        $callsCleanerTaskName = trim($targetNode->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER)->getString());
+        $this->deleteGcTask($callsCleanerTaskName);
+      }
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
     $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
-    return null;
+    return [];
   }
 
   /**
@@ -121,11 +129,11 @@ final class GoogleCloudService {
    *
    * @param NodeInterface $targetNode
    * @param DrupalDateTime $triggerTime
-   * @return Task
+   * @return array
    * @throws ApiException
-   * @throws ValidationException
    */
-  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): Task {
+  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
+  {
     try {
       $this->logger->info('Creating GC Task for Node (@type) ID: @id', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
 
@@ -161,13 +169,44 @@ final class GoogleCloudService {
 
       $request = CreateTaskRequest::build($formattedParent, $task);
 
+      $resultTasks = [];
+
       // Use the safe client initialization
       $client = $this->getCloudTasksClient();
       $result = $client->createTask($request);
 
+      $resultTasks[BaseHuchaGcAction::GC_TASK_FIELD_NAME] = $result;
+
       $this->logger->info('Task successfully created for Node ID: @id', ['@id' => $targetNode->uuid()]);
 
-      return $result;
+      // Create order calls cleaner task
+      if ($targetNode->bundle() === 'order') {
+        $url = "https://$location-$projectId.cloudfunctions.net/onOrderExpired";
+        $callsCleanerHttpRequest = new HttpRequest()
+          ->setHttpMethod(HttpMethod::POST)
+          ->setUrl($url)
+          ->setHeaders([
+            'Content-Type' => 'application/json',
+          ])
+          ->setBody(json_encode(['order_id' => $targetNode->uuid()]))
+          ->setOidcToken(new OidcToken()
+            ->setServiceAccountEmail($this->serviceAccountEmail)
+            ->setAudience($url));
+        $callsCleanerTask = new Task()->setScheduleTime($scheduleTime)->setHttpRequest($callsCleanerHttpRequest);
+        $callsCleanerRequest = CreateTaskRequest::build($formattedParent, $callsCleanerTask);
+        try {
+          $cleanerResult = $client->createTask($callsCleanerRequest);
+          $resultTasks[BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER] = $cleanerResult;
+          $this->logger->info('Order calls cleaner task [@name] created for order ID: [@id]', [ '@name' => $cleanerResult->getName(), '@id' => $targetNode->uuid()]);
+        } catch (Exception $e) {
+          $this->logger->error('Creating order calls cleaner task failed for order ID: @id - @msg', [
+            '@id' => $targetNode->uuid(),
+            '@msg' => $e->getMessage(),
+          ]);
+        }
+      }
+
+      return $resultTasks;
     } catch (Exception $e) {
       $this->logger->error('Error creating GC Task for Node ID @id: @message', [
         '@id' => $targetNode->id(),
@@ -182,7 +221,7 @@ final class GoogleCloudService {
       return;
     }
 
-    $this->logger->info('Deleting DC Task: ' . $taskName);
+    $this->logger->info('Deleting GC Task: ' . $taskName);
     try {
       $this
         ->getCloudTasksClient()

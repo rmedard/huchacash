@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 abstract class BaseHuchaGcAction extends ActionBase implements ContainerFactoryPluginInterface {
 
   const string GC_TASK_FIELD_NAME = 'field_gc_task_name';
+  const string GC_TASK_FIELD_NAME_CALLS_CLEANER = 'field_gc_task_name_calls_cleaner';
 
   /**
    * @var LoggerChannelInterface
@@ -50,6 +51,15 @@ abstract class BaseHuchaGcAction extends ActionBase implements ContainerFactoryP
   public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE): bool|AccessResultInterface {
     $isAllowed = $object instanceof NodeInterface && in_array($object->bundle(), ['order', 'call']);
     return $isAllowed ? new AccessResultAllowed() : new AccessResultForbidden();
+  }
+
+  protected function applyTaskResults(NodeInterface $entity, array $expirationTasks): void {
+    $entity->set(self::GC_TASK_FIELD_NAME, $expirationTasks[self::GC_TASK_FIELD_NAME]->getName());
+    if ($entity->bundle() === 'order') {
+      $callsCleanerTask = $expirationTasks[self::GC_TASK_FIELD_NAME_CALLS_CLEANER] ?? null;
+      $taskName = isset($callsCleanerTask) ? $callsCleanerTask->getName() : '';
+      $entity->set(self::GC_TASK_FIELD_NAME_CALLS_CLEANER, $taskName);
+    }
   }
 
   protected function getTriggerTime(NodeInterface $node): DrupalDateTime {

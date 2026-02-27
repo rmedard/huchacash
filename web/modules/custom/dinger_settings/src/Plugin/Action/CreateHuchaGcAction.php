@@ -6,8 +6,10 @@ use Drupal\Core\Action\Attribute\Action;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\NodeInterface;
 use Google\ApiCore\ApiException;
-use Google\ApiCore\ValidationException;
 
+/**
+ * Action task triggered in presave state.
+ */
 #[Action(
   id: 'create_gc_task_action',
   label: new TranslatableMarkup('Create GC Task Action'),
@@ -26,14 +28,14 @@ final class CreateHuchaGcAction extends BaseHuchaGcAction {
      * Update entity with created Task name
      */
     try {
-      $expirationTask = $this->googleCloudService->createNodeExpirationTask($entity, $this->getTriggerTime($entity));
-      if ($expirationTask) {
-        $entity->set(self::GC_TASK_FIELD_NAME, $expirationTask->getName());
+      $expirationTasks = $this->googleCloudService->createNodeExpirationTask($entity, $this->getTriggerTime($entity));
+      if (!empty($expirationTasks)) {
+        $this->applyTaskResults($entity, $expirationTasks);
       } else {
         $this->logger->error('Create HuchaGc Task failed.');
       }
     }
-    catch (ApiException|ValidationException $e) {
+    catch (ApiException $e) {
       $this->logger->error($e);
     }
   }
