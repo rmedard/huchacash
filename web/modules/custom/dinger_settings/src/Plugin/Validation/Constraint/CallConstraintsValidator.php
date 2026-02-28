@@ -5,6 +5,7 @@ namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -18,7 +19,7 @@ class CallConstraintsValidator extends ConstraintValidator
   {
     $logger = \Drupal::logger('CallConstraintsValidator');
     if ($value instanceof NodeInterface && $value->bundle() === 'call') {
-      if ($constraint instanceof UniqueCallPerOrder) {
+      if ($constraint instanceof UniqueCallPerOrderConstraint) {
         if ($this->hasOtherOpenCalls($value)) {
           $logger->warning('Call has other open calls');
           $this->context->addViolation($constraint->hasAnotherLiveCall, ['%value' => $value->label()]);
@@ -27,6 +28,18 @@ class CallConstraintsValidator extends ConstraintValidator
         if ($this->hasInvalidAmount($value)) {
           $logger->warning('Call has invalid amount');
           $this->context->addViolation($constraint->hasInvalidCallAmount, ['%value' => 'Call']);
+        }
+      } elseif ($constraint instanceof CallExpirationPerOrderConstraint) {
+        /** @var DrupalDateTime $callExpirationTime */
+        $callExpirationTime = $value->get('field_call_expiry_time')->date;
+        /** @var DrupalDateTime $orderDeliveryTime */
+        $orderDeliveryTime = $value->get('field_call_order')->entity->get('field_order_delivery_time')->date;
+        if ($callExpirationTime > $orderDeliveryTime) {
+          $logger->warning('Call expires later than delivery');
+          $this->context->addViolation($constraint->expiresLaterThanDelivery, [
+            '%expiration' => $callExpirationTime->format('Y-m-d H:i:s'),
+            '%deliveryTime' => $orderDeliveryTime->format('Y-m-d H:i:s')
+          ]);
         }
       }
     }
@@ -40,7 +53,10 @@ class CallConstraintsValidator extends ConstraintValidator
         ->condition('type', 'call')
         ->condition('nid', $call->id(), '<>')
         ->condition('field_call_order.target_id', $call->get('field_call_order')->target_id)
-        ->condition('field_call_status', [CallStatus::LIVE->value, CallStatus::ATTRIBUTED->value, CallStatus::COMPLETED->value], 'IN')
+        ->condition('field_call_status', [
+          CallStatus::LIVE->value,
+          CallStatus::ATTRIBUTED->value,
+          CallStatus::COMPLETED->value], 'IN')
         ->count()
         ->execute();
       return $callsCount > 0;

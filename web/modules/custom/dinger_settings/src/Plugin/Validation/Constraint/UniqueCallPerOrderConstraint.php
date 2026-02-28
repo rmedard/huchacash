@@ -11,9 +11,9 @@ use Drupal\Core\Validation\Attribute\Constraint as ConstraintAttribute;
   label: new TranslatableMarkup('Unique Call per Order'),
   type: 'entity'
 )]
-class UniqueCallPerOrder extends Constraint
+class UniqueCallPerOrderConstraint extends Constraint
 {
-  public const string PLUGIN_ID = 'UniqueCallPerOrder';
+  public const string PLUGIN_ID = 'UniqueCallPerOrderConstraint';
   public string $hasAnotherLiveCall = '%value has another live call for service';
 
   public function validatedBy(): string
