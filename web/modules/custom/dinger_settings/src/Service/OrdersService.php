@@ -87,6 +87,7 @@ final class OrdersService
         if ($orderStatus === OrderStatus::CANCELLED) {
 
           /** Cancel live calls **/
+          $this->logger->info('Order @id has been cancelled. Cancelling its live call.', ['@id' => $order->id()]);
           try {
             $storage = $this->entityTypeManager->getStorage('node');
             $callsIds = $storage->getQuery()

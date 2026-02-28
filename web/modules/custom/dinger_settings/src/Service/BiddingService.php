@@ -47,10 +47,17 @@ final class BiddingService {
   public function onBidUpdated(NodeInterface $bid): void {
     /** @var $originalBid NodeInterface */
     $originalBid = $bid->getOriginal();
+    $originalBidStatus = BidStatus::fromString($originalBid->get('field_bid_status')->getString());
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
-    $bidType = BidType::fromString($bid->get('field_bid_type')->getString());
-    $bidStatusUpdated = $originalBid != null && $bidStatus !== BidStatus::fromString($originalBid->get('field_bid_status')->getString());
+    $bidStatusUpdated = $bidStatus !== $originalBidStatus;
     if ($bidStatusUpdated) {
+      
+      $this->logger->info('Bid status updated. BidID: @id. Status: [@from => @to]', [
+        '@id' => $bid->id(),
+        '@from' => $originalBidStatus->value,
+        '@to' => $bidStatus->value
+      ]);
+      
       /** @var FirestoreCloudService $fireStoreService */
       $fireStoreService = Drupal::service('dinger_settings.firestore_cloud_service');
       $fireStoreService->updateBidStatus($bid->uuid(), $bidStatus);
@@ -58,6 +65,7 @@ final class BiddingService {
       /** @var TransactionsService $transactionsService */
       $transactionsService = Drupal::service('hucha_settings.transactions_service');
 
+      $bidType = BidType::fromString($bid->get('field_bid_type')->getString());
       if ($bidStatus === BidStatus::ACCEPTED) {
         if ($bidType === BidType::BARGAIN) {
           $transactionsService->freezeBargainedServiceFee($bid);

@@ -75,6 +75,16 @@ final class CallsService
     $callStatusUpdated = $callStatus !== $originalCallStatus;
 
     if ($callStatusUpdated) {
+      $this->logger->info('Call status updated. CallID: @id. Status: [@from => @to]', [
+        '@id' => $call->id(),
+        '@from' => $originalCallStatus->value,
+        '@to' => $callStatus->value
+      ]);
+      
+      /** @var FirestoreCloudService $firestoreCloudService * */
+      $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
+      $firestoreCloudService->updateCallStatus($call->uuid(), $callStatus);
+      
       if ($callStatus->isFinalState()) {
         /** @var OrdersService $orderService */
         $orderService = Drupal::service('hucha_settings.orders_service');
