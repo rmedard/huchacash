@@ -2,14 +2,12 @@
 
 namespace Drupal\dinger_settings\Model;
 
-use DateTime;
 use Drupal;
 use Drupal\dinger_settings\Model\SubModel\Order;
 use Drupal\dinger_settings\Model\SubModel\UserDetails;
 use Drupal\dinger_settings\Service\GeoHashService;
 use Drupal\dinger_settings\Utils\DateUtils;
 use Drupal\node\Entity\Node;
-use Google\Cloud\Core\Timestamp;
 use MrShan0\PHPFirestore\Fields\FirestoreGeoPoint;
 use MrShan0\PHPFirestore\Fields\FirestoreTimestamp;
 use MrShan0\PHPFirestore\FirestoreDocument;
@@ -17,9 +15,7 @@ use MrShan0\PHPFirestore\FirestoreDocument;
 class FireCall {
   public string $id;
   public string $status;
-  public Timestamp $expirationTime;
-
-  public DateTime $expirationDateTime;
+  public String $expirationTime;
 
   public Order $order;
 
@@ -34,9 +30,7 @@ class FireCall {
 
     /** @var Drupal\Core\Datetime\DrupalDateTime $expirationTime */
     $expTime = $call->get('field_call_expiry_time')->date;
-    $this->expirationTime = DateUtils::dateTimeToGcTimestamp($expTime);
-    $this->expirationDateTime = new DateTime();
-    $this->expirationDateTime->setTimestamp($expTime->getTimestamp());
+    $this->expirationTime = DateUtils::dateTimeToGcTimestamp($expTime)->formatAsString();
 
     /** @var Node $orderEntity **/
     $orderEntity = $call->get('field_call_order')->entity;
@@ -62,7 +56,7 @@ class FireCall {
     $document->setGeoPoint('pickup_address', new FirestoreGeoPoint($this->order->pickupAddressLat, $this->order->pickupAddressLng));
     $document->setString('pickup_address_full', $this->order->pickupAddress);
     $document->setString('pickup_address_geo_hash', $geoHashService->encodeGeohash([$this->order->pickupAddressLat, $this->order->pickupAddressLng]));
-    $document->setTimestamp('expiration_time', new FirestoreTimestamp($this->expirationDateTime));
+    $document->setTimestamp('expiration_time', new FirestoreTimestamp($this->expirationTime));
     $document->setString('order_id', $this->order->id);
     $document->setString('status', $this->status);
     $document->setString('order_type', $this->order->type);

@@ -35,7 +35,9 @@ final class CreateFireCallAction extends ActionBase implements ContainerFactoryP
    */
   protected FirestoreCloudService $firestoreCloudService;
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $loggerFactory, FirestoreCloudService $firestoreCloudService) {
+  public function __construct(
+    array $configuration, $plugin_id, $plugin_definition,
+    LoggerChannelFactoryInterface $loggerFactory, FirestoreCloudService $firestoreCloudService) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $loggerFactory->get('CreateFireCallAction');
     $this->firestoreCloudService = $firestoreCloudService;
