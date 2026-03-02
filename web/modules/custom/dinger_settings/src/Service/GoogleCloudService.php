@@ -134,6 +134,11 @@ final class GoogleCloudService {
    */
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
+    if ($targetNode->bundle() !== 'order') {
+      $this->logger->warning('Attempt to create GC Task for invalid node bundle: (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
+      return [];
+    }
+
     try {
       $this->logger->info('Creating GC Task for Node (@type) ID: @id', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
 
