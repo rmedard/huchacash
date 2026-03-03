@@ -11,11 +11,12 @@ dependencies:
 third_party_settings:
   modeler_api:
     modeler_id: bpmn_io
-    data: 'hash:edd5fc3bfdee0eea99d8d5db35c5d855'
+    data: 'hash:426f0bb673a8c64040158921682f7eaf'
     label: onCallPresave
     version: 1.0.0
 id: process_aigzlnh
 weight: -5
+template: null
 events:
   Event_0fmnvb3:
     plugin: 'content_entity:presave'
@@ -27,19 +28,15 @@ events:
         id: Gateway_0jjfwof
         condition: ''
 conditions:
-  Flow_02te2vv:
-    plugin: eca_entity_field_value_changed
-    configuration:
-      negate: false
-      field_name: field_call_expiry_time
-      entity: node
   Flow_1pqqlnj:
     plugin: eca_entity_is_new
+    label: callIsNotNew
     configuration:
       negate: true
       entity: node
   Flow_0kcere7:
     plugin: eca_entity_is_new
+    label: callIsNew
     configuration:
       negate: false
       entity: node
@@ -48,43 +45,19 @@ gateways:
     type: 0
     successors:
       -
-        id: Activity_1vnjhdq
+        id: dinger_settings_update_firecall_action_1vnjhdq
         condition: Flow_1pqqlnj
       -
-        id: Activity_1dnrx6t
+        id: dinger_settings_create_firecall_action_081lunz
         condition: Flow_0kcere7
-  Gateway_00b4ycb:
-    type: 0
-    successors:
-      -
-        id: Activity_15bm887
-        condition: Flow_02te2vv
 actions:
-  Activity_15bm887:
-    label: updateGCTask
-    plugin: update_gc_task_action
-    configuration:
-      object: node
-    successors: {  }
-  Activity_1vnjhdq:
+  dinger_settings_update_firecall_action_1vnjhdq:
     label: updateFireCall
     plugin: dinger_settings_update_firecall_action
     configuration:
       object: node
-    successors:
-      -
-        id: Gateway_00b4ycb
-        condition: ''
-  Activity_1dnrx6t:
-    label: createGcTask
-    plugin: create_gc_task_action
-    configuration:
-      object: node
-    successors:
-      -
-        id: Activity_081lunz
-        condition: ''
-  Activity_081lunz:
+    successors: {  }
+  dinger_settings_create_firecall_action_081lunz:
     label: createFireCall
     plugin: dinger_settings_create_firecall_action
     configuration:
