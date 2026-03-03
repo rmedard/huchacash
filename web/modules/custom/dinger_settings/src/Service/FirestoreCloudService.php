@@ -77,7 +77,6 @@ final class FirestoreCloudService {
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
     } catch (Exception $e) {
-      $this->logger->error($e);
       $this->logger->error('Failed to create FireCall @callId: @error', [
         '@callId' => $callUuid,
         '@error' => $e->getMessage(),
