@@ -120,7 +120,7 @@ final class GoogleCloudService {
       $this->deleteGcTask($taskName);
       return $this->createGcTask($targetNode, $triggerTime);
     }
-    $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
+    $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
     return [];
   }
 
@@ -135,7 +135,7 @@ final class GoogleCloudService {
   private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
     if ($targetNode->bundle() !== 'order') {
-      $this->logger->warning('Attempt to create GC Task for invalid node bundle: (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->id()]);
+      $this->logger->warning('Attempt to create GC Task for invalid node bundle: (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
       return [];
     }
 
@@ -213,7 +213,7 @@ final class GoogleCloudService {
       return $resultTasks;
     } catch (Exception $e) {
       $this->logger->error('Error creating GC Task for Node ID @id: @message', [
-        '@id' => $targetNode->id(),
+        '@id' => $targetNode->uuid(),
         '@message' => $e->getMessage(),
       ]);
       throw $e;
