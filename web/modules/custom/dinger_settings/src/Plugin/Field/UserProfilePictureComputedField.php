@@ -23,7 +23,7 @@ class UserProfilePictureComputedField extends FieldItemList
         if ($user instanceof UserInterface) {
           $file = $user->get('user_picture')->entity;
           if ($file instanceof FileInterface) {
-            $imageUri = $file->createFileUrl(false);
+            $imageUri = $file->createFileUrl(false) ?? 'No picture file found for user: ' . $user->getAccountName();
             Drupal::logger('Enhancer')->info('userProfileUrl: ' . $imageUri);
           }
       }
