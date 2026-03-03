@@ -11,7 +11,7 @@ dependencies:
 third_party_settings:
   modeler_api:
     modeler_id: bpmn_io
-    data: 'hash:426f0bb673a8c64040158921682f7eaf'
+    data: 'hash:27fd1e3285196db7c84cdf994ffad97e'
     label: onCallPresave
     version: 1.0.0
 id: process_aigzlnh
@@ -28,17 +28,31 @@ events:
         id: Gateway_0jjfwof
         condition: ''
 conditions:
-  Flow_1pqqlnj:
+  eca_entity_field_value_changed_1ai1onc:
+    plugin: eca_entity_field_value_changed
+    label: 'Entity: field value changed'
+    configuration:
+      negate: false
+      field_name: field_call_expiry_time
+      entity: node
+  eca_entity_is_new_1pqqlnj:
     plugin: eca_entity_is_new
-    label: callIsNotNew
+    label: 'Entity: isNotNew'
     configuration:
       negate: true
       entity: node
-  Flow_0kcere7:
+  eca_entity_is_new_0kcere7:
     plugin: eca_entity_is_new
-    label: callIsNew
+    label: 'Entity: isNew'
     configuration:
       negate: false
+      entity: node
+  eca_entity_field_value_changed_02te2vv:
+    plugin: eca_entity_field_value_changed
+    label: 'Entity: expiryTime changed'
+    configuration:
+      negate: false
+      field_name: field_call_expiry_time
       entity: node
 gateways:
   Gateway_0jjfwof:
@@ -46,17 +60,41 @@ gateways:
     successors:
       -
         id: dinger_settings_update_firecall_action_1vnjhdq
-        condition: Flow_1pqqlnj
+        condition: eca_entity_is_new_1pqqlnj
       -
-        id: dinger_settings_create_firecall_action_081lunz
-        condition: Flow_0kcere7
+        id: create_gc_task_action_1dnrx6t
+        condition: eca_entity_is_new_0kcere7
+  Gateway_00b4ycb:
+    type: 0
+    successors:
+      -
+        id: update_gc_task_action_15bm887
+        condition: eca_entity_field_value_changed_02te2vv
 actions:
+  update_gc_task_action_15bm887:
+    label: updateGCTask
+    plugin: update_gc_task_action
+    configuration:
+      object: node
+    successors: {  }
   dinger_settings_update_firecall_action_1vnjhdq:
     label: updateFireCall
     plugin: dinger_settings_update_firecall_action
     configuration:
       object: node
-    successors: {  }
+    successors:
+      -
+        id: Gateway_00b4ycb
+        condition: eca_entity_field_value_changed_1ai1onc
+  create_gc_task_action_1dnrx6t:
+    label: createGcTask
+    plugin: create_gc_task_action
+    configuration:
+      object: node
+    successors:
+      -
+        id: dinger_settings_create_firecall_action_081lunz
+        condition: ''
   dinger_settings_create_firecall_action_081lunz:
     label: createFireCall
     plugin: dinger_settings_create_firecall_action
