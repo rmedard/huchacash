@@ -2,6 +2,7 @@
 
 namespace Drupal\dinger_settings\Plugin\Validation\Constraint;
 
+use Drupal;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
@@ -31,7 +32,14 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
    */
   public function validate(mixed $value, Constraint $constraint): void
   {
-    $logger = \Drupal::logger('StatusTransitionsValidator');
+    $logger = Drupal::logger('StatusTransitionsValidator');
+
+    $currentUser = Drupal::currentUser();
+    $isAdmin = $currentUser->isAuthenticated() && in_array('admin', $currentUser->getRoles());
+    if ($isAdmin) {
+      $logger->info('Admin bypasses status validation');
+      return;
+    }
 
     if ($value === null || $value->isEmpty()) {
       $logger->info("Value on field @field is empty", ['@field' => $value->getName()]);
