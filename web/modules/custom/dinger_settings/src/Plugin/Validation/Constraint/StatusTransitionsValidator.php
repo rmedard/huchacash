@@ -35,8 +35,8 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
     $logger = Drupal::logger('StatusTransitionsValidator');
 
     $currentUser = Drupal::currentUser();
-    $isAdmin = $currentUser->isAuthenticated() && in_array('admin', $currentUser->getRoles());
-    if ($isAdmin) {
+    $isRootAdmin = $currentUser->id() === 1;
+    if ($isRootAdmin) {
       $logger->info('Admin bypasses status validation');
       return;
     }
