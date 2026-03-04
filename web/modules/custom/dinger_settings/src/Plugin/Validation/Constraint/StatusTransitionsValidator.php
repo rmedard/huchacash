@@ -8,6 +8,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\dinger_settings\Utils\StatusBaseInterface;
 use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,11 +17,15 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class StatusTransitionsValidator extends ConstraintValidator implements ContainerInjectionInterface
 {
-  public function __construct(protected EntityTypeManagerInterface $entityTypeManager) {}
+  public function __construct(
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected readonly AccountProxyInterface $currentUser) {}
 
   public static function create(ContainerInterface $container): static
   {
-    return new static($container->get('entity_type.manager'));
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('current_user'));
   }
 
   /**
@@ -33,9 +38,7 @@ class StatusTransitionsValidator extends ConstraintValidator implements Containe
   public function validate(mixed $value, Constraint $constraint): void
   {
     $logger = Drupal::logger('StatusTransitionsValidator');
-
-    $currentUser = Drupal::currentUser();
-    $isRootAdmin = $currentUser->id() === 1;
+    $isRootAdmin = $this->currentUser->id() === 1;
     if ($isRootAdmin) {
       $logger->info('Admin bypasses status validation');
       return;
