@@ -180,7 +180,7 @@ final class FirestoreCloudService {
       foreach ($updates as $update) {
         $updateFields[$update['path']] = $update['value'];
       }
-
+      $this->logger->debug('FireCall Update: @data', ['@data' => json_encode($updateFields, JSON_PRETTY_PRINT)]);
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
 
