@@ -2,7 +2,6 @@
 
 namespace Drupal\dinger_settings\Service;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -18,10 +17,9 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use MrShan0\PHPFirestore\Exceptions\Client\NotFound;
 use MrShan0\PHPFirestore\FirestoreClient;
-use Symfony\Component\HttpFoundation\Response;
 
 final class FirestoreCloudService {
 
@@ -104,16 +102,11 @@ final class FirestoreCloudService {
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
     try {
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
-    } catch (RequestException $e) {
-      $this->logger->error($e);
-      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
-        $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
-      } else {
-        $this->logger->error('Failed to update FireCall @callId: @error', [
-          '@callId' => $callUuid,
-          '@error' => $e->getMessage(),
-        ]);
-      }
+    } catch (Exception $e) {
+      $this->logger->error('Failed to update FireCall @callId: @error', [
+        '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
     }
   }
 
@@ -123,16 +116,11 @@ final class FirestoreCloudService {
     $updateFields['status'] = $bidStatus->value;
     try {
       $this->firestoreClient->updateDocument('live_bids/' . $bidUuid, $updateFields, true);
-    } catch (RequestException $e) {
-      $this->logger->error($e);
-      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
-        $this->logger->warning('FireBid not found during update: @bidId', ['@bidId' => $bidUuid]);
-      } else {
-        $this->logger->error('Failed to update FireBid @bidId: @error', [
-          '@callId' => $bidUuid,
-          '@error' => $e->getMessage(),
-        ]);
-      }
+    } catch (Exception $e) {
+      $this->logger->error('Failed to update FireBid @bidId: @error', [
+        '@callId' => $bidUuid,
+        '@error' => $e->getMessage(),
+      ]);
     }
   }
 
@@ -174,28 +162,22 @@ final class FirestoreCloudService {
         return;
       }
 
-      // Convert updates to Firestore field format
       $updateFields = [];
 
       foreach ($updates as $update) {
         $updateFields[$update['path']] = $update['value'];
       }
-      $this->logger->info('FireCall Update: @data', ['@data' => print_r($updateFields, true)]);
+
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
-
-    } catch (RequestException $e) {
-      $this->logger->error($e);
-      if ($e->getCode() === Response::HTTP_NOT_FOUND) {
-        $this->logger->warning('FireCall not found during update: @callId', ['@callId' => $callUuid]);
-        $this->logger->info('Attempting to re-create FireCall: @callId', ['@callId' => $callUuid]);
-        $this->createFireCall($call);
-      } else {
-        $this->logger->error('Failed to update FireCall @callId: @error', [
-          '@callId' => $callUuid,
-          '@error' => $e->getMessage(),
-        ]);
-      }
+    } catch (NotFound $e) {
+      $this->logger->error('>>> FireCall Not Found: ' . $e->getMessage());
+      $this->createFireCall(call: $call);
+    } catch (Exception $e) {
+      $this->logger->error('Failed to update FireCall @callId: @error', [
+        '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
     }
   }
 
@@ -234,7 +216,7 @@ final class FirestoreCloudService {
 
       $updates[] = [
         'path' => 'status',
-        'value' => $currentStatus
+        'value' => $currentStatus->value
       ];
     }
 
