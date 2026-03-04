@@ -75,7 +75,7 @@ final class FirestoreCloudService {
       $fireCall = new FireCall($call);
       $fireCallDocument = $fireCall->toFirestoreDocument();
       $this->logger->info('CallData: @data', [
-        '@data' => json_encode($fireCallDocument, JSON_PRETTY_PRINT),
+        '@data' => print_r($fireCallDocument, TRUE),
       ]);
 
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
@@ -180,7 +180,7 @@ final class FirestoreCloudService {
       foreach ($updates as $update) {
         $updateFields[$update['path']] = $update['value'];
       }
-      $this->logger->info('FireCall Update: @data', ['@data' => json_encode($updateFields, JSON_PRETTY_PRINT)]);
+      $this->logger->info('FireCall Update: @data', ['@data' => print_r($updateFields, true)]);
       $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
       $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
 
