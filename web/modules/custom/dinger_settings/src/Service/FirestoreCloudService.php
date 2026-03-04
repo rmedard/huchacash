@@ -2,6 +2,7 @@
 
 namespace Drupal\dinger_settings\Service;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -73,6 +74,10 @@ final class FirestoreCloudService {
     try {
       $fireCall = new FireCall($call);
       $fireCallDocument = $fireCall->toFirestoreDocument();
+      $this->logger->debug('CallData: @data', [
+        '@data' => json_encode($fireCallDocument, JSON_PRETTY_PRINT),
+      ]);
+
       $this->firestoreClient->addDocument('live_calls', $fireCallDocument, $callUuid);
       $this->logger->info('FireCall created successfully: @callId', ['@callId' => $callUuid]);
     } catch (Exception $e) {
