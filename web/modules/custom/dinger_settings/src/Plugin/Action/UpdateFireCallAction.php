@@ -12,7 +12,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\dinger_settings\Service\FirestoreCloudService;
-use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\node\NodeInterface;
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -75,17 +74,7 @@ final class UpdateFireCallAction extends ActionBase implements ContainerFactoryP
 
     try {
       $this->logger->info('Executing fireCall update. Id: ' . $call->uuid());
-      /** @var NodeInterface $originalCall */
-      $originalCall = $call->getOriginal();
-      $initialStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
-      $currentStatus = CallStatus::fromString($call->get('field_call_status')->getString());
-      if ($initialStatus !== $currentStatus) {
-        if ($currentStatus->isFinalState()) {
-          $this->firestoreCloudService->deleteFireCall($call->uuid());
-        } else {
-          $this->firestoreCloudService->updateFireCall($call);
-        }
-      }
+      $this->firestoreCloudService->updateFireCall($call);
     } catch (Exception $e) {
       $this->logger->error($e->getMessage());
     } finally {
