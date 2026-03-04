@@ -68,6 +68,10 @@ final class CallsService
       return;
     }
 
+    /** @var FirestoreCloudService $firestoreCloudService * */
+    $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
+    $firestoreCloudService->updateFireCall($call);
+
     /** @var $originalCall NodeInterface */
     $originalCall = $call->getOriginal();
     $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
@@ -80,11 +84,7 @@ final class CallsService
         '@from' => $originalCallStatus->value,
         '@to' => $callStatus->value
       ]);
-      
-      /** @var FirestoreCloudService $firestoreCloudService * */
-      $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
-      $firestoreCloudService->updateCallStatus($call->uuid(), $callStatus);
-      
+
       if ($callStatus->isFinalState()) {
         /** @var OrdersService $orderService */
         $orderService = Drupal::service('hucha_settings.orders_service');
