@@ -9,7 +9,7 @@ use Drupal\Core\Validation\Attribute\Constraint as ConstraintAttribute;
 #[ConstraintAttribute(
   id: self::PLUGIN_ID,
   label: new TranslatableMarkup('Correct amount per bid type'),
-  type: 'entity'
+  type: 'entity:node'
 )]
 class BidAmountPerBidType extends Constraint
 {

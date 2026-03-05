@@ -9,7 +9,7 @@ use Drupal\Core\Validation\Attribute\Constraint as ConstraintAttribute;
 #[ConstraintAttribute(
   id: self::PLUGIN_ID,
   label: new TranslatableMarkup('Unique Call per Order'),
-  type: 'entity'
+  type: 'entity:node'
 )]
 class UniqueCallPerOrderConstraint extends Constraint
 {

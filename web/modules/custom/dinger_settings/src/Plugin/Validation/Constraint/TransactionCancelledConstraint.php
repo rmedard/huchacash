@@ -8,7 +8,7 @@ use Drupal\Core\Validation\Attribute\Constraint;
 #[Constraint(
   id: self::PLUGIN_ID,
   label: new TranslatableMarkup('Cancelled Transaction Constraint'),
-  type: 'entity'
+  type: 'entity:node'
 )]
 class TransactionCancelledConstraint extends TransactionConstraintBase {
 

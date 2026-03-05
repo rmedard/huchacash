@@ -9,9 +9,9 @@ use Drupal\Core\Validation\Attribute\Constraint as ConstraintAttribute;
 #[ConstraintAttribute(
   id: self::PLUGIN_ID,
   label: new TranslatableMarkup('Correct amount per call type'),
-  type: 'entity'
+  type: 'entity:node'
 )]
-class AmountPerCallType extends Constraint
+class AmountPerCallTypeConstraint extends Constraint
 {
   public const string PLUGIN_ID = 'AmountPerCallType';
   public string $hasInvalidCallAmount = '%value has invalid amount';

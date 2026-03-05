@@ -18,29 +18,51 @@ class CallConstraintsValidator extends ConstraintValidator
   public function validate($value, Constraint $constraint): void
   {
     $logger = \Drupal::logger('CallConstraintsValidator');
-    if ($value instanceof NodeInterface && $value->bundle() === 'call') {
-      if ($constraint instanceof UniqueCallPerOrderConstraint) {
-        if ($this->hasOtherOpenCalls($value)) {
-          $logger->warning('Call has other open calls');
-          $this->context->addViolation($constraint->hasAnotherLiveCall, ['%value' => $value->label()]);
-        }
-      } elseif ($constraint instanceof AmountPerCallType) {
-        if ($this->hasInvalidAmount($value)) {
-          $logger->warning('Call has invalid amount');
-          $this->context->addViolation($constraint->hasInvalidCallAmount, ['%value' => 'Call']);
-        }
-      } elseif ($constraint instanceof CallExpirationPerOrderConstraint) {
-        /** @var DrupalDateTime $callExpirationTime */
-        $callExpirationTime = $value->get('field_call_expiry_time')->date;
-        /** @var DrupalDateTime $orderDeliveryTime */
-        $orderDeliveryTime = $value->get('field_call_order')->entity->get('field_order_delivery_time')->date;
-        if ($callExpirationTime > $orderDeliveryTime) {
-          $logger->warning('Call expires later than delivery');
-          $this->context->addViolation($constraint->expiresLaterThanDelivery, [
-            '%expiration' => $callExpirationTime->format('Y-m-d H:i:s'),
-            '%deliveryTime' => $orderDeliveryTime->format('Y-m-d H:i:s')
-          ]);
-        }
+    if (!$value instanceof NodeInterface && $value->bundle() !== 'call') {
+      return;
+    }
+
+    if ($constraint instanceof UniqueCallPerOrderConstraint) {
+      if ($this->hasOtherOpenCalls($value)) {
+        $logger->warning('Call has other open calls');
+        $this->context->addViolation($constraint->hasAnotherLiveCall, ['%value' => $value->label()]);
+      }
+    } elseif ($constraint instanceof AmountPerCallTypeConstraint) {
+      if ($this->hasInvalidAmount($value)) {
+        $logger->warning('Call has invalid amount');
+        $this->context->addViolation($constraint->hasInvalidCallAmount, ['%value' => 'Call']);
+      }
+    } elseif ($constraint instanceof CallExpirationPerOrderConstraint) {
+      /** @var DrupalDateTime $callExpirationTime */
+      $callExpirationTime = $value->get('field_call_expiry_time')->date;
+      /** @var DrupalDateTime $orderDeliveryTime */
+      $orderDeliveryTime = $value->get('field_call_order')->entity->get('field_order_delivery_time')->date;
+      if ($callExpirationTime > $orderDeliveryTime) {
+        $logger->warning('Call expires later than delivery');
+        $this->context->addViolation($constraint->expiresLaterThanDelivery, [
+          '%expiration' => $callExpirationTime->format('Y-m-d H:i:s'),
+          '%deliveryTime' => $orderDeliveryTime->format('Y-m-d H:i:s')
+        ]);
+      }
+    } elseif ($constraint instanceof CallStatusAndExpirationConstraint) {
+
+      $status = $value->get('field_call_status')->getString();
+      /** @var DrupalDateTime $expiryTime */
+      $expiryTime = $value->get('field_call_expiry_time')->date;
+      $now = new DrupalDateTime('now');
+
+      // Rule 1: status=live but expiry is in the past.
+      if ($status === CallStatus::LIVE->value && $expiryTime < $now) {
+        $this->context->buildViolation($constraint->liveExpiredMessage)
+          ->atPath('field_call_status')
+          ->addViolation();
+      }
+
+      // Rule 2: status=expired but expiry is in the future.
+      if ($status === CallStatus::EXPIRED->value && $expiryTime > $now) {
+        $this->context->buildViolation($constraint->expiredLiveMessage)
+          ->atPath('field_call_status')
+          ->addViolation();
       }
     }
   }

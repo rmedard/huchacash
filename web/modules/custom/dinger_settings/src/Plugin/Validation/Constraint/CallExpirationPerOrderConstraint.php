@@ -9,7 +9,7 @@ use Drupal\Core\Validation\Attribute\Constraint as ConstraintAttribute;
 #[ConstraintAttribute(
   id: self::PLUGIN_ID,
   label: new TranslatableMarkup('Call should expire before order delivery'),
-  type: 'entity'
+  type: 'entity:node'
 )]
 class CallExpirationPerOrderConstraint extends Constraint
 {
