@@ -117,6 +117,8 @@ final class StripeController extends ControllerBase
           } catch (EntityStorageException $e) {
             $this->logger->error('Saving top-up transaction failed: ' . $e->getMessage());
           }
+        } else {
+          $this->logger->error('Invalid Customer Data: <pre>' . print_r($customer, TRUE) . '</pre>>');
         }
         $this->logger->info('Payment Succeeded by: ' . $customerUuid);
       } else {
