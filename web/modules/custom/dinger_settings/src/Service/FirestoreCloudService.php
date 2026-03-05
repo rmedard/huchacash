@@ -181,18 +181,22 @@ final class FirestoreCloudService {
     }
   }
 
-  public function updateCustomerBalance(string $customerId, array $updates): void
+  public function updateCustomerBalance(string $customerUuid, array $updates): void
   {
     if (empty($updates)) {
-      $this->logger->warning("No balance updates available for customer: @customerId", ['@customerId' => $customerId]);
+      $this->logger->warning("No balance updates available for customer: @customerId", ['@customerId' => $customerUuid]);
       return;
     }
 
     try {
-      $this->firestoreClient->updateDocument('customer_balances/' . $customerId, $updates, true);
-      $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerId]);
+      $this->firestoreClient->updateDocument('customer_balances/' . $customerUuid, $updates, true);
+      $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerUuid]);
     } catch (Exception $exception) {
-      $this->logger->warning('Failed to update Balance @customerId: @error', ['@customerId' => $customerId, 'exception' => $exception->getMessage()]);
+      $this->logger->error('Failed to update Balance for customer: @customerId | @error',
+        [
+          '@customerId' => $customerUuid,
+          '@error' => $exception->getMessage()
+        ]);
     }
   }
 
