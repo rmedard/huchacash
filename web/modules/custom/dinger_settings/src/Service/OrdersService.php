@@ -48,7 +48,8 @@ final class OrdersService
   public function onOrderCreated(Node $order): void
   {
     $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
-    $this->logger->debug('>>> Created new order status: ' . $orderStatus->value . ' | IsEntryPoint: ' . $orderStatus->isEntryPoint() ? 'TRUE' : 'FALSE');
+    $isEntryPoint = $orderStatus->isEntryPoint() ? 'TRUE' : 'FALSE';
+    $this->logger->debug('>>> Created new order status: @value | IsEntryPoint: @isEntryPoint', ['@value' => $orderStatus->value, '@isEntryPoint' => $isEntryPoint]);
     if ($orderStatus->isEntryPoint()) {
       /** @var TransactionsService $transactionsService **/
       $transactionsService = Drupal::service('hucha_settings.transactions_service');
