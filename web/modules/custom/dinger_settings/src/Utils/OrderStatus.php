@@ -13,14 +13,10 @@ enum OrderStatus: string implements StatusBaseInterface
 
   public static function entryPoints(): array
   {
-    return [OrderStatus::IDLE];
+    return [self::IDLE];
   }
 
-  public function isFinalState(): bool
-  {
-    return match ($this) {
-      self::IDLE, self::BIDDING, self::DELIVERING => FALSE,
-      self::DELIVERED, self::CANCELLED => TRUE,
-    };
+  public static function finalStates(): array {
+    return [self::DELIVERED, self::CANCELLED];
   }
 }

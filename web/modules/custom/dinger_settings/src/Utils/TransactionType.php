@@ -19,6 +19,6 @@ enum TransactionType: string
 
   public function hasBeneficiary(): bool
   {
-    return $this !== TransactionType::WITHDRAWAL;
+    return $this !== self::WITHDRAWAL;
   }
 }

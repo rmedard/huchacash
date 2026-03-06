@@ -11,14 +11,6 @@ enum CallStatus: string implements StatusBaseInterface
   case CANCELLED = 'cancelled';
   case COMPLETED = 'completed';
 
-  public function isFinalState(): bool
-  {
-    return match($this) {
-      self::LIVE, self::ATTRIBUTED => FALSE,
-      self::EXPIRED, self::CANCELLED, self::COMPLETED => TRUE
-    };
-  }
-
   public static function entryPoints(): array
   {
     return [CallStatus::LIVE];
@@ -30,5 +22,10 @@ enum CallStatus: string implements StatusBaseInterface
 
   public function freezesBalance(): bool {
     return self::isEntryPoint();
+  }
+
+  public static function finalStates(): array
+  {
+    return [self::EXPIRED, self::CANCELLED, self::COMPLETED];
   }
 }

@@ -22,4 +22,9 @@ trait StatusBaseType
   public function isEntryPoint(): bool {
     return in_array($this, self::entryPoints(), true);
   }
+
+  public function isFinalState(): bool
+  {
+    return in_array($this, self::finalStates(), true);
+  }
 }

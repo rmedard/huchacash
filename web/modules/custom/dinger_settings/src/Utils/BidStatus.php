@@ -25,11 +25,8 @@ enum BidStatus: string implements StatusBaseInterface
     return [self::PENDING, self::CONFIRMED];
   }
 
-  public function isFinalState(): bool
+  public static function finalStates(): array
   {
-    return match ($this) {
-      self::PENDING, self::ACCEPTED => false,
-      self::CONFIRMED, self::REJECTED, self::RENOUNCED => true,
-    };
+    return [self::CONFIRMED, self::REJECTED, self::RENOUNCED];
   }
 }

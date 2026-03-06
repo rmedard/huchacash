@@ -14,11 +14,8 @@ enum TransactionStatus: string implements StatusBaseInterface
     return [self::INITIATED, self::CONFIRMED];
   }
 
-  public function isFinalState(): bool
+  public static function finalStates(): array
   {
-    return match ($this) {
-      self::INITIATED => false,
-      self::CONFIRMED, self::CANCELLED => true,
-    };
+    return [self::CANCELLED, self::CONFIRMED];
   }
 }
