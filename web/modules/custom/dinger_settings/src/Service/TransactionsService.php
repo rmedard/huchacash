@@ -255,27 +255,41 @@ final class TransactionsService
 
   public function freezeBargainedServiceFee(Node $bid): void
   {
+    $initiator = $bid
+      ->get('field_bid_call')->entity
+      ->get('field_call_order')->entity
+      ->get('field_order_creator')->entity;
+    $deltaBargainFee = $this->bidDeltaBargainServiceFee($bid);
+    $this->freezeDebit($initiator, $deltaBargainFee);
+  }
+
+  public function unfreezeBargainedServiceFee(Node $bid): void {
+    $initiator = $bid
+      ->get('field_bid_call')->entity
+      ->get('field_call_order')->entity
+      ->get('field_order_creator')->entity;
+    $deltaBargainFee = $this->bidDeltaBargainServiceFee($bid);
+    $this->unfreezeDebit($initiator, $deltaBargainFee);
+  }
+
+
+  /**
+   * Calculates the difference between Bid amount and Call proposed service fee
+   * @param NodeInterface $bid
+   * @return float
+   */
+  private function bidDeltaBargainServiceFee(NodeInterface $bid): float
+  {
     $bidAmount = doubleval($bid->get('field_bid_amount')->getString());
+    /** @var NodeInterface $call */
     $call = $bid->get('field_bid_call')->entity;
     $callType = CallType::from($call->get('field_call_type')->getString());
     $callAmount = 0;
     if ($callType->freezesBalance()) {
       $callAmount = doubleval($call->get('field_call_proposed_service_fee')->getString());
     }
-    $initiator = $call
-      ->get('field_call_order')->entity
-      ->get('field_order_creator')->entity;
-    $this->freezeDebit($initiator, $bidAmount - $callAmount);
+    return $bidAmount - $callAmount;
   }
-
-  public function unfreezeBargainedServiceFee(Node $bid): void {
-    $bidAmount = doubleval($bid->get('field_bid_amount')->getString());
-    $initiator = $bid->get('field_bid_call')->entity
-      ->get('field_call_order')->entity
-      ->get('field_order_creator')->entity;
-    $this->unfreezeDebit($initiator, $bidAmount);
-  }
-
 
   /**
    * Expense. Remove money from account
