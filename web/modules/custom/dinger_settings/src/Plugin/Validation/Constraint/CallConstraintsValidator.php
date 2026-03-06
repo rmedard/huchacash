@@ -18,7 +18,7 @@ class CallConstraintsValidator extends ConstraintValidator
   public function validate($value, Constraint $constraint): void
   {
     $logger = \Drupal::logger('CallConstraintsValidator');
-    if (!$value instanceof NodeInterface && $value->bundle() !== 'call') {
+    if (!$value instanceof NodeInterface || $value->bundle() !== 'call') {
       return;
     }
 

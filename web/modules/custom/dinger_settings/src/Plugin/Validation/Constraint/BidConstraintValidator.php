@@ -13,11 +13,13 @@ class BidConstraintValidator extends ConstraintValidator
 
   public function validate($value, Constraint $constraint): void
   {
-    if ($value instanceof NodeInterface && $value->bundle() === 'bid') {
-      if ($constraint instanceof BidAmountPerBidType) {
-        if ($this->hasInvalidAmount($value)) {
-          $this->context->addViolation($constraint->hasInvalidBidAmount, ['%value' => 'Bid']);
-        }
+    if (!$value instanceof NodeInterface || $value->bundle() !== 'bid') {
+      return;
+    }
+
+    if ($constraint instanceof BidAmountPerBidType) {
+      if ($this->hasInvalidAmount($value)) {
+        $this->context->addViolation($constraint->hasInvalidBidAmount, ['%value' => 'Bid']);
       }
     }
   }
