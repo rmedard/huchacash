@@ -15,7 +15,6 @@ class BankAccountConstraintsValidator extends ConstraintValidator {
 
     if ($value instanceof BankAccountItem and !$value->isEmpty()) {
       if ($constraint instanceof BankAccountConstraint) {
-        $country = $value->get('country')->getString();
         $accountNumber = $value->get('account_number');
         $firstname = $value->get('official_firstname');
         $lastname = $value->get('official_lastname');
