@@ -8,6 +8,7 @@ class UserDetails {
   public string $id;
   public string $photo;
   public string $lastname;
+  public string $phone;
 
   public function __construct(Node $customer) {
     $this->id = $customer->uuid();
@@ -16,5 +17,6 @@ class UserDetails {
      */
     $this->photo = '';
     $this->lastname = $customer->get('field_customer_lastname')->getString();
+    $this->phone = $customer->get('field_customer_phone')->getString();
   }
 }

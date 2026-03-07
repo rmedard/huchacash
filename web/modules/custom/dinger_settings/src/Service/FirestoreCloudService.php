@@ -97,6 +97,7 @@ final class FirestoreCloudService {
     $updateFields = [];
     $updateFields['executor_id'] = $bidder->uuid();
     $updateFields['executor_name'] = $bidder->get('field_customer_lastname')->getString();
+    $updateFields['executor_phone'] = $bidder->get('field_customer_phone')->getString();
     $updateFields['executor_photo'] = "";
 
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
