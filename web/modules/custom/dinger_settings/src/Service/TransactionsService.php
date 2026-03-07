@@ -186,15 +186,15 @@ final class TransactionsService
   }
 
   public function freezeCallServiceFee(NodeInterface $call): void {
-    /** @var Node $order */
-    $order = $call->get('field_call_order')->entity;
     /** @var Node $initiator */
-    $initiator = $order->get('field_order_creator')->entity;
+    $initiator = $call
+      ->get('field_call_order')->entity
+      ->get('field_order_creator')->entity;
 
     $callStatus = CallStatus::tryFrom($call->get('field_call_status')->getString());
     if (!$callStatus->isFinalState()) {
       $callType = CallType::tryFrom($call->get('field_call_type')->getString());
-      if ($callType === CallType::FIXED_PRICE || $callType === CallType::NEGOTIABLE) {
+      if ($callType->freezesBalance()) {
         $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
         if ($callStatus === CallStatus::LIVE) {
           $this->freezeDebit($initiator, $proposedServiceFee);
@@ -219,10 +219,10 @@ final class TransactionsService
     $callType = CallType::from($call->get('field_call_type')->getString());
     if ($callType->freezesBalance()) {
 
-      /** @var Node $order */
-      $order = $call->get('field_call_order')->entity;
       /** @var Node $initiator */
-      $initiator = $order->get('field_order_creator')->entity;
+      $initiator = $call
+        ->get('field_call_order')->entity
+        ->get('field_order_creator')->entity;
 
       $proposedServiceFee = doubleval($call->get('field_call_proposed_service_fee')->value);
       $this->unfreezeDebit($initiator, $proposedServiceFee);
