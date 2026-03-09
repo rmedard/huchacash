@@ -113,19 +113,21 @@ final class OrdersService
   {
     $this->updateOrderTotalCostOnPresave($order);
 
-    /** @var Node $originalOrder **/
-    $originalOrder = $order->getOriginal();
-    $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
-    $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
-    if ($orderStatusUpdated) {
-      if ($orderStatus === OrderStatus::DELIVERING) {
-        /** @var GoogleCloudService $gcService */
-        $gcService = Drupal::service('dinger_settings.google_cloud_service');
-        $gcService->deleteOrderGcTasks($order);
+    if (!$order->isNew()) {
+      /** @var Node $originalOrder **/
+      $originalOrder = $order->getOriginal();
+      $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+      $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
+      if ($orderStatusUpdated) {
+        if ($orderStatus === OrderStatus::DELIVERING) {
+          /** @var GoogleCloudService $gcService */
+          $gcService = Drupal::service('dinger_settings.google_cloud_service');
+          $gcService->deleteOrderGcTasks($order);
 
-        $order->get('field_order_attributed_call')->entity->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '')->save();
-        $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '');
-        $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER, '');
+          $order->get('field_order_attributed_call')->entity->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '')->save();
+          $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '');
+          $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER, '');
+        }
       }
     }
   }
