@@ -9,6 +9,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
@@ -74,14 +75,6 @@ final class OrdersService
           /** @var TransactionsService $transactionsService **/
           $transactionsService = Drupal::service('hucha_settings.transactions_service');
           $transactionsService->processDeliveredOrderTransactions($order);
-
-          /** @var Node $attributedCall **/
-          $attributedCall = $order->get('field_order_attributed_call')->entity;
-
-          /** @var GoogleCloudService $googleCloudService **/
-          $googleCloudService = Drupal::service('dinger_settings.google_cloud_service');
-          $googleCloudService->deleteGcTask($attributedCall->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
-          $googleCloudService->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
         }
 
         if ($orderStatus === OrderStatus::CANCELLED) {
@@ -116,6 +109,27 @@ final class OrdersService
     }
   }
 
+  public function onOrderPresave(Node $order): void
+  {
+    $this->updateOrderTotalCostOnPresave($order);
+
+    /** @var Node $originalOrder **/
+    $originalOrder = $order->getOriginal();
+    $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+    $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
+    if ($orderStatusUpdated) {
+      if ($orderStatus === OrderStatus::DELIVERING) {
+        /** @var GoogleCloudService $gcService */
+        $gcService = Drupal::service('dinger_settings.google_cloud_service');
+        $gcService->deleteOrderGcTasks($order);
+
+        $order->get('field_order_attributed_call')->entity->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '')->save();
+        $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME, '');
+        $order->set(BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER, '');
+      }
+    }
+  }
+
   public function updateOrderOnCallCompleted(Node $call): void {
     $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
     if (!$callStatus->isFinalState()) {
@@ -138,6 +152,28 @@ final class OrdersService
       $order->save();
     } catch (EntityStorageException $e) {
       $this->logger->error($e);
+    }
+  }
+
+
+  private function updateOrderTotalCostOnPresave(Node $order): void
+  {
+    /**
+     * Update order total price (Everytime the order is updated because order items may have changed)
+     */
+    $currentTotalPrice = doubleval($order->get('field_order_shopping_total_cost')->getString());
+    /** @var EntityReferenceFieldItemList $orderItems **/
+    $orderItems = $order->get('field_order_items');
+    $totalPrice = 0;
+    /**
+     * @var Node $orderItem
+     */
+    foreach ($orderItems->referencedEntities() as $orderItem) {
+      $totalPrice += doubleval($orderItem->get('field_order_item_price')->getString());
+    }
+
+    if ($currentTotalPrice !== $totalPrice) {
+      $order->set('field_order_shopping_total_cost', $totalPrice);
     }
   }
 }

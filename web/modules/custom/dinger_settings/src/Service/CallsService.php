@@ -102,4 +102,17 @@ final class CallsService
       }
     }
   }
+
+  public function onCallPresave(NodeInterface $call): void {
+    /** @var $originalCall NodeInterface */
+    $originalCall = $call->getOriginal();
+    $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
+    $originalCallStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
+    $callStatusUpdated = $callStatus !== $originalCallStatus;
+    if ($callStatusUpdated) {
+      if ($callStatus === CallStatus::ATTRIBUTED) {
+
+      }
+    }
+  }
 }

@@ -11,6 +11,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\dinger_settings\Plugin\Action\BaseHuchaGcAction;
+use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Exception;
 use Google\ApiCore\ApiException;
@@ -122,6 +123,24 @@ final class GoogleCloudService {
     }
     $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
     return [];
+  }
+
+  public function deleteOrderGcTasks(NodeInterface $order): void
+  {
+    if ($order->bundle() !== 'order') {
+      return;
+    }
+
+    /** @var Node $orderCall **/
+    $orderCall = $order->get('field_order_attributed_call')->entity;
+    $this->deleteGcTask($orderCall->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+    $this->logger->info('Deleted Call Expiration Task for (@type:@id)', ['@type' => $orderCall->bundle(), '@id' => $orderCall->uuid()]);
+
+    $this->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME)->getString());
+    $this->logger->info('Delete Expiration Task for (@type:@id)', ['@type' => $order->bundle(), '@id' => $order->uuid()]);
+
+    $this->deleteGcTask($order->get(BaseHuchaGcAction::GC_TASK_FIELD_NAME_CALLS_CLEANER)->getString());
+    $this->logger->info('Delete Cleaners Task for (@type:@id)', ['@type' => $order->bundle(), '@id' => $order->uuid()]);
   }
 
   /**
