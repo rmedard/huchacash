@@ -211,14 +211,6 @@ final class FirestoreCloudService {
     $initialStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
     $currentStatus = CallStatus::fromString($call->get('field_call_status')->getString());
     if ($initialStatus !== $currentStatus) {
-      /**
-       * No need to update attributed fireCall.
-       * This is handled by firebase function onLiveBidStatusUpdated (on Bid Confirmed)
-       */
-      if ($currentStatus === CallStatus::ATTRIBUTED) {
-        return [];
-      }
-
       $updates[] = [
         'path' => 'status',
         'value' => $currentStatus->value

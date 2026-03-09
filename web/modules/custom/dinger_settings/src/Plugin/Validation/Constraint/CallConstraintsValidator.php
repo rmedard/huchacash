@@ -22,8 +22,6 @@ class CallConstraintsValidator extends ConstraintValidator
       return;
     }
 
-    $logger->debug('>>> Current Type: ' . $value->bundle());
-
     if ($constraint instanceof UniqueCallPerOrderConstraint) {
       if ($this->hasOtherOpenCalls($value)) {
         $logger->warning('Call has other open calls');

@@ -32,6 +32,10 @@ use RuntimeException;
 
 final class GoogleCloudService {
 
+
+  const string GC_TASK_FIELD_NAME = 'field_gc_task_name';
+  const string GC_TASK_FIELD_NAME_CALLS_CLEANER = 'field_gc_task_name_calls_cleaner';
+
   /**
    * @var LoggerChannelInterface
    */
@@ -96,13 +100,41 @@ final class GoogleCloudService {
     return $this->cloudTasksClient;
   }
 
-  /**
-   * @throws ApiException
-   */
-  public function createNodeExpirationTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
+  public function createNodeExpirationTasksOnPresave(NodeInterface $node): void {
+    if ($node->bundle() === 'call') {
+      /** @var DrupalDateTime $callExpiryTime */
+      $callExpiryTime = $node->get('field_call_expiry_time')->date;
+      $expirationTasks = $this->createNodeExpirationTasks($node, $callExpiryTime);
+      if (!empty($expirationTasks)) {
+        $node->set(self::GC_TASK_FIELD_NAME, $expirationTasks[self::GC_TASK_FIELD_NAME]->getName());
+      } else {
+        $this->logger->error('Create HuchaGc Task failed.');
+      }
+    } else if ($node->bundle() === 'order') {
+
+      /** @var DrupalDateTime $callExpiryTime */
+      $orderExpiryTime = $node->get('field_order_delivery_time')->date;
+      $expirationTasks = $this->createNodeExpirationTasks($node, $orderExpiryTime);
+      if (!empty($expirationTasks)) {
+        $node->set(self::GC_TASK_FIELD_NAME, $expirationTasks[self::GC_TASK_FIELD_NAME]->getName());
+
+        $callsCleanerTask = $expirationTasks[self::GC_TASK_FIELD_NAME_CALLS_CLEANER] ?? null;
+        $taskName = isset($callsCleanerTask) ? $callsCleanerTask->getName() : '';
+        $node->set(self::GC_TASK_FIELD_NAME_CALLS_CLEANER, $taskName);
+      } else {
+        $this->logger->error('Create HuchaGc Task failed.');
+      }
+    }
+  }
+
+  private function createNodeExpirationTasks(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
     if ($this->isEligible($targetNode, $triggerTime)) {
-      return $this->createGcTask($targetNode, $triggerTime);
+      try {
+        return $this->createGcTasks($targetNode, $triggerTime);
+      } catch (ApiException $e) {
+        $this->logger->error($e->getMessage());
+      }
     }
     return [];
   }
@@ -119,7 +151,7 @@ final class GoogleCloudService {
         $this->deleteGcTask($callsCleanerTaskName);
       }
       $this->deleteGcTask($taskName);
-      return $this->createGcTask($targetNode, $triggerTime);
+      return $this->createGcTasks($targetNode, $triggerTime);
     }
     $this->logger->warning('Expiration Update Not Eligible for (@type:@id)', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);
     return [];
@@ -151,7 +183,7 @@ final class GoogleCloudService {
    * @return array
    * @throws ApiException
    */
-  private function createGcTask(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
+  private function createGcTasks(NodeInterface $targetNode, DrupalDateTime $triggerTime): array
   {
     try {
       $this->logger->info('Creating GC Task for Node (@type) ID: @id', ['@type' => $targetNode->bundle(), '@id' => $targetNode->uuid()]);

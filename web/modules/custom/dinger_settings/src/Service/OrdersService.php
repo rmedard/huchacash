@@ -30,7 +30,8 @@ final class OrdersService
    */
   public function __construct(
     private readonly LoggerChannelFactoryInterface $loggerFactory,
-    private readonly EntityTypeManagerInterface $entityTypeManager) {
+    private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly GoogleCloudService            $googleCloudService) {
     $this->logger = $this->loggerFactory->get('OrdersService');
   }
 
@@ -59,10 +60,6 @@ final class OrdersService
   public function onOrderUpdated(Node $order): void {
 
     $this->logger->debug('Order @id updated', ['@id' => $order->id()]);
-
-    if ($order->isNew()) {
-      throw new BadRequestHttpException('Order has invalid state. Should not be new.');
-    }
 
     /** @var Node $originalOrder **/
     $originalOrder = $order->getOriginal();
@@ -112,8 +109,9 @@ final class OrdersService
   public function onOrderPresave(Node $order): void
   {
     $this->updateOrderTotalCostOnPresave($order);
-
-    if (!$order->isNew()) {
+    if ($order->isNew()) {
+      $this->googleCloudService->createNodeExpirationTasksOnPresave($order);
+    } else {
       /** @var Node $originalOrder **/
       $originalOrder = $order->getOriginal();
       $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());

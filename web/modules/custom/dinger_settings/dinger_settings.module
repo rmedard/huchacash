@@ -131,6 +131,12 @@ function dinger_settings_node_presave(NodeInterface $node): void
     $orderService = Drupal::service('hucha_settings.orders_service');
     $orderService->onOrderPresave($node);
   }
+
+  if ($node->bundle() === 'call') {
+    /** @var CallsService $callService */
+    $callService = Drupal::service('hucha_settings.calls_service');
+    $callService->onCallPresave($node);
+  }
 }
 
 /**

@@ -6,29 +6,11 @@ services:
       - '@entity_type.manager'
       - '@logger.factory'
 
-  hucha_settings.bidding_service:
-    class: Drupal\dinger_settings\Service\BiddingService
-    arguments:
-      - '@entity_type.manager'
-      - '@logger.factory'
-
-  hucha_settings.calls_service:
-    class: Drupal\dinger_settings\Service\CallsService
-    arguments:
-      - '@entity_type.manager'
-      - '@logger.factory'
-
   hucha_settings.transactions_service:
     class: Drupal\dinger_settings\Service\TransactionsService
     arguments:
       - '@entity_type.manager'
       - '@logger.factory'
-
-  hucha_settings.orders_service:
-    class: Drupal\dinger_settings\Service\OrdersService
-    arguments:
-      - '@logger.factory'
-      - '@entity_type.manager'
 
   dinger_settings.google_cloud_service:
     class: Drupal\dinger_settings\Service\GoogleCloudService
@@ -76,3 +58,23 @@ services:
       - '@logger.factory'
       - '@entity_type.manager'
       - '@dinger_settings.firestore_cloud_service'
+
+  hucha_settings.bidding_service:
+    class: Drupal\dinger_settings\Service\BiddingService
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+
+  hucha_settings.orders_service:
+    class: Drupal\dinger_settings\Service\OrdersService
+    arguments:
+      - '@logger.factory'
+      - '@entity_type.manager'
+      - '@dinger_settings.google_cloud_service'
+
+  hucha_settings.calls_service:
+    class: Drupal\dinger_settings\Service\CallsService
+    arguments:
+      - '@logger.factory'
+      - '@dinger_settings.firestore_cloud_service'
+      - '@dinger_settings.google_cloud_service'

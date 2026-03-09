@@ -4,8 +4,7 @@ namespace Drupal\dinger_settings\Service;
 
 use Drupal;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\OrderStatus;
@@ -14,10 +13,6 @@ use Drupal\node\NodeInterface;
 final class CallsService
 {
 
-  /**
-   * @var EntityTypeManagerInterface
-   */
-  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Drupal\Core\Logger\LoggerChannelFactory definition.
@@ -26,18 +21,26 @@ final class CallsService
    */
   protected LoggerChannelInterface $logger;
 
-  /**
-   * @param EntityTypeManagerInterface $entityTypeManager
-   * @param LoggerChannelFactory $logger
-   */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, LoggerChannelFactory $logger)
+  public function __construct(
+    private readonly LoggerChannelFactoryInterface $loggerFactory,
+    private readonly FirestoreCloudService         $firestoreCloudService,
+    private readonly GoogleCloudService            $googleCloudService
+  )
   {
-    $this->entityTypeManager = $entityTypeManager;
-    $this->logger = $logger->get('CallsService');
+    $this->logger = $this->loggerFactory->get('CallsService');
+  }
+
+  public function onCallPresave(NodeInterface $call): void {
+    if ($call->isNew()) {
+      $this->googleCloudService->createNodeExpirationTasksOnPresave($call);
+    }
   }
 
   public function onCallInserted(NodeInterface $call): void
   {
+    /** Create fireCall **/
+    $this->firestoreCloudService->createFireCall($call);
+
     /** Update order status **/
     /** @var NodeInterface $order * */
     $order = $call->get('field_call_order')->entity;
@@ -99,19 +102,6 @@ final class CallsService
           $transition_service = Drupal::service('hucha_settings.transactions_service');
           $transition_service->unfreezeCallServiceFee($call);
         }
-      }
-    }
-  }
-
-  public function onCallPresave(NodeInterface $call): void {
-    /** @var $originalCall NodeInterface */
-    $originalCall = $call->getOriginal();
-    $callStatus = CallStatus::fromString($call->get('field_call_status')->getString());
-    $originalCallStatus = CallStatus::fromString($originalCall->get('field_call_status')->getString());
-    $callStatusUpdated = $callStatus !== $originalCallStatus;
-    if ($callStatusUpdated) {
-      if ($callStatus === CallStatus::ATTRIBUTED) {
-
       }
     }
   }

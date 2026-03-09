@@ -25,7 +25,8 @@ final class CustomersService
    */
   public function __construct(
     private readonly LoggerChannelFactoryInterface $loggerFactory,
-    private readonly EntityTypeManagerInterface    $entityTypeManager, private readonly FirestoreCloudService $cloudService
+    private readonly EntityTypeManagerInterface    $entityTypeManager,
+    private readonly FirestoreCloudService $cloudService
   )
   {
     $this->logger = $this->loggerFactory->get('CustomersService');
