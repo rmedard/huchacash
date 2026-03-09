@@ -192,6 +192,9 @@ final class FirestoreCloudService {
     try {
       $this->firestoreClient->updateDocument('customer_balances/' . $customerUuid, $updates, true);
       $this->logger->info('Balance updated successfully for customer @customerId', ['@customerId' => $customerUuid]);
+    }catch (NotFound $e) {
+      $this->logger->warning('>>> Customer Balance Not Found for customer @customerId. Attempting to create it.', ['@customerId' => $customerUuid]);
+      $this->firestoreClient->addDocument('customer_balances', $updates, $customerUuid);
     } catch (Exception $exception) {
       $this->logger->error('Failed to update Balance for customer: @customerId | @error',
         [

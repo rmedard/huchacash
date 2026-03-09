@@ -18,7 +18,6 @@ use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class OrdersService
 {
