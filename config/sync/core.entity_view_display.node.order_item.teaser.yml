@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.order_item.field_order_item_description
     - field.field.node.order_item.field_order_item_link
+    - field.field.node.order_item.field_order_item_name
     - field.field.node.order_item.field_order_item_photo_url
     - field.field.node.order_item.field_order_item_price
     - node.type.order_item
@@ -24,5 +25,6 @@ content:
 hidden:
   field_order_item_description: true
   field_order_item_link: true
+  field_order_item_name: true
   field_order_item_photo_url: true
   field_order_item_price: true

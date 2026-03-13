@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.order_item.field_order_item_description
     - field.field.node.order_item.field_order_item_link
+    - field.field.node.order_item.field_order_item_name
     - field.field.node.order_item.field_order_item_photo_url
     - field.field.node.order_item.field_order_item_price
     - node.type.order_item
@@ -35,6 +36,14 @@ content:
       target: ''
     third_party_settings: {  }
     weight: 101
+    region: content
+  field_order_item_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 108
     region: content
   field_order_item_photo_url:
     type: link

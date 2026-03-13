@@ -1,16 +1,17 @@
-uuid: 1f9327e0-a087-4c39-bde7-d234607ff634
+uuid: 446a9fe7-58eb-4f01-bd72-267d06417b52
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: node.field_call_system_service_fee
-field_name: field_call_system_service_fee
+id: node.field_order_item_name
+field_name: field_order_item_name
 entity_type: node
-type: decimal
+type: string
 settings:
-  precision: 10
-  scale: 2
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
 module: core
 locked: false
 cardinality: 1

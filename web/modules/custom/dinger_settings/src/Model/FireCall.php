@@ -48,12 +48,15 @@ class FireCall {
     /** @var GeoHashService $geoHashService **/
     $geoHashService = Drupal::service('dinger_settings.geohash_service');
 
+    $deliveryAddressGeo = new FirestoreGeoPoint($this->order->deliveryAddressLat, $this->order->deliveryAddressLng);
+    $pickupAddressGeo = new FirestoreGeoPoint($this->order->pickupAddressLat, $this->order->pickupAddressLng);
+
     $document = new FirestoreDocument();
     $document->setTimestamp('order_delivery_time', new FirestoreTimestamp($this->order->deliveryTime));
-    $document->setGeoPoint('delivery_address', new FirestoreGeoPoint($this->order->deliveryAddressLat, $this->order->deliveryAddressLng));
+    $document->setGeoPoint('delivery_address', $deliveryAddressGeo);
     $document->setString('delivery_address_full', $this->order->deliveryAddress);
     $document->setString('delivery_address_geo_hash', $geoHashService->encodeGeohash([$this->order->deliveryAddressLat, $this->order->deliveryAddressLng]));
-    $document->setGeoPoint('pickup_address', new FirestoreGeoPoint($this->order->pickupAddressLat, $this->order->pickupAddressLng));
+    $document->setGeoPoint('pickup_address', $pickupAddressGeo);
     $document->setString('pickup_address_full', $this->order->pickupAddress);
     $document->setString('pickup_address_geo_hash', $geoHashService->encodeGeohash([$this->order->pickupAddressLat, $this->order->pickupAddressLng]));
     $document->setTimestamp('expiration_time', new FirestoreTimestamp($this->expirationTime));

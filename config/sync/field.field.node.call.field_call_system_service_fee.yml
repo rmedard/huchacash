@@ -9,7 +9,7 @@ id: node.call.field_call_system_service_fee
 field_name: field_call_system_service_fee
 entity_type: node
 bundle: call
-label: 'Service Fee'
+label: 'System Service Fee'
 description: 'The fee retained by the system as service fee'
 required: false
 translatable: false

@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.order_item.field_order_item_description
     - field.field.node.order_item.field_order_item_link
+    - field.field.node.order_item.field_order_item_name
     - field.field.node.order_item.field_order_item_photo_url
     - field.field.node.order_item.field_order_item_price
     - node.type.order_item
@@ -18,7 +19,7 @@ mode: default
 content:
   field_order_item_description:
     type: text_textarea
-    weight: 4
+    weight: 2
     region: content
     settings:
       rows: 5
@@ -26,15 +27,23 @@ content:
     third_party_settings: {  }
   field_order_item_link:
     type: link_default
-    weight: 2
+    weight: 5
     region: content
     settings:
       placeholder_url: ''
       placeholder_title: ''
     third_party_settings: {  }
+  field_order_item_name:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_order_item_photo_url:
     type: link_default
-    weight: 27
+    weight: 4
     region: content
     settings:
       placeholder_url: ''
