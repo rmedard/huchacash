@@ -1,0 +1,7 @@
+oauth_custom_grant.firebase_settings:
+  path: '/admin/config/services/simple-oauth-firebase'
+  defaults:
+    _form: '\Drupal\oauth_custom_grant\Form\FirebaseOtpSettingsForm'
+    _title: 'Firebase OTP Settings'
+  requirements:
+    _permission: 'administer site configuration'

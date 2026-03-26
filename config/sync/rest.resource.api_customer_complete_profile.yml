@@ -1,0 +1,18 @@
+uuid: 2decbb6a-1f52-4155-b0eb-aedf94420f96
+langcode: en
+status: true
+dependencies:
+  module:
+    - oauth_custom_grant
+    - serialization
+    - simple_oauth
+id: api_customer_complete_profile
+plugin_id: api_customer_complete_profile
+granularity: resource
+configuration:
+  methods:
+    - POST
+  formats:
+    - json
+  authentication:
+    - oauth2

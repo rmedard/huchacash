@@ -3,6 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.user.user.field_user_firebase_uid
+    - field.field.user.user.field_user_phone_number
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
@@ -15,6 +17,21 @@ targetEntityType: user
 bundle: user
 mode: default
 content:
+  field_user_firebase_uid:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_user_phone_number:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
   member_for:
     weight: 5
     region: content

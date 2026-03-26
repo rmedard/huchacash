@@ -46,7 +46,7 @@ use Symfony\Component\HttpFoundation\Response;
   id: 'api_logout',
   label: new TranslatableMarkup('Api Logout'),
   uri_paths: [
-    'canonical' => '/api-logout'
+    'canonical' => '/api/logout'
   ],
 )]
 final class ApiLogoutResource extends ResourceBase {

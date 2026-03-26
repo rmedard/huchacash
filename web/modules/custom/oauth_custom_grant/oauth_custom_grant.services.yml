@@ -10,3 +10,17 @@ services:
     arguments:
       - '@user.auth'
       - '@logger.factory'
+
+  oauth_custom_grant.firebase_token_verifier:
+    class: Drupal\oauth_custom_grant\Service\FirebaseTokenVerifier
+    arguments:
+      - '@http_client'
+      - '@logger.factory'
+      - '@cache.default'
+
+  oauth_custom_grant.firebase_user_resolver:
+    class: Drupal\oauth_custom_grant\Service\FirebaseUserResolver
+    arguments:
+      - '@entity_type.manager'
+      - '@config.factory'
+      - '@logger.factory'

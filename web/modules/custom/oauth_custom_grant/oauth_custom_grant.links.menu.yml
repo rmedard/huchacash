@@ -1,0 +1,13 @@
+oauth_custom_grant.admin_config:
+  title: 'OAuth2 Grants'
+  description: 'Configure custom OAuth2 grant types.'
+  route_name: <nolink>
+  parent: system.admin_config
+  weight: 10
+
+oauth_custom_grant.firebase_settings:
+  title: 'Firebase OTP Settings'
+  description: 'Configure Firebase OTP grant settings.'
+  route_name: oauth_custom_grant.firebase_settings
+  parent: oauth_custom_grant.admin_config
+  weight: 10

@@ -50,6 +50,7 @@
         "drupal/views_bulk_edit": "^3.0",
         "drupal/webform": "^6.3@beta",
         "drush/drush": "^13",
+        "firebase/php-jwt": "^7.0",
         "google/cloud-core": "^1.65",
         "google/cloud-tasks": "^v2.1",
         "mautic/api-library": "^3.1.0",

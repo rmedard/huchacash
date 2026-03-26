@@ -3,10 +3,14 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.user.user.field_user_firebase_uid
+    - field.field.user.user.field_user_phone_number
     - field.field.user.user.user_picture
     - image.style.thumbnail
   module:
     - image
+    - path
+    - telephone
     - user
 _core:
   default_config_hash: FaQ9Ptcpxpg30AtiqRDtl_8zbJArHP1LPfug_s59TOA
@@ -21,9 +25,30 @@ content:
   contact:
     weight: 5
     region: content
+  field_user_firebase_uid:
+    type: string_textfield
+    weight: 32
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_user_phone_number:
+    type: telephone_default
+    weight: 31
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
   language:
     weight: 0
     region: content
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   timezone:
     weight: 6
     region: content

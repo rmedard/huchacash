@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
   id: 'me_resource',
   label: new TranslatableMarkup('Me Resource'),
   uri_paths: [
-    'canonical' => '/me'
+    'canonical' => '/api/me'
   ],
 )]
 final class MeResource extends ResourceBase
@@ -72,7 +72,7 @@ final class MeResource extends ResourceBase
     $response = new ModifiedResourceResponse();
     if ($this->loggedUser->isAuthenticated()) {
       $roles = $this->loggedUser->getRoles(true);
-      $this->logger->info('/me => roles: <pre><code>' . print_r($roles, true) . '<code></pre>');
+      $this->logger->info('/api/me => roles: <pre><code>' . print_r($roles, true) . '<code></pre>');
       if (in_array('customer', $roles)) {
         try {
           $this->logger->info('Fetching customer');

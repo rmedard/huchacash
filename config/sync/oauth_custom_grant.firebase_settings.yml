@@ -1,0 +1,5 @@
+project_id: ''
+auto_create_users: true
+default_role: authenticated
+phone_field: field_phone
+firebase_uid_field: field_firebase_uid

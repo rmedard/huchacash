@@ -1,0 +1,19 @@
+oauth_custom_grant.settings:
+  type: config_object
+  label: 'Simple OAuth Firebase Settings'
+  mapping:
+    project_id:
+      type: string
+      label: 'Firebase Project ID'
+    auto_create_users:
+      type: boolean
+      label: 'Auto-create Drupal users on first OTP login'
+    default_role:
+      type: string
+      label: 'Default role assigned to auto-created users'
+    phone_field:
+      type: string
+      label: 'User entity field name used to store the phone number'
+    firebase_uid_field:
+      type: string
+      label: 'User entity field name used to store the Firebase UID'
