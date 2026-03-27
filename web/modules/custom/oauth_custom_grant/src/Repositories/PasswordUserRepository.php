@@ -49,7 +49,7 @@ class PasswordUserRepository implements UserRepositoryInterface
       throw OAuthServerException::invalidCredentials();
     }
 
-    $user_id = $this->userAuth->authenticate($user->getEmail(), $password);
+    $user_id = $this->userAuth->authenticate($username, $password);
     if ($user_id === false) {
       $this->logger->warning('Invalid password for user: @name', ['@name' => $username]);
       throw OAuthServerException::invalidCredentials();
