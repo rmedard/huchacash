@@ -14,6 +14,7 @@ use Drupal\user\UserAuthInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -47,10 +48,11 @@ class GmailUserRepository implements UserRepositoryInterface
    * @param $email
    * @param $grantType
    * @param ClientEntityInterface $clientEntity
-   * @return UserEntity|null
+   * @return UserEntity
    * @throws GuzzleException
+   * @throws OAuthServerException
    */
-  public function getUserEntityByUserCredentials($token, $email, $grantType, ClientEntityInterface $clientEntity): ?UserEntity
+  public function getUserEntityByUserCredentials($token, $email, $grantType, ClientEntityInterface $clientEntity): UserEntity
   {
     $userEntity = new UserEntity();
 
@@ -62,7 +64,8 @@ class GmailUserRepository implements UserRepositoryInterface
         $data = (array)Json::decode($response->getBody());
         if ($email !== $data['email']) {
           $this->logger->error('Mismatching user details');
-          return null;
+          $this->logger->warning('Invalid password for user: @mail', ['@mail' => $email]);
+          throw OAuthServerException::invalidCredentials();
         }
 
         //Check if user exist.
@@ -83,7 +86,9 @@ class GmailUserRepository implements UserRepositoryInterface
     } catch (EntityStorageException $e) {
       $this->logger->error('Creating new user failed: ' . $e->getMessage());
     }
-    return null;
+
+    $this->logger->warning('Invalid password for user: @mail', ['@mail' => $email]);
+    throw OAuthServerException::invalidCredentials();
   }
 
   /**

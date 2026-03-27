@@ -10,6 +10,7 @@ use Drupal\user\UserAuthInterface;
 use League\Container\Exception\NotFoundException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 
 class PasswordUserRepository implements UserRepositoryInterface
@@ -39,17 +40,20 @@ class PasswordUserRepository implements UserRepositoryInterface
 
   /**
    * @inheritDoc
+   * @throws OAuthServerException
    */
   public function getUserEntityByUserCredentials($mail, $password, $grantType, ClientEntityInterface $clientEntity): UserEntityInterface
   {
     $user = user_load_by_mail($mail);
-    if (!$user) {
-      throw new NotFoundException("User '$mail' not found.");
+    if ($user === false) {
+      $this->logger->warning('Login attempt for unknown email: @mail', ['@mail' => $mail]);
+      throw OAuthServerException::invalidCredentials();
     }
 
     $user_id = $this->userAuth->authenticate($user->getEmail(), $password);
     if ($user_id === false) {
-      throw new NotFoundException("User '$mail' not found.");
+      $this->logger->warning('Invalid password for user: @mail', ['@mail' => $mail]);
+      throw OAuthServerException::invalidCredentials();
     }
 
     $userEntity = User::load((int)$user_id);

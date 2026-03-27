@@ -92,18 +92,11 @@ class GoogleGmailGrant extends AbstractGrant
       throw OAuthServerException::invalidRequest('custom_token');
     }
 
-    $user = $this->userRepository->getUserEntityByUserCredentials(
+    return $this->userRepository->getUserEntityByUserCredentials(
       $custom_token,
       $email,
       $this->getIdentifier(),
       $client
     );
-    if ($user instanceof UserEntityInterface === false) {
-      $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
-
-      throw OAuthServerException::invalidCredentials();
-    }
-
-    return $user;
   }
 }
