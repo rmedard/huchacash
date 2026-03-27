@@ -280,14 +280,19 @@ function dinger_settings_user_insert(UserInterface $user): void
 {
   if ($user->hasRole('customer')) {
     $lastname = Drupal::request()->query->get('lastname', '');
-    $phone = Drupal::request()->query->get('phone', '');
     $ageRange = Drupal::request()->query->get('ageRange', '');
+
+    // Profile is complete if lastname and ageRange were provided (classic registration).
+    // OTP users will have empty values — node stays unpublished until they complete it.
+    $isComplete = !empty($lastname) && !empty($ageRange);
+    $userStatus = $isComplete ? NodeInterface::PUBLISHED : NodeInterface::NOT_PUBLISHED;
+
     try {
       Node::create([
         'type' => 'customer',
         'title' => 'reference_nbr',
+        'status' => $userStatus,
         'field_customer_lastname' => $lastname,
-        'field_customer_phone' => $phone,
         'field_customer_age_range' => $ageRange,
         'field_customer_available_balance' => 0,
         'field_customer_pending_balance' => 0,
