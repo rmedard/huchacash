@@ -145,8 +145,6 @@ class FirebaseUserResolver {
       $account->addRole('customer');
       $account->save();
 
-      $this->createSkeletonCustomer($account, $phone);
-
       $this->logger()->info(
         'Firebase OTP: auto-created Drupal user @id (@name) for Firebase UID @uid.',
         ['@id' => $account->id(), '@name' => $username, '@uid' => $uid]
@@ -189,24 +187,6 @@ class FirebaseUserResolver {
       ->getStorage('field_storage_config')
       ->load("$entityType.$fieldName");
     return $fieldStorageConfig !== NULL;
-  }
-
-  protected function createSkeletonCustomer(UserInterface $account, ?string $phone): void {
-    try {
-      $customer = Node::create([
-        'type'                             => 'customer',
-        'uid'                              => $account->id(),
-        'status'                           => 0, // unpublished until profile complete
-        'field_customer_user'              => $account->id(),
-        'field_customer_phone'             => $phone,
-        'field_customer_available_balance' => 0,
-        'field_customer_pending_balance'   => 0,
-        // firstname/lastname intentionally left empty
-      ]);
-      $customer->save();
-    } catch (\Exception $e) {
-      $this->logger()->error('Failed to create skeleton customer: @msg', ['@msg' => $e->getMessage()]);
-    }
   }
 
 }
