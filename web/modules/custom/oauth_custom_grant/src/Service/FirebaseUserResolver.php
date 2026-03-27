@@ -7,6 +7,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\Entity\Node;
 use Drupal\oauth_custom_grant\Form\FirebaseOtpSettingsForm;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -138,10 +139,10 @@ class FirebaseUserResolver {
         $account->set($uidField, $uid);
       }
 
-      if ($defaultRole !== 'authenticated') {
+      if ($defaultRole !== AccountInterface::AUTHENTICATED_ROLE) {
         $account->addRole($defaultRole);
       }
-
+      $account->addRole('customer');
       $account->save();
 
       $this->createSkeletonCustomer($account, $phone);

@@ -1,12 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Drupal\oauth_custom_grant\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -18,13 +15,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 #[RestResource(
-  id: 'api_customer_complete_profile',
-  label: new TranslatableMarkup('Api Complete Profile'),
+  id: 'api_customer_profile_status',
+  label: new TranslatableMarkup('Api Customer Profile Status'),
   uri_paths: [
-    'create' => '/api/customer/complete-profile',
+    'canonical' => '/api/customer/profile-status',
   ],
 )]
-class CustomerProfileCompletionResource extends ResourceBase {
+class CustomerProfileStatusResource extends ResourceBase {
 
   protected AccountProxyInterface $loggedUser;
   protected EntityTypeManagerInterface $entityTypeManager;
@@ -49,31 +46,21 @@ class CustomerProfileCompletionResource extends ResourceBase {
       $plugin_id,
       $plugin_definition,
       $container->getParameter('serializer.formats'),
-      $container->get('logger.factory')->get('CustomerProfileCompletionResource'),
+      $container->get('logger.factory')->get('CustomerProfileStatusResource'),
       $container->get('current_user'),
       $container->get('entity_type.manager'),
     );
   }
 
   /**
-   * POST /api/customer/complete-profile
+   * GET /api/customer/profile-status
    *
-   * Expected body: { "lastname": "", "email": "", "age_range": "" }
-   * Saves the three required fields and publishes the customer node.
+   * A profile is complete when field_customer_lastname, field_customer_email
+   * and field_customer_age_range are all filled.
+   *
+   * Response: { "is_complete": true|false, "missing_fields": [] }
    */
-  public function post(Request $request): JsonResponse {
-    $data = json_decode($request->getContent(), TRUE);
-
-    $lastname  = trim($data['lastname']  ?? '');
-    $email     = trim($data['email']     ?? '');
-    $ageRange  = trim($data['age_range'] ?? '');
-
-    if (empty($lastname) || empty($email) || empty($ageRange)) {
-      return new JsonResponse([
-        'error' => 'lastname, email and age_range are required.',
-      ], 400);
-    }
-
+  public function get(Request $request): JsonResponse {
     try {
       $nodes = $this->entityTypeManager
         ->getStorage('node')
@@ -83,24 +70,33 @@ class CustomerProfileCompletionResource extends ResourceBase {
         ]);
 
       if (!$nodes) {
-        return new JsonResponse(['error' => 'Customer profile not found.'], 404);
+        return new JsonResponse([
+          'is_complete'    => FALSE,
+          'missing_fields' => ['lastname', 'email', 'age_range'],
+        ]);
       }
 
-      $customer = reset($nodes);
-      $customer->set('field_customer_lastname',   $lastname);
-      $customer->set('field_customer_email',      $email);
-      $customer->set('field_customer_age_range',  $ageRange);
-      $customer->set('status', 1); // publish once profile is complete
-      $customer->save();
+      $customer      = reset($nodes);
+      $missingFields = [];
 
-      return new JsonResponse(['status' => 'ok']);
+      if ($customer->get('field_customer_lastname')->isEmpty()) {
+        $missingFields[] = 'lastname';
+      }
+      if ($customer->get('field_customer_email')->isEmpty()) {
+        $missingFields[] = 'email';
+      }
+      if ($customer->get('field_customer_age_range')->isEmpty()) {
+        $missingFields[] = 'age_range';
+      }
+
+      return new JsonResponse([
+        'is_complete'    => empty($missingFields),
+        'missing_fields' => $missingFields,
+      ]);
     }
     catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-      return new JsonResponse(['error' => $e->getMessage()], 404);
-    }
-    catch (EntityStorageException $e) {
-      $this->logger->error('Failed to save customer profile: @msg', ['@msg' => $e->getMessage()]);
-      return new JsonResponse(['error' => 'Failed to save profile.'], 500);
+      $this->logger->error('Profile status check failed: @msg', ['@msg' => $e->getMessage()]);
+      return new JsonResponse(['error' => 'Could not check profile status'], 500);
     }
   }
 }
