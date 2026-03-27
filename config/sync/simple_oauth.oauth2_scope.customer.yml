@@ -8,16 +8,19 @@ description: 'Default Customer Scope'
 grant_types:
   password:
     status: 1
-    description: ''
+    description: 'Password grant'
+  firebase_otp:
+    status: 1
+    description: 'Firebase OTP grant'
   gmail_credentials:
     status: 1
-    description: ''
+    description: 'Gmail credentials grant'
   client_credentials:
     status: false
     description: ''
   refresh_token:
     status: true
-    description: ''
+    description: 'Refresh Token grant'
   authorization_code:
     status: false
     description: ''
