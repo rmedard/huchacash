@@ -9,7 +9,6 @@ dependencies:
     - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
-    - field.field.node.customer.field_customer_phone
     - field.field.node.customer.field_customer_photo_storagepath
     - field.field.node.customer.field_customer_pref_routes
     - field.field.node.customer.field_customer_user
@@ -32,7 +31,6 @@ hidden:
   field_customer_bank_account: true
   field_customer_lastname: true
   field_customer_pending_balance: true
-  field_customer_phone: true
   field_customer_photo_storagepath: true
   field_customer_pref_routes: true
   field_customer_user: true

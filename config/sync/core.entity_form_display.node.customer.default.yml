@@ -8,14 +8,12 @@ dependencies:
     - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
-    - field.field.node.customer.field_customer_phone
     - field.field.node.customer.field_customer_photo_storagepath
     - field.field.node.customer.field_customer_pref_routes
     - field.field.node.customer.field_customer_user
     - node.type.customer
   module:
     - bank_account
-    - telephone
 id: node.customer.default
 targetEntityType: node
 bundle: customer
@@ -51,13 +49,6 @@ content:
   field_customer_pending_balance:
     type: number
     weight: 4
-    region: content
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-  field_customer_phone:
-    type: telephone_default
-    weight: 7
     region: content
     settings:
       placeholder: ''

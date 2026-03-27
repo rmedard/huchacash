@@ -54,8 +54,8 @@ class FirebaseUserResolver {
    */
   public function resolve(array $firebasePayload): UserInterface {
     $config      = $this->configFactory->get(FirebaseOtpSettingsForm::SETTINGS);
-    $uidField    = $config->get('firebase_uid_field') ?: 'field_firebase_uid';
-    $phoneField  = $config->get('phone_field') ?: 'field_phone';
+    $uidField    = $config->get('firebase_uid_field') ?: 'field_user_firebase_uid';
+    $phoneField  = $config->get('phone_field') ?: 'field_user_phone_number';
     $autoCreate  = (bool) $config->get('auto_create_users');
     $defaultRole = $config->get('default_role') ?: 'authenticated';
 

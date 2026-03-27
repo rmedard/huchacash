@@ -8,7 +8,6 @@ dependencies:
     - field.field.node.customer.field_customer_bank_account
     - field.field.node.customer.field_customer_lastname
     - field.field.node.customer.field_customer_pending_balance
-    - field.field.node.customer.field_customer_phone
     - field.field.node.customer.field_customer_photo_storagepath
     - field.field.node.customer.field_customer_pref_routes
     - field.field.node.customer.field_customer_user
@@ -16,7 +15,6 @@ dependencies:
   module:
     - bank_account
     - options
-    - telephone
     - user
 id: node.customer.default
 targetEntityType: node
@@ -66,14 +64,6 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 105
-    region: content
-  field_customer_phone:
-    type: telephone_link
-    label: above
-    settings:
-      title: ''
-    third_party_settings: {  }
-    weight: 107
     region: content
   field_customer_photo_storagepath:
     type: string
