@@ -7,7 +7,6 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\simple_oauth\Entities\UserEntity;
 use Drupal\user\Entity\User;
 use Drupal\user\UserAuthInterface;
-use League\Container\Exception\NotFoundException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -42,21 +41,21 @@ class PasswordUserRepository implements UserRepositoryInterface
    * @inheritDoc
    * @throws OAuthServerException
    */
-  public function getUserEntityByUserCredentials($mail, $password, $grantType, ClientEntityInterface $clientEntity): UserEntityInterface
+  public function getUserEntityByUserCredentials($username, $password, $grantType, ClientEntityInterface $clientEntity): UserEntityInterface
   {
-    $user = user_load_by_mail($mail);
+    $user = user_load_by_name($username);
     if ($user === false) {
-      $this->logger->warning('Login attempt for unknown email: @mail', ['@mail' => $mail]);
+      $this->logger->warning('Login attempt for unknown email: @name', ['@name' => $username]);
       throw OAuthServerException::invalidCredentials();
     }
 
     $user_id = $this->userAuth->authenticate($user->getEmail(), $password);
     if ($user_id === false) {
-      $this->logger->warning('Invalid password for user: @mail', ['@mail' => $mail]);
+      $this->logger->warning('Invalid password for user: @name', ['@name' => $username]);
       throw OAuthServerException::invalidCredentials();
     }
 
-    $userEntity = User::load((int)$user_id);
+    $userEntity = User::load($user_id);
     user_login_finalize($userEntity);
 
     $userEntity = new UserEntity();
