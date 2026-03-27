@@ -9,10 +9,12 @@ dependencies:
     - node.type.order
     - node.type.order_item
     - node.type.preferred_route
+    - rest.resource.api_customer_complete_profile
   module:
     - field_permissions
     - file
     - node
+    - rest
 id: customer
 label: Customer
 weight: 7
@@ -41,6 +43,7 @@ permissions:
   - 'edit own order content'
   - 'edit own order_item content'
   - 'edit own preferred_route content'
+  - 'restful post api_customer_complete_profile'
   - 'view field_call_order_confirm_nbr'
   - 'view field_order_delivery_address_str'
   - 'view field_order_pickup_address_str'
