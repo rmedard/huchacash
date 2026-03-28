@@ -16,7 +16,6 @@ use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 
 #[RestResource(
   id: 'me_resource',
@@ -53,67 +52,39 @@ final class MeResource extends ResourceBase
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function permissions(): array
+  {
+    // Define custom permissions with a different name to avoid conflicts
+    return [
+      'get' => [
+        'access me resource' => [
+          'title' => new TranslatableMarkup('Access Me Resource'),
+          'description' => new TranslatableMarkup('Allow users to access the me resource'),
+        ],
+      ],
+    ];
+  }
+
   public function get(): ModifiedResourceResponse
   {
-    // ========== COMPREHENSIVE DEBUG ==========
-    $request = Drupal::request();
+    // Log that we reached the method
+    \Drupal::logger('me_resource')->info('Get method executed. User ID: ' . $this->loggedUser->id());
 
-    $this->logger->info('=== ME RESOURCE COMPREHENSIVE DEBUG ===');
-
-    // 1. Check the authenticated user
-    $this->logger->info('User ID: ' . $this->loggedUser->id());
-    $this->logger->info('User Name: ' . $this->loggedUser->getAccountName());
-    $this->logger->info('Is Authenticated: ' . ($this->loggedUser->isAuthenticated() ? 'YES' : 'NO'));
-
-    // 2. Check all roles (including inherited)
-    $roles = $this->loggedUser->getRoles();
-    $this->logger->info('All Roles: ' . print_r($roles, true));
-
-    $roles_true = $this->loggedUser->getRoles(true);
-    $this->logger->info('True Roles (excluding authenticated): ' . print_r($roles_true, true));
-
-    // 3. Check specific permissions
-    $permission_to_check = 'restful get me_resource';
-    $has_permission = $this->loggedUser->hasPermission($permission_to_check);
-    $this->logger->info('Has permission "' . $permission_to_check . '": ' . ($has_permission ? 'YES' : 'NO'));
-
-    // 4. Check all permissions the user has (this will be a long list, but useful)
-    // Uncomment if needed, but may be verbose
-    // $user = Drupal::entityTypeManager()->getStorage('user')->load($this->loggedUser->id());
-    // if ($user) {
-    //   $all_perms = $user->getPermissions();
-    //   $this->logger->info('All permissions: ' . print_r($all_perms, true));
-    // }
-
-    // 5. Check the request headers that Drupal sees
-    $this->logger->info('Authorization header: ' . ($request->headers->get('Authorization') ? 'PRESENT' : 'NOT PRESENT'));
-    $this->logger->info('X-Consumer-ID header: ' . ($request->headers->get('X-Consumer-ID') ?: 'NOT PRESENT'));
-
-    // 6. Check if the REST resource permissions are being applied correctly
-    $route_name = $request->attributes->get('_route');
-    $this->logger->info('Route name: ' . $route_name);
-
-    // 7. Check if there's any access restriction on the route
-    $route = Drupal::service('router')->matchRequest($request);
-    $this->logger->info('Route access: ' . print_r($route, true));
-
-    $this->logger->info('=== END DEBUG ===');
-
-    // Your existing logic with more detailed error messages
     $response = new ModifiedResourceResponse();
 
     if (!$this->loggedUser->isAuthenticated()) {
-      $this->logger->info('User is not authenticated');
       $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
       $response->setContent(json_encode(['error' => 'Not authenticated']));
       return $response;
     }
 
     $roles = $this->loggedUser->getRoles(true);
-    $this->logger->info('User is authenticated with roles: ' . implode(', ', $roles));
+    \Drupal::logger('me_resource')->info('User roles: ' . implode(', ', $roles));
 
     if (!in_array('customer', $roles)) {
-      $this->logger->info('Customer role not found in user roles');
       $response->setStatusCode(Response::HTTP_FORBIDDEN);
       $response->setContent(json_encode([
         'error' => 'Customer role required',
@@ -124,7 +95,6 @@ final class MeResource extends ResourceBase
       return $response;
     }
 
-    // Check for customer node
     try {
       $customerIds = Drupal::entityTypeManager()
         ->getStorage('node')->getQuery()->accessCheck(FALSE)
@@ -132,14 +102,11 @@ final class MeResource extends ResourceBase
         ->condition('field_customer_user.target_id', $this->loggedUser->id())
         ->execute();
 
-      $this->logger->info('Customer nodes found: ' . count($customerIds));
+      \Drupal::logger('me_resource')->info('Found ' . count($customerIds) . ' customer nodes');
 
       if (count($customerIds) == 0) {
         $response->setStatusCode(Response::HTTP_NOT_FOUND);
-        $response->setContent(json_encode([
-          'error' => 'No customer profile found for this user',
-          'user_id' => $this->loggedUser->id()
-        ]));
+        $response->setContent(json_encode(['error' => 'No customer profile found']));
         return $response;
       }
 
@@ -151,8 +118,6 @@ final class MeResource extends ResourceBase
 
       $customerId = reset($customerIds);
       $customer = Node::load($customerId);
-
-      $this->logger->info('Success! Returning customer ID: ' . $customer->uuid());
       $response = new ModifiedResourceResponse(['customer_id' => $customer->uuid()]);
       return $response;
 
