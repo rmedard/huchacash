@@ -16,6 +16,7 @@ use Drupal\rest\Plugin\ResourceBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 #[RestResource(
   id: 'me_resource',
@@ -54,62 +55,113 @@ final class MeResource extends ResourceBase
 
   public function get(): ModifiedResourceResponse
   {
-    // Debug the authenticated user
-    $this->logger->info('=== ME RESOURCE AUTH DEBUG ===');
+    // ========== COMPREHENSIVE DEBUG ==========
+    $request = Drupal::request();
+
+    $this->logger->info('=== ME RESOURCE COMPREHENSIVE DEBUG ===');
+
+    // 1. Check the authenticated user
     $this->logger->info('User ID: ' . $this->loggedUser->id());
     $this->logger->info('User Name: ' . $this->loggedUser->getAccountName());
     $this->logger->info('Is Authenticated: ' . ($this->loggedUser->isAuthenticated() ? 'YES' : 'NO'));
-    $this->logger->info('Roles: ' . print_r($this->loggedUser->getRoles(), true));
 
-    // Check if this is a client (not a real user)
-    $user = Drupal::entityTypeManager()->getStorage('user')->load($this->loggedUser->id());
-    if ($user) {
-      $this->logger->info('User mail: ' . $user->getEmail());
-      $this->logger->info('Is blocked: ' . ($user->isBlocked() ? 'YES' : 'NO'));
-    }
+    // 2. Check all roles (including inherited)
+    $roles = $this->loggedUser->getRoles();
+    $this->logger->info('All Roles: ' . print_r($roles, true));
+
+    $roles_true = $this->loggedUser->getRoles(true);
+    $this->logger->info('True Roles (excluding authenticated): ' . print_r($roles_true, true));
+
+    // 3. Check specific permissions
+    $permission_to_check = 'restful get me_resource';
+    $has_permission = $this->loggedUser->hasPermission($permission_to_check);
+    $this->logger->info('Has permission "' . $permission_to_check . '": ' . ($has_permission ? 'YES' : 'NO'));
+
+    // 4. Check all permissions the user has (this will be a long list, but useful)
+    // Uncomment if needed, but may be verbose
+    // $user = Drupal::entityTypeManager()->getStorage('user')->load($this->loggedUser->id());
+    // if ($user) {
+    //   $all_perms = $user->getPermissions();
+    //   $this->logger->info('All permissions: ' . print_r($all_perms, true));
+    // }
+
+    // 5. Check the request headers that Drupal sees
+    $this->logger->info('Authorization header: ' . ($request->headers->get('Authorization') ? 'PRESENT' : 'NOT PRESENT'));
+    $this->logger->info('X-Consumer-ID header: ' . ($request->headers->get('X-Consumer-ID') ?: 'NOT PRESENT'));
+
+    // 6. Check if the REST resource permissions are being applied correctly
+    $route_name = $request->attributes->get('_route');
+    $this->logger->info('Route name: ' . $route_name);
+
+    // 7. Check if there's any access restriction on the route
+    $route = Drupal::service('router')->matchRequest($request);
+    $this->logger->info('Route access: ' . print_r($route, true));
 
     $this->logger->info('=== END DEBUG ===');
 
-    // Your existing logic
+    // Your existing logic with more detailed error messages
     $response = new ModifiedResourceResponse();
 
-    if ($this->loggedUser->isAuthenticated()) {
-      $roles = $this->loggedUser->getRoles(true);
-
-      if (in_array('customer', $roles)) {
-        try {
-          $customerIds = Drupal::entityTypeManager()
-            ->getStorage('node')->getQuery()->accessCheck()
-            ->condition('type', 'customer')
-            ->condition('field_customer_user.target_id', $this->loggedUser->id())
-            ->execute();
-
-          if (count($customerIds) > 1) {
-            $response->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
-            $response->setContent('Illegal state');
-          } else if (count($customerIds) == 1) {
-            $customerId = reset($customerIds);
-            $customer = Node::load($customerId);
-            $response = new ModifiedResourceResponse(['customer_id' => $customer->uuid()]);
-          } else {
-            $response->setStatusCode(Response::HTTP_NOT_FOUND);
-            $response->setContent('No customer details found');
-          }
-        } catch (InvalidPluginDefinitionException|PluginNotFoundException $e) {
-          $this->logger->error('Fetching customer failed: ' . $e->getMessage());
-          $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
-          $response->setContent($e->getMessage());
-        }
-      } else {
-        $response->setStatusCode(Response::HTTP_FORBIDDEN);
-        $response->setContent('Customer role required. Your roles: ' . implode(', ', $roles));
-      }
-    } else {
+    if (!$this->loggedUser->isAuthenticated()) {
+      $this->logger->info('User is not authenticated');
       $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
-      $response->setContent('Authentication required');
+      $response->setContent(json_encode(['error' => 'Not authenticated']));
+      return $response;
     }
 
-    return $response;
+    $roles = $this->loggedUser->getRoles(true);
+    $this->logger->info('User is authenticated with roles: ' . implode(', ', $roles));
+
+    if (!in_array('customer', $roles)) {
+      $this->logger->info('Customer role not found in user roles');
+      $response->setStatusCode(Response::HTTP_FORBIDDEN);
+      $response->setContent(json_encode([
+        'error' => 'Customer role required',
+        'your_roles' => $roles,
+        'user_id' => $this->loggedUser->id(),
+        'user_name' => $this->loggedUser->getAccountName()
+      ]));
+      return $response;
+    }
+
+    // Check for customer node
+    try {
+      $customerIds = Drupal::entityTypeManager()
+        ->getStorage('node')->getQuery()->accessCheck(FALSE)
+        ->condition('type', 'customer')
+        ->condition('field_customer_user.target_id', $this->loggedUser->id())
+        ->execute();
+
+      $this->logger->info('Customer nodes found: ' . count($customerIds));
+
+      if (count($customerIds) == 0) {
+        $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        $response->setContent(json_encode([
+          'error' => 'No customer profile found for this user',
+          'user_id' => $this->loggedUser->id()
+        ]));
+        return $response;
+      }
+
+      if (count($customerIds) > 1) {
+        $response->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
+        $response->setContent(json_encode(['error' => 'Multiple customer profiles found']));
+        return $response;
+      }
+
+      $customerId = reset($customerIds);
+      $customer = Node::load($customerId);
+
+      $this->logger->info('Success! Returning customer ID: ' . $customer->uuid());
+      $response = new ModifiedResourceResponse(['customer_id' => $customer->uuid()]);
+      return $response;
+
+    } catch (InvalidPluginDefinitionException|PluginNotFoundException $e) {
+      $this->logger->error('Error: ' . $e->getMessage());
+      $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+      $response->setContent(json_encode(['error' => $e->getMessage()]));
+      return $response;
+    }
   }
 
 }
