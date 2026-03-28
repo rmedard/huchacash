@@ -24,8 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
     'canonical' => '/api/me'
   ],
 )]
-final class MeResource extends ResourceBase
-{
+final class MeResource extends ResourceBase {
 
   protected AccountProxyInterface $loggedUser;
 
@@ -68,8 +67,51 @@ final class MeResource extends ResourceBase
    */
   public function get(): ModifiedResourceResponse
   {
+    // ========== START DEBUGGING ==========
+    $request = Drupal::request();
+
+    // Debug 1: Log all headers
+    $this->logger->info('=== ME RESOURCE DEBUG START ===');
+    $this->logger->info('All headers: ' . print_r($request->headers->all(), true));
+
+    // Debug 2: Check Authorization header specifically
+    $auth_header = $request->headers->get('Authorization');
+    $this->logger->info('Authorization header: ' . ($auth_header ? $auth_header : 'NOT SET'));
+
+    // Debug 3: Check if there's an OAuth2 token in the request
+    $oauth_token = $request->get('oauth_token');
+    $this->logger->info('oauth_token parameter: ' . ($oauth_token ? $oauth_token : 'NOT SET'));
+
+    // Debug 4: Check current user details
+    $this->logger->info('Current user ID: ' . $this->loggedUser->id());
+    $this->logger->info('Current user is authenticated: ' . ($this->loggedUser->isAuthenticated() ? 'YES' : 'NO'));
+    $this->logger->info('Current user roles: ' . print_r($this->loggedUser->getRoles(), true));
+
+    // Debug 5: Check if the user has the required permission
+    $has_permission = $this->loggedUser->hasPermission('restful get me_resource');
+    $this->logger->info('Has "restful get me_resource" permission: ' . ($has_permission ? 'YES' : 'NO'));
+
+    // Debug 6: Check session
+    $session = $request->getSession();
+    if ($session) {
+      $this->logger->info('Session ID: ' . $session->getId());
+    } else {
+      $this->logger->info('No session found');
+    }
+
+    // Debug 7: Check if this is an API gateway request
+    $consumer_id = $request->headers->get('x-consumer-id');
+    if ($consumer_id) {
+      $this->logger->info('X-Consumer-ID header found: ' . $consumer_id);
+      $this->logger->info('This request is going through an API gateway!');
+    }
+
+    $this->logger->info('=== ME RESOURCE DEBUG END ===');
+    // ========== END DEBUGGING ==========
+
     $this->logger->info('Me resource triggered. User logged-in: ' . $this->loggedUser->isAuthenticated());
     $response = new ModifiedResourceResponse();
+
     if ($this->loggedUser->isAuthenticated()) {
       $roles = $this->loggedUser->getRoles(true);
       $this->logger->info('/api/me => roles: <pre><code>' . print_r($roles, true) . '<code></pre>');
@@ -100,8 +142,19 @@ final class MeResource extends ResourceBase
           $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
           $response->setContent($e->getMessage());
         }
+      } else {
+        // User is authenticated but doesn't have customer role
+        $this->logger->info('User authenticated but missing customer role. Roles: ' . print_r($roles, true));
+        $response->setStatusCode(Response::HTTP_FORBIDDEN);
+        $response->setContent('User does not have customer role');
       }
+    } else {
+      // User is not authenticated
+      $this->logger->info('User is not authenticated');
+      $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
+      $response->setContent('Authentication required');
     }
+
     return $response;
   }
 
