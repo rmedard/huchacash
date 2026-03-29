@@ -8,8 +8,7 @@ dependencies:
     - jsonapi_defaults
 third_party_settings:
   jsonapi_defaults:
-    default_include:
-      - field_customer_user
+    default_include: {  }
     page_limit: 50
 id: node--customer
 disabled: false
