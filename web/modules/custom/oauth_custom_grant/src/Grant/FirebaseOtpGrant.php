@@ -70,8 +70,9 @@ class FirebaseOtpGrant  extends AbstractGrant
       throw OAuthServerException::accessDenied('This account has been blocked.');
     }
 
-    // 5. Determine requested scopes (fall back to default scope).
-    $scopes = $this->validateScopes($this->defaultScope);
+    // 5. Determine requested scopes from the user's roles.
+    $scopeString = implode(' ', $account->getRoles(TRUE));
+    $scopes = $this->validateScopes($scopeString);
 
     // 6. Issue the access token.
     $accessToken = $this->issueAccessToken(
