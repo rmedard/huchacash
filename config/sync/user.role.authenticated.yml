@@ -7,7 +7,6 @@ dependencies:
     - filter.format.webform_default
     - node.type.transaction
     - rest.resource.api_logout
-    - rest.resource.me_resource
   module:
     - comment
     - contact
@@ -38,7 +37,6 @@ permissions:
   - 'delete own files'
   - 'post comments'
   - 'restful get api_logout'
-  - 'restful get me_resource'
   - 'search content'
   - 'skip comment approval'
   - 'use text format basic_html'

@@ -37,6 +37,7 @@ permissions:
   - 'delete own files'
   - 'edit any preferred_route content'
   - 'edit own customer content'
+  - 'view own customer content'
   - 'edit own field_customer_bank_account'
   - 'edit own field_order_delivery_address_str'
   - 'edit own field_order_pickup_address_str'
