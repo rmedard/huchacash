@@ -55,7 +55,7 @@ class CustomerProfileStatusResource extends ResourceBase {
   /**
    * GET /api/customer/profile-status
    *
-   * A profile is complete when field_customer_lastname, field_customer_email
+   * A profile is complete when field_customer_lastname, user email
    * and field_customer_age_range are all filled.
    *
    * Response: { "is_complete": true|false, "missing_fields": [] }
@@ -82,7 +82,8 @@ class CustomerProfileStatusResource extends ResourceBase {
       if ($customer->get('field_customer_lastname')->isEmpty()) {
         $missingFields[] = 'lastname';
       }
-      if ($customer->get('field_customer_email')->isEmpty()) {
+      $userEntity = $customer->get('field_customer_user')->entity;
+      if (empty($userEntity->getEmail())) {
         $missingFields[] = 'email';
       }
       if ($customer->get('field_customer_age_range')->isEmpty()) {

@@ -55,8 +55,9 @@ final class MeApiController extends ControllerBase {
     }
 
     $customer = Node::load(reset($customerIds));
+    $userEntity = $customer->get('field_customer_user')->entity;
     $isComplete = !$customer->get('field_customer_lastname')->isEmpty()
-      && !$customer->get('field_customer_email')->isEmpty()
+      && !empty($userEntity->getEmail())
       && !$customer->get('field_customer_age_range')->isEmpty();
     return new JsonResponse([
       'customer_id' => $customer->uuid(),

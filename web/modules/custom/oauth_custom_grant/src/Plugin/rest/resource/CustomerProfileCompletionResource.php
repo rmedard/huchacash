@@ -88,10 +88,14 @@ class CustomerProfileCompletionResource extends ResourceBase {
 
       $customer = reset($nodes);
       $customer->set('field_customer_lastname',   $lastname);
-      $customer->set('field_customer_email',      $email);
       $customer->set('field_customer_age_range',  $ageRange);
       $customer->set('status', 1); // publish once profile is complete
       $customer->save();
+
+      // Save email on the referenced user entity.
+      $user = $customer->get('field_customer_user')->entity;
+      $user->setEmail($email);
+      $user->save();
 
       return new JsonResponse(['status' => 'ok']);
     }
