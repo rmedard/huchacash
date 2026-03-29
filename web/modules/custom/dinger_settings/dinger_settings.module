@@ -377,16 +377,6 @@ function dinger_settings_node_access(NodeInterface $entity, $operation, AccountI
         }
       }
       break;
-    case 'customer':
-      if ($operation === 'view') {
-        $ownerUserId = $entity->get('field_customer_user')->target_id;
-        if ($ownerUserId && $ownerUserId === $account->id()) {
-          return AccessResult::allowed()
-            ->cachePerUser()
-            ->addCacheableDependency($entity);
-        }
-      }
-      break;
     case 'transaction':
       if ($operation === 'view') {
         $uid = $account->id();
