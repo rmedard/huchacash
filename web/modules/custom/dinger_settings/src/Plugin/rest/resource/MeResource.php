@@ -52,79 +52,92 @@ final class MeResource extends ResourceBase
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function permissions(): array
-  {
-    // Define custom permissions with a different name to avoid conflicts
-    return [
-      'get' => [
-        'access me resource' => [
-          'title' => new TranslatableMarkup('Access Me Resource'),
-          'description' => new TranslatableMarkup('Allow users to access the me resource'),
-        ],
-      ],
-    ];
-  }
-
   public function get(): ModifiedResourceResponse
   {
-    // Log that we reached the method
-    \Drupal::logger('me_resource')->info('Get method executed. User ID: ' . $this->loggedUser->id());
-
     $response = new ModifiedResourceResponse();
 
-    if (!$this->loggedUser->isAuthenticated()) {
+    // Get the user ID from the current user
+    $user_id = $this->loggedUser->id();
+
+    // If not authenticated, return 401
+    if (!$user_id || $user_id === 0) {
       $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
       $response->setContent(json_encode(['error' => 'Not authenticated']));
       return $response;
     }
 
-    $roles = $this->loggedUser->getRoles(true);
-    \Drupal::logger('me_resource')->info('User roles: ' . implode(', ', $roles));
-
-    if (!in_array('customer', $roles)) {
-      $response->setStatusCode(Response::HTTP_FORBIDDEN);
-      $response->setContent(json_encode([
-        'error' => 'Customer role required',
-        'your_roles' => $roles,
-        'user_id' => $this->loggedUser->id(),
-        'user_name' => $this->loggedUser->getAccountName()
-      ]));
-      return $response;
-    }
-
+    // Force load the user fresh from database to get correct roles
     try {
+      $user_storage = Drupal::entityTypeManager()->getStorage('user');
+      $user = $user_storage->load($user_id);
+
+      if (!$user || $user->isAnonymous()) {
+        $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
+        $response->setContent(json_encode(['error' => 'User not found']));
+        return $response;
+      }
+
+      // Get roles directly from the freshly loaded user
+      $roles = $user->getRoles(true);
+
+      // Log for debugging
+      $this->logger->info('User ID: ' . $user_id . ', Roles: ' . implode(', ', $roles));
+
+      // Check if user has customer role
+      if (!in_array('customer', $roles)) {
+        $response->setStatusCode(Response::HTTP_FORBIDDEN);
+        $response->setContent(json_encode([
+          'error' => 'Customer role required',
+          'your_roles' => $roles,
+          'user_id' => $user_id,
+          'user_name' => $user->getAccountName()
+        ]));
+        return $response;
+      }
+
+      // Find customer node linked to this user
       $customerIds = Drupal::entityTypeManager()
-        ->getStorage('node')->getQuery()->accessCheck(FALSE)
+        ->getStorage('node')
+        ->getQuery()
+        ->accessCheck(FALSE)
         ->condition('type', 'customer')
-        ->condition('field_customer_user.target_id', $this->loggedUser->id())
+        ->condition('field_customer_user.target_id', $user_id)
         ->execute();
 
-      \Drupal::logger('me_resource')->info('Found ' . count($customerIds) . ' customer nodes');
-
-      if (count($customerIds) == 0) {
+      if (count($customerIds) === 0) {
         $response->setStatusCode(Response::HTTP_NOT_FOUND);
-        $response->setContent(json_encode(['error' => 'No customer profile found']));
+        $response->setContent(json_encode([
+          'error' => 'No customer profile found for this user',
+          'user_id' => $user_id
+        ]));
         return $response;
       }
 
       if (count($customerIds) > 1) {
         $response->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
-        $response->setContent(json_encode(['error' => 'Multiple customer profiles found']));
+        $response->setContent(json_encode([
+          'error' => 'Multiple customer profiles found',
+          'count' => count($customerIds)
+        ]));
         return $response;
       }
 
       $customerId = reset($customerIds);
       $customer = Node::load($customerId);
-      $response = new ModifiedResourceResponse(['customer_id' => $customer->uuid()]);
+
+      // Success!
+      $response = new ModifiedResourceResponse([
+        'customer_id' => $customer->uuid(),
+        'user_id' => $user_id,
+        'user_name' => $user->getAccountName()
+      ]);
+
       return $response;
 
     } catch (InvalidPluginDefinitionException|PluginNotFoundException $e) {
-      $this->logger->error('Error: ' . $e->getMessage());
+      $this->logger->error('Error loading user/customer: ' . $e->getMessage());
       $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
-      $response->setContent(json_encode(['error' => $e->getMessage()]));
+      $response->setContent(json_encode(['error' => 'Internal server error']));
       return $response;
     }
   }
