@@ -15,6 +15,7 @@ use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\DateUtils;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
 use Exception;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
@@ -95,10 +96,13 @@ final class FirestoreCloudService {
     $bidder = $bid->get('field_bid_customer')->entity;
 
     $updateFields = [];
+    /** @var UserInterface $bidderUser */
+    $bidderUser = $bidder->get('field_customer_user')->entity;
     $updateFields['executor_id'] = $bidder->uuid();
     $updateFields['executor_name'] = $bidder->get('field_customer_lastname')->getString();
-    $updateFields['executor_phone'] = $bidder->get('field_customer_phone')->getString();
-    $updateFields['executor_photo'] = "";
+    $updateFields['executor_phone'] = $bidderUser?->get('field_user_phone_number')->getString();
+    $updateFields['executor_email'] = $bidderUser?->getEmail() ?? '';
+    $updateFields['executor_photo'] = '';
 
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
     try {

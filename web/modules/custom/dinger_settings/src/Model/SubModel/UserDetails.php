@@ -9,6 +9,7 @@ class UserDetails {
   public string $photo;
   public string $lastname;
   public string $phone;
+  public string $email;
 
   public function __construct(Node $customer) {
     $this->id = $customer->uuid();
@@ -17,6 +18,8 @@ class UserDetails {
      */
     $this->photo = '';
     $this->lastname = $customer->get('field_customer_lastname')->getString();
-    $this->phone = $customer->get('field_customer_phone')->getString();
+    $userEntity = $customer->get('field_customer_user')->entity;
+    $this->phone = $userEntity?->get('field_user_phone_number')->getString();
+    $this->email = $userEntity?->getEmail() ?? '';
   }
 }
