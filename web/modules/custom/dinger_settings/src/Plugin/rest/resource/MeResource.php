@@ -52,21 +52,29 @@ final class MeResource extends ResourceBase
     );
   }
 
+  /**
+   * Override access to bypass the REST permission check.
+   * We do our own authorization in get().
+   */
+  public function access($method, \Drupal\Core\Session\AccountInterface $account, $route_match = NULL) {
+    if ($method === 'GET' && $account->isAuthenticated()) {
+      return \Drupal\Core\Access\AccessResult::allowed();
+    }
+    return parent::access($method, $account, $route_match);
+  }
+
   public function get(): ModifiedResourceResponse
   {
     $response = new ModifiedResourceResponse();
 
-    // Get the user ID from the current user
     $user_id = $this->loggedUser->id();
 
-    // If not authenticated, return 401
     if (!$user_id || $user_id === 0) {
       $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
       $response->setContent(json_encode(['error' => 'Not authenticated']));
       return $response;
     }
 
-    // Force load the user fresh from database to get correct roles
     try {
       $user_storage = Drupal::entityTypeManager()->getStorage('user');
       $user = $user_storage->load($user_id);
@@ -77,13 +85,8 @@ final class MeResource extends ResourceBase
         return $response;
       }
 
-      // Get roles directly from the freshly loaded user
       $roles = $user->getRoles(true);
 
-      // Log for debugging
-      $this->logger->info('User ID: ' . $user_id . ', Roles: ' . implode(', ', $roles));
-
-      // Check if user has customer role
       if (!in_array('customer', $roles)) {
         $response->setStatusCode(Response::HTTP_FORBIDDEN);
         $response->setContent(json_encode([
@@ -95,7 +98,6 @@ final class MeResource extends ResourceBase
         return $response;
       }
 
-      // Find customer node linked to this user
       $customerIds = Drupal::entityTypeManager()
         ->getStorage('node')
         ->getQuery()
@@ -125,7 +127,6 @@ final class MeResource extends ResourceBase
       $customerId = reset($customerIds);
       $customer = Node::load($customerId);
 
-      // Success!
       $response = new ModifiedResourceResponse([
         'customer_id' => $customer->uuid(),
         'user_id' => $user_id,
