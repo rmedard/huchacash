@@ -6,7 +6,6 @@ dependencies:
     - filter.format.basic_html
     - filter.format.webform_default
     - node.type.transaction
-    - rest.resource.api_logout
   module:
     - comment
     - contact
@@ -36,7 +35,6 @@ permissions:
   - 'create transaction content'
   - 'delete own files'
   - 'post comments'
-  - 'restful get api_logout'
   - 'search content'
   - 'skip comment approval'
   - 'use text format basic_html'
