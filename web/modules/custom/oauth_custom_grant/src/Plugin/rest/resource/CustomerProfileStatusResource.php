@@ -72,7 +72,7 @@ class CustomerProfileStatusResource extends ResourceBase {
       if (!$nodes) {
         return new JsonResponse([
           'is_complete'    => FALSE,
-          'missing_fields' => ['lastname', 'email', 'age_range'],
+          'missing_fields' => ['lastname', 'email', 'age_range', 'phone'],
         ]);
       }
 
@@ -88,6 +88,9 @@ class CustomerProfileStatusResource extends ResourceBase {
       }
       if ($customer->get('field_customer_age_range')->isEmpty()) {
         $missingFields[] = 'age_range';
+      }
+      if ($userEntity->get('field_user_phone_number')->isEmpty()) {
+        $missingFields[] = 'phone';
       }
 
       return new JsonResponse([

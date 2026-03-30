@@ -58,8 +58,8 @@ class CustomerProfileCompletionResource extends ResourceBase {
   /**
    * POST /api/customer/complete-profile
    *
-   * Expected body: { "lastname": "", "email": "", "age_range": "" }
-   * Saves the three required fields and publishes the customer node.
+   * Expected body: { "lastname": "", "email": "", "age_range": "", "phone": "" }
+   * Saves the required fields and publishes the customer node.
    */
   public function post(Request $request): JsonResponse {
     $data = json_decode($request->getContent(), TRUE);
@@ -67,10 +67,11 @@ class CustomerProfileCompletionResource extends ResourceBase {
     $lastname  = trim($data['lastname']  ?? '');
     $email     = trim($data['email']     ?? '');
     $ageRange  = trim($data['age_range'] ?? '');
+    $phone     = trim($data['phone']     ?? '');
 
-    if (empty($lastname) || empty($email) || empty($ageRange)) {
+    if (empty($lastname) || empty($email) || empty($ageRange) || empty($phone)) {
       return new JsonResponse([
-        'error' => 'lastname, email and age_range are required.',
+        'error' => 'lastname, email, age_range and phone are required.',
       ], 400);
     }
 
@@ -95,6 +96,7 @@ class CustomerProfileCompletionResource extends ResourceBase {
       // Save email on the referenced user entity.
       $user = $customer->get('field_customer_user')->entity;
       $user->setEmail($email);
+      $user->set('field_user_phone_number', $phone);
       $user->save();
 
       return new JsonResponse(['status' => 'ok']);

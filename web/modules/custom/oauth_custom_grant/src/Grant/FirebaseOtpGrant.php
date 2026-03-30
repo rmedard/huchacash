@@ -3,14 +3,18 @@
 namespace Drupal\oauth_custom_grant\Grant;
 
 use DateInterval;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\oauth_custom_grant\Service\FirebaseTokenVerifier;
 use Drupal\oauth_custom_grant\Service\FirebaseUserResolver;
+use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Grant\AbstractGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 
 class FirebaseOtpGrant  extends AbstractGrant
 {
@@ -34,8 +38,15 @@ class FirebaseOtpGrant  extends AbstractGrant
   }
 
   /**
-   * @throws UniqueTokenIdentifierConstraintViolationException
+   * @param ServerRequestInterface $request
+   * @param ResponseTypeInterface $responseType
+   * @param DateInterval $accessTokenTTL
+   * @return ResponseTypeInterface
    * @throws OAuthServerException
+   * @throws UniqueTokenIdentifierConstraintViolationException
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
+   * @throws GuzzleException
    */
   public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL,): ResponseTypeInterface {
 
@@ -53,7 +64,7 @@ class FirebaseOtpGrant  extends AbstractGrant
     try {
       $payload = $this->tokenVerifier->verify($firebaseToken);
     }
-    catch (\RuntimeException $e) {
+    catch (RuntimeException $e) {
       throw OAuthServerException::invalidCredentials();
     }
 
@@ -61,7 +72,7 @@ class FirebaseOtpGrant  extends AbstractGrant
     try {
       $account = $this->userResolver->resolve($payload);
     }
-    catch (\RuntimeException $e) {
+    catch (RuntimeException $e) {
       // User not found and auto-create is disabled.
       throw OAuthServerException::invalidCredentials();
     }
