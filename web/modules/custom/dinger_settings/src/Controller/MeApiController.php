@@ -58,6 +58,7 @@ final class MeApiController extends ControllerBase {
     $userEntity = $customer->get('field_customer_user')->entity;
     $isComplete = !$customer->get('field_customer_lastname')->isEmpty()
       && !empty($userEntity->getEmail())
+      && !$userEntity->get('field_customer_phone_number')->isEmpty()
       && !$customer->get('field_customer_age_range')->isEmpty();
     return new JsonResponse([
       'customer_id' => $customer->uuid(),
