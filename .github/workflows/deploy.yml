@@ -27,9 +27,11 @@ jobs:
           script: |
             git remote set-url origin git@github.com:rmedard/huchacash.git
             git fetch origin main
+            chmod 755 web/sites/default
             git reset --hard origin/main
             composer update --no-interaction
             vendor/drush/drush/drush updb
             vendor/drush/drush/drush cim
             vendor/drush/drush/drush updb
             vendor/drush/drush/drush cr
+            chmod 555 web/sites/default
