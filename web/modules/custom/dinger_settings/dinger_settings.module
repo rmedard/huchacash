@@ -22,6 +22,8 @@ use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionAmountConstra
 use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionCancelledConstraint;
 use Drupal\dinger_settings\Plugin\Validation\Constraint\TransactionStatusTransitionConstraint;
 use Drupal\dinger_settings\Plugin\Validation\Constraint\UniqueCallPerOrderConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\UniqueCustomerPerUserConstraint;
+use Drupal\dinger_settings\Plugin\Validation\Constraint\UniquePhoneNumberConstraint;
 use Drupal\dinger_settings\Service\BiddingService;
 use Drupal\dinger_settings\Service\CallsService;
 use Drupal\dinger_settings\Service\CustomersService;
@@ -49,6 +51,12 @@ function dinger_settings_entity_type_build(array $entity_types): void
     $nodeType->addConstraint(TransactionAmountConstraint::PLUGIN_ID);
     $nodeType->addConstraint(TransactionCancelledConstraint::PLUGIN_ID);
     $nodeType->addConstraint(CallStatusAndExpirationConstraint::PLUGIN_ID);
+    $nodeType->addConstraint(UniqueCustomerPerUserConstraint::PLUGIN_ID);
+  }
+
+  $userType = $entity_types['user'];
+  if ($userType instanceof EntityTypeInterface) {
+    $userType->addConstraint(UniquePhoneNumberConstraint::PLUGIN_ID);
   }
 }
 
@@ -73,6 +81,7 @@ function dinger_settings_entity_bundle_field_info_alter(&$fields, EntityTypeInte
       ->setComputed(true)
       ->setClass(UserRolesComputedField::class);
     $fields['field_user_roles'] = $userRolesFieldDefinition;
+
   }
 
   if ($entity_type->id() === 'node') {
