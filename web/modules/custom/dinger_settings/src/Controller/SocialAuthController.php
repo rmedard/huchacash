@@ -15,6 +15,7 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -62,15 +63,12 @@ final class SocialAuthController extends ControllerBase
   /**
    * @throws EntityStorageException|GuzzleException
    */
-  public function capture(Request $request): Response
+  public function capture(Request $request): JsonResponse
   {
-    $response = new Response();
     if ($request->request->count() === 0) {
       $message = 'The payload was empty.';
       $this->logger->error($message);
-      $response->setContent($message);
-      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-      return $response;
+      return new JsonResponse(['message' => $message], Response::HTTP_BAD_REQUEST);
     }
     $id_token = $request->request->get('id_token');
 
@@ -88,7 +86,7 @@ final class SocialAuthController extends ControllerBase
         $user->setPassword("azerty");
         $user->enforceIsNew();
         $user->setEmail($email);
-        $user->addRole('customer'); //E.g: authenticated or administrator
+        $user->addRole('customer');
         $user->activate();
         $result = $user->save();
         if ($result === SAVED_NEW) {
@@ -100,13 +98,10 @@ final class SocialAuthController extends ControllerBase
           ])->save();
         }
       }
-      $response->setContent('Google signed in successfully');
-      $response->setStatusCode(Response::HTTP_OK);
+      return new JsonResponse(['message' => 'Google signed in successfully'], Response::HTTP_OK);
     } else {
-      $response->setContent('Google sign in verification failed');
-      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+      return new JsonResponse(['message' => 'Google sign in verification failed'], Response::HTTP_BAD_REQUEST);
     }
-    return $response;
   }
 
   /**

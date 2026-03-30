@@ -20,6 +20,7 @@ use Drupal\node\NodeInterface;
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ExpiredNodesController extends ControllerBase
@@ -68,17 +69,13 @@ final class ExpiredNodesController extends ControllerBase
     );
   }
 
-  /**
-   */
-  public function capture(Request $request): Response
+  public function capture(Request $request): JsonResponse
   {
-    $response = new Response();
     $payload = $request->getContent();
     if (empty($payload)) {
       $message = 'The payload was empty.';
       $this->logger->error($message);
-      $response->setContent($message);
-      return $response;
+      return new JsonResponse(['message' => $message], Response::HTTP_BAD_REQUEST);
     }
 
     $decoded = (array)Json::decode($payload);
@@ -89,16 +86,13 @@ final class ExpiredNodesController extends ControllerBase
     if (empty($uuid) || is_null($type)) {
       $message = 'Missing uuid or node type. UUID missing: @uuid_missing. Type missing: @type_missing';
       $this->logger->error($message, ['@uuid_missing' => empty($uuid) ? 'true' : 'false', '@type_missing' => is_null($type) ? 'true' : 'false']);
-      $response->setContent('Missing uuid or node type');
-      return $response;
+      return new JsonResponse(['message' => 'Missing uuid or node type'], Response::HTTP_BAD_REQUEST);
     }
 
     $entities = $this->nodeStorage->loadByProperties(['uuid' => $uuid]);
     $node = reset($entities);
     if (!$node instanceof NodeInterface) {
-      $response->setContent($this->t('Node @id not found!', ['@id' => $uuid]));
-      $response->setStatusCode(Response::HTTP_NOT_FOUND);
-      return $response;
+      return new JsonResponse(['message' => 'Node ' . $uuid . ' not found!'], Response::HTTP_NOT_FOUND);
     }
 
     switch ($type) {
@@ -132,9 +126,7 @@ final class ExpiredNodesController extends ControllerBase
         break;
     }
 
-    $response->setContent('Success!');
-    $response->setStatusCode(Response::HTTP_OK);
-    return $response;
+    return new JsonResponse(['message' => 'Success!'], Response::HTTP_OK);
   }
 
   /**

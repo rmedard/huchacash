@@ -16,6 +16,7 @@ use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use UnexpectedValueException;
@@ -65,32 +66,20 @@ final class StripeController extends ControllerBase
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
    */
-  public function capture(Request $request): Response
+  public function capture(Request $request): JsonResponse
   {
-    // Keep things fast.
-    // Don't load a themed site for the response.
-    // Most Webhook providers just want a 200 response.
-    $response = new Response();
-
-    // Capture the payload.
-    // Option 2: $payload = file_get_contents("php://input");.
     $payload = $request->getContent();
 
-    // Check if it is empty.
     if (empty($payload)) {
       $message = 'The payload was empty.';
       $this->logger->error($message);
-      $response->setContent($message);
-      return $response;
+      return new JsonResponse(['message' => $message], Response::HTTP_BAD_REQUEST);
     }
 
     // Use temporarily to inspect payload.
     if ($this->debug) {
       $this->logger->debug('<pre>@payload</pre>', ['@payload' => $payload]);
     }
-
-    // Add the $payload to our defined queue.
-//    $this->queue->createItem($payload);
 
     $endpoint_secret = 'whsec_VLRUhTpdlqQhRT3i0CLGLeSsc0Hl6709';
     $sig_header = $request->headers->get('stripe-signature');
@@ -126,19 +115,13 @@ final class StripeController extends ControllerBase
       }
     } catch (UnexpectedValueException $e) {
       $this->logger->error($e->getMessage());
-      $response->setContent('Invalid payload');
-      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-      return $response;
+      return new JsonResponse(['message' => 'Invalid payload'], Response::HTTP_BAD_REQUEST);
     } catch (SignatureVerificationException $e) {
       $this->logger->error($e->getMessage());
-      $response->setContent('Signature verification failed');
-      $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-      return $response;
+      return new JsonResponse(['message' => 'Signature verification failed'], Response::HTTP_BAD_REQUEST);
     }
 
-    $response->setContent('Success!');
-    $response->setStatusCode(Response::HTTP_OK);
-    return $response;
+    return new JsonResponse(['message' => 'Success!'], Response::HTTP_OK);
   }
 
   /**
