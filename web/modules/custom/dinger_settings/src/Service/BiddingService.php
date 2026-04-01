@@ -51,13 +51,13 @@ final class BiddingService {
     $bidStatus = BidStatus::fromString($bid->get('field_bid_status')->getString());
     $bidStatusUpdated = $bidStatus !== $originalBidStatus;
     if ($bidStatusUpdated) {
-      
+
       $this->logger->info('Bid status updated. BidID: @id. Status: [@from => @to]', [
         '@id' => $bid->id(),
         '@from' => $originalBidStatus->value,
         '@to' => $bidStatus->value
       ]);
-      
+
       /** @var FirestoreCloudService $fireStoreService */
       $fireStoreService = Drupal::service('dinger_settings.firestore_cloud_service');
       $fireStoreService->updateBidStatus($bid->uuid(), $bidStatus);
@@ -192,7 +192,11 @@ final class BiddingService {
         $query->set('field_call_proposed_service_fee', $finalServiceFee);
       }
       $immutableConfig = Drupal::config(DingerSettingsConfigForm::SETTINGS);
-      $systemServiceFeeRate = doubleval($immutableConfig->get('hucha_base_service_fee_rate'));
+      $rawFeeRate = $immutableConfig->get('hucha_base_service_fee_rate');
+      if ($rawFeeRate === '' || !is_numeric($rawFeeRate)) {
+        throw new BadRequestHttpException('System base service fee rate has not been configured.');
+      }
+      $systemServiceFeeRate = doubleval($rawFeeRate);
       $systemServiceFee = $finalServiceFee * $systemServiceFeeRate / 100;
       $call->set('field_call_system_service_fee', $systemServiceFee);
       $query->save();

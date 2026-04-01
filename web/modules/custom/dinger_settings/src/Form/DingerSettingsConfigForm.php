@@ -63,6 +63,23 @@ class DingerSettingsConfigForm extends ConfigFormBase
     return parent::buildForm($form, $form_state);
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    parent::validateForm($form, $form_state);
+
+    $customer_id = $form_state->getValue('hucha_system_customer');
+    if ($customer_id) {
+      $node = Node::load($customer_id);
+      if (!$node || $node->bundle() !== 'customer') {
+        $form_state->setErrorByName('hucha_system_customer', $this->t('The selected node (ID: @id) is not a valid customer.', ['@id' => $customer_id]));
+      }
+    }
+
+    $fee_rate = $form_state->getValue('hucha_base_service_fee_rate');
+    if ($fee_rate !== NULL && $fee_rate !== '' && (floatval($fee_rate) < 0 || floatval($fee_rate) > 100)) {
+      $form_state->setErrorByName('hucha_base_service_fee_rate', $this->t('The service fee rate must be between 0 and 100.'));
+    }
+  }
+
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config(static::SETTINGS);
     $config->set('hucha_system_customer', $form_state->getValue('hucha_system_customer'));

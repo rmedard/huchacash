@@ -1,0 +1,61 @@
+<?php
+
+use Drupal\dinger_settings\Form\DingerSettingsConfigForm;
+
+/**
+ * Implements hook_requirements().
+ */
+function dinger_settings_requirements(string $phase): array {
+  $requirements = [];
+
+  if ($phase === 'runtime') {
+    $config = \Drupal::config(DingerSettingsConfigForm::SETTINGS);
+
+    $system_customer = $config->get('hucha_system_customer');
+    $fee_rate = $config->get('hucha_base_service_fee_rate');
+
+    $missing = [];
+    if (empty($system_customer) || !is_numeric($system_customer)) {
+      $missing[] = 'System Customer';
+    }
+    if ($fee_rate === NULL || $fee_rate === '' || !is_numeric($fee_rate)) {
+      $missing[] = 'Base Service Fee Rate';
+    }
+
+    if (!empty($missing)) {
+      $requirements['dinger_settings_config'] = [
+        'title' => t('Dinger Global Settings'),
+        'value' => t('Missing configuration'),
+        'description' => t('The following required settings are not configured: @items. <a href=":url">Configure now</a>.', [
+          '@items' => implode(', ', $missing),
+          ':url' => '/admin/config/dinger-global-settings',
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+    else {
+      // Also verify the system customer node actually exists.
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($system_customer);
+      if (!$node) {
+        $requirements['dinger_settings_config'] = [
+          'title' => t('Dinger Global Settings'),
+          'value' => t('Invalid System Customer'),
+          'description' => t('The configured System Customer (ID: @id) does not exist. <a href=":url">Fix now</a>.', [
+            '@id' => $system_customer,
+            ':url' => '/admin/config/dinger-global-settings',
+          ]),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+      else {
+        $requirements['dinger_settings_config'] = [
+          'title' => t('Dinger Global Settings'),
+          'value' => t('Configured'),
+          'severity' => REQUIREMENT_OK,
+        ];
+      }
+    }
+  }
+
+  return $requirements;
+}

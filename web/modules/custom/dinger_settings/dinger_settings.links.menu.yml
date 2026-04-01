@@ -1,0 +1,13 @@
+dinger_settings.admin_config:
+  title: 'Hucha Business Settings'
+  description: 'General business settings for Hucha.'
+  route_name: <nolink>
+  parent: system.admin_config
+  weight: 9
+
+dinger_settings.global_settings:
+  title: 'System business account'
+  description: 'System business account settings.'
+  route_name: dinger_settings.global_settings
+  parent: dinger_settings.admin_config
+  weight: 10
