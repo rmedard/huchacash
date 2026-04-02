@@ -10,7 +10,7 @@ field_name: field_call_proposed_service_fee
 entity_type: node
 bundle: call
 label: 'Proposed service fee'
-description: ''
+description: 'Global service combining Delivery Fee and System Service Fee'
 required: false
 translatable: false
 default_value: {  }
