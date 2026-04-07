@@ -162,8 +162,9 @@ final class TransactionsService
     /** @var Node $originalTransaction * */
     $originalTransaction = $transaction->getOriginal();
     $txStatus = TransactionStatus::tryFrom($transaction->get('field_tx_status')->getString());
+    $originalTxStatus = TransactionStatus::tryFrom($originalTransaction->get('field_tx_status')->getString());
 
-    $txStatusChanged = $originalTransaction->get('field_tx_status')->getString() !== $txStatus;
+    $txStatusChanged = $originalTxStatus !== $txStatus;
     if (!$txStatusChanged) {
       $this->logger->info('Transaction status was not changed business-wise.');
       return;
