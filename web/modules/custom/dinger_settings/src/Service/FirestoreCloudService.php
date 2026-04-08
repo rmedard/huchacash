@@ -104,7 +104,6 @@ final class FirestoreCloudService {
     $updateFields['executor_phone'] = $bidderUser?->get('field_user_phone_number')->getString();
     $updateFields['executor_email'] = $bidderUser?->getEmail() ?? '';
     $updateFields['executor_photo'] = '';
-    $updateFields['order_status'] = OrderStatus::DELIVERING->value;
 
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
     try {
@@ -147,7 +146,6 @@ final class FirestoreCloudService {
     }
   }
 
-
   /**
    * Update a fire call document
    */
@@ -175,14 +173,67 @@ final class FirestoreCloudService {
         $updateFields[$update['path']] = $update['value'];
       }
 
-      $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updateFields, true);
-      $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
+      $this->pushFireCallUpdates($callUuid, $updateFields);
     } catch (NotFound $e) {
       $this->logger->error('>>> FireCall Not Found: ' . $e->getMessage());
       $this->createFireCall(call: $call);
     } catch (Exception $e) {
       $this->logger->error('Failed to update FireCall @callId: @error', [
         '@callId' => $callUuid,
+        '@error' => $e->getMessage(),
+      ]);
+    }
+  }
+
+  public function updateFireCallOrderDetailsOnUpdate(Node $order): void
+  {
+    $updates = [];
+    /** @var Node $originalOrder **/
+    $originalOrder = $order->getOriginal();
+    $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
+    $orderStatusUpdated = $orderStatus !== OrderStatus::fromString($originalOrder->get('field_order_status')->getString());
+    if ($orderStatusUpdated) {
+      $updates['order_status'] = $orderStatus->value;
+    }
+
+    if (empty($updates)) {
+      return;
+    }
+
+    $orderUuid = $order->uuid();
+    try {
+      $response = $this->firestoreClient->request('POST', 'documents:runQuery', [
+        'json' => [
+          'structuredQuery' => [
+            'from' => [['collectionId' => 'live_calls']],
+            'where' => [
+              'fieldFilter' => [
+                'field' => ['fieldPath' => 'order_id'],
+                'op' => 'EQUAL',
+                'value' => ['stringValue' => $orderUuid],
+              ],
+            ],
+          ],
+        ],
+      ]);
+
+      foreach ($response as $row) {
+        if (empty($row['document']['name'])) {
+          continue;
+        }
+        $callUuid = basename($row['document']['name']);
+        try {
+          $this->pushFireCallUpdates($callUuid, $updates);
+        } catch (Exception $e) {
+          $this->logger->error('Failed to update FireCall @callId: @error', [
+            '@callId' => $callUuid,
+            '@error' => $e->getMessage(),
+          ]);
+        }
+      }
+    } catch (Exception $e) {
+      $this->logger->error('Failed to query live_calls for order @orderId: @error', [
+        '@orderId' => $orderUuid,
         '@error' => $e->getMessage(),
       ]);
     }
@@ -208,6 +259,18 @@ final class FirestoreCloudService {
           '@error' => $exception->getMessage()
         ]);
     }
+  }
+
+  /**
+   * @param String $callUuid
+   * @param array $updates
+   * @return void
+   *
+   */
+  private function pushFireCallUpdates(String $callUuid, array $updates): void
+  {
+    $this->firestoreClient->updateDocument('live_calls/' . $callUuid, $updates, true);
+    $this->logger->info('FireCall updated successfully: @callId', ['@callId' => $callUuid]);
   }
 
   /**

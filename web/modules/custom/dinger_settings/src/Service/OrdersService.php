@@ -61,6 +61,10 @@ final class OrdersService
 
     $this->logger->debug('Order @id updated', ['@id' => $order->id()]);
 
+    /** @var FirestoreCloudService $firestoreCloudService * */
+    $firestoreCloudService = Drupal::service('dinger_settings.firestore_cloud_service');
+    $firestoreCloudService->updateFireCallOrderDetailsOnUpdate($order);
+
     /** @var Node $originalOrder **/
     $originalOrder = $order->getOriginal();
     $orderStatus = OrderStatus::fromString($order->get('field_order_status')->getString());
