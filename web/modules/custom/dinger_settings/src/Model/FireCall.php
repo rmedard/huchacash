@@ -63,6 +63,7 @@ class FireCall {
     $document->setString('order_id', $this->order->id);
     $document->setString('status', $this->status);
     $document->setString('order_type', $this->order->type);
+    $document->setString('order_status', $this->order->status);
     $document->setString('caller_id', $this->caller->id);
     $document->setString('caller_photo', $this->caller->photo);
     $document->setString('caller_name', $this->caller->lastname);

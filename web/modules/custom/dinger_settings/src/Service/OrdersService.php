@@ -26,6 +26,7 @@ final class OrdersService
   /**
    * @param LoggerChannelFactoryInterface $loggerFactory
    * @param EntityTypeManagerInterface $entityTypeManager
+   * @param GoogleCloudService $googleCloudService
    */
   public function __construct(
     private readonly LoggerChannelFactoryInterface $loggerFactory,

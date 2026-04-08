@@ -13,6 +13,7 @@ use Drupal\dinger_settings\Utils\BidStatus;
 use Drupal\dinger_settings\Utils\BidType;
 use Drupal\dinger_settings\Utils\CallStatus;
 use Drupal\dinger_settings\Utils\DateUtils;
+use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
@@ -103,6 +104,7 @@ final class FirestoreCloudService {
     $updateFields['executor_phone'] = $bidderUser?->get('field_user_phone_number')->getString();
     $updateFields['executor_email'] = $bidderUser?->getEmail() ?? '';
     $updateFields['executor_photo'] = '';
+    $updateFields['order_status'] = OrderStatus::DELIVERING->value;
 
     $callUuid = $bid->get('field_bid_call')->entity->uuid();
     try {
@@ -252,6 +254,13 @@ final class FirestoreCloudService {
       $updates[] = [
         'path' => 'order_confirmation_number',
         'value' => empty(trim($currentOrderConfirmationNbr)) ? 0 : intval($currentOrderConfirmationNbr)
+      ];
+    }
+
+    if (!empty($updates)) {
+      $updates[] = [
+        'path' => 'order_status',
+        'value' => $call->get('field_call_order')->entity->get('field_order_status')->getString()
       ];
     }
 

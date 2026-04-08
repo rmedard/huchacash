@@ -9,6 +9,7 @@ class Order {
   public string $nid;
   public string $id;
   public string $type;
+  public string $status;
   public String $deliveryTime;
   public float $deliveryAddressLat;
   public float $deliveryAddressLng;
@@ -23,6 +24,7 @@ class Order {
     $this->nid = $order->id();
     $this->id = $order->uuid();
     $this->type = $order->get('field_order_type')->getString();
+    $this->status = $order->get('field_order_status')->getString();
     $this->deliveryTime = DateUtils::dateTimeToGcTimestamp($order->get('field_order_delivery_time')->date)->formatAsString();
     $this->deliveryAddressLat = $order->get('field_order_delivery_address')->lat;
     $this->deliveryAddressLng = $order->get('field_order_delivery_address')->lng;
