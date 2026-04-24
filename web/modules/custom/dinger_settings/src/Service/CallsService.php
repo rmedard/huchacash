@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\dinger_settings\Utils\CallStatus;
+use Drupal\dinger_settings\Utils\CallType;
 use Drupal\dinger_settings\Utils\OrderStatus;
 use Drupal\node\NodeInterface;
 
@@ -101,6 +102,13 @@ final class CallsService
           /** @var TransactionsService $transition_service */
           $transition_service = Drupal::service('hucha_settings.transactions_service');
           $transition_service->unfreezeCallServiceFee($call);
+        }
+      } else {
+        if ($callStatus === CallStatus::ATTRIBUTED) {
+          $callType = CallType::from($call->get('field_call_type')->getString());
+          if ($callType !== CallType::FIXED_PRICE) {
+            $this->firestoreCloudService->updateFireCall($call);
+          }
         }
       }
     }

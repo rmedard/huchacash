@@ -310,6 +310,16 @@ final class FirestoreCloudService {
       }
     }
 
+    // Check Proposed service fee
+    $originalProposedServiceFee = $originalCall->get('field_call_proposed_service_fee')->getString();
+    $currentProposedServiceFee = $call->get('field_call_proposed_service_fee')->getString();
+    if ($currentProposedServiceFee !== $originalProposedServiceFee) {
+      $updates[] = [
+        'path' => 'proposed_fee',
+        'value' => doubleval($currentProposedServiceFee)
+      ];
+    }
+
     // Check order confirmation number updates
     $originalOrderConfirmationNbr = $originalCall->get('field_call_order_confirm_nbr')->getString();
     $currentOrderConfirmationNbr = $call->get('field_call_order_confirm_nbr')->getString();
